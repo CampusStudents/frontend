@@ -1,75 +1,201 @@
-# React + TypeScript + Vite
+# Cumpus
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Cumpus — это веб-приложение для студентов, которые ищут команду для хакатонов, стартапов и учебных проектов.
 
-Currently, two official plugins are available:
+Платформа решает проблему медленного и хаотичного поиска тиммейтов внутри вузовской среды, где важны дедлайны, роли, навыки и география кампуса.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Фокус продукта на быстром формировании команд под конкретный проект или мероприятие.
 
-## React Compiler
+---
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## Проблема
 
-Note: This will impact Vite dev & build performances.
+Существующие сервисы не учитывают:
 
-## Expanding the ESLint configuration
+* дедлайны хакатонов и учебных проектов
+* привязку к вузу и городу
+* реальную потребность в ролях внутри команды
+* быстрый отбор кандидатов
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Из-за этого студенты теряют время и не успевают собрать команду.
 
-```js
-export default defineConfig([
-    globalIgnores(["dist"]),
-    {
-        files: ["**/*.{ts,tsx}"],
-        extends: [
-            // Other configs...
+---
 
-            // Remove tseslint.configs.recommended and replace with this
-            tseslint.configs.recommendedTypeChecked,
-            // Alternatively, use this for stricter rules
-            tseslint.configs.strictTypeChecked,
-            // Optionally, add this for stylistic rules
-            tseslint.configs.stylisticTypeChecked,
+## Цель продукта
 
-            // Other configs...
-        ],
-        languageOptions: {
-            parserOptions: {
-                project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-                tsconfigRootDir: import.meta.dirname,
-            },
-            // other options...
-        },
-    },
-]);
+Создать удобный инструмент для:
+
+* быстрого поиска проектов
+* сбора команды по ролям и навыкам
+* управления заявками
+* публикации мероприятий
+* рекомендаций на основе scoring
+
+---
+
+## Основной функционал 
+
+### 1. Аутентификация
+
+* Регистрация и вход
+* Работа с JWT
+* Управление профилем
+
+### 2. Профиль пользователя
+
+* Навыки
+* Роли
+* Портфолио
+* Проекты
+* Автодополнение портфолио после участия
+
+### 3. Проекты
+
+* Создание и редактирование
+* Указание ролей и навыков
+* Привязка к мероприятию
+* Управление статусом набора
+* Подача заявки с сопроводительным письмом
+* Принятие или отклонение кандидатов
+
+### 4. Мероприятия
+
+* Создание мероприятия
+* Просмотр списка и карточек
+* Фильтрация
+* Связь мероприятия с проектами
+
+### 5. Поиск и фильтрация
+
+* Навыки
+* Роль
+* Вуз
+* Формат online/offline
+* Город
+* Тип проекта
+* Дедлайн
+
+### 6. Рекомендации
+
+Scoring модель:
+
+* +10 за совпадение навыка
+* +7 за совпадение роли
+* +5 за совпадение вуза
+* Минимальный порог 10 баллов
+
+Отображается список проектов, отсортированных по score.
+
+### 7. Swipe-интерфейс
+
+Быстрый просмотр рекомендованных проектов:
+
+* Влево — пропустить
+* Вправо — интерес
+
+### 8. Панель создателя проекта
+
+* Список проектов
+* Список заявок
+* Управление участниками
+* Закрытие набора
+
+### 9. Уведомления
+
+* Email уведомления
+* Интеграция с Telegram-ботом
+* Передача ссылки в чат проекта после принятия
+
+---
+
+## Архитектура Frontend
+
+Стек:
+
+* React
+* TypeScript
+* Vite
+* Jest
+* React Testing Library
+* Playwright
+* Storybook
+* ESLint
+* Prettier
+* Stylelint
+* Husky
+
+### Подходы
+
+* Компонентная архитектура
+* Разделение бизнес-логики и UI
+* Типизация API-слоя
+* Покрытие ключевой логики тестами
+* Подготовка к масштабированию
+
+Frontend взаимодействует с бекендом через REST API.
+
+---
+
+## Производительность
+
+* Целевой отклик интерфейса менее 1 секунды
+* Поддержка до 1000 активных пользователей
+* Оптимизация рендеринга
+* Ленивая загрузка
+* Минимизация лишних запросов
+
+---
+
+## MVP
+
+В текущую версию входят:
+
+* Регистрация и профиль
+* Создание проекта
+* Создание мероприятия
+* Поиск и фильтрация
+* Подача заявки
+* Принятие или отклонение
+* Базовый scoring
+* Панель управления проектами
+
+---
+
+## Коммерческое позиционирование
+
+Cumpus ориентирован на:
+
+* студенческие сообщества
+* университеты
+* организаторов хакатонов
+* акселераторы
+* образовательные программы
+
+Продукт масштабируется до полноценной экосистемы студенческого networking.
+
+---
+
+## Запуск проекта
+
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Сборка:
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
+```bash
+npm run build
+```
 
-export default defineConfig([
-    globalIgnores(["dist"]),
-    {
-        files: ["**/*.{ts,tsx}"],
-        extends: [
-            // Other configs...
-            // Enable lint rules for React
-            reactX.configs["recommended-typescript"],
-            // Enable lint rules for React DOM
-            reactDom.configs.recommended,
-        ],
-        languageOptions: {
-            parserOptions: {
-                project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-                tsconfigRootDir: import.meta.dirname,
-            },
-            // other options...
-        },
-    },
-]);
+Тесты:
+
+```bash
+npm run test
+```
+
+E2E:
+
+```bash
+npm run test:e2e
 ```
