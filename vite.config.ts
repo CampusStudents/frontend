@@ -6,7 +6,15 @@ import path from "node:path";
 // https://vite.dev/config/
 export default defineConfig({
     resolve: {
-        alias: [{ find: "/vite.svg", replacement: path.resolve("./public/vite.svg") }],
+        alias: {
+            "@app": path.resolve(__dirname, "./src/app"),
+            "@pages": path.resolve(__dirname, "./src/pages"),
+            "@widgets": path.resolve(__dirname, "./src/widgets"),
+            "@entities": path.resolve(__dirname, "./src/entities"),
+            "@features": path.resolve(__dirname, "./src/features"),
+            "@slices": path.resolve(__dirname, "./src/slices"),
+            "@shared": path.resolve(__dirname, "./src/shared"),
+        },
     },
     plugins: [
         react({
@@ -18,6 +26,6 @@ export default defineConfig({
     ],
     test: {
         environment: "jsdom",
-        setupFiles: ["./src/setupTests.ts"],
+        setupFiles: ["./src/app/setupTests.ts"],
     },
 });

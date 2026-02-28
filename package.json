@@ -53,6 +53,7 @@
         "jsdom": "^28.1.0",
         "lint-staged": "^16.2.7",
         "prettier": "^3.8.1",
+        "sass": "^1.97.3",
         "stylelint": "^17.3.0",
         "stylelint-config-standard": "^40.0.0",
         "stylelint-order": "^7.0.1",
