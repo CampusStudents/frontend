@@ -1,1 +1,3 @@
-export { theme } from "./theme";
+import { Provider } from "./ui/provider.tsx";
+
+export { Provider };
