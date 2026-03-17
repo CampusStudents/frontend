@@ -7,7 +7,7 @@ interface ThemeProviderProps {
     children: ReactNode;
 }
 
-export function Provider({ children }: ThemeProviderProps) {
+export function ThemeProvider({ children }: ThemeProviderProps) {
     return (
         <MuiThemeProvider theme={theme}>
             <CssBaseline />

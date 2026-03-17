@@ -1,3 +1,3 @@
-import { routes } from "./config/routes.tsx";
+import AppRouter from "./config/AppRouter";
 
-export { routes };
+export default AppRouter;
