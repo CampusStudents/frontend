@@ -1,7 +1,8 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 
-import { routeConfig } from "@app/routes/routeConfig";
-import ProtectedRoute from "@app/routes/ProtectedRoute";
+import { routeConfig } from "./routeConfig";
+import ProtectedRoute from "./ProtectedRoute";
+
 import { routePaths } from "@shared/config";
 
 const AppRouter = () => (

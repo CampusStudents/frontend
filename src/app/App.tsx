@@ -1,7 +1,8 @@
 import { Suspense } from "react";
 
+import AppRouter from "./routes";
+
 import { Loader } from "@shared/ui/Loader";
-import AppRouter from "@app/routes";
 
 const App = () => {
     return (
