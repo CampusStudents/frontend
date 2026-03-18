@@ -45,6 +45,16 @@ export default tseslint.config(
             "import/no-unresolved": "error",
             "import/named": "error",
             "import/order": ["warn", { "newlines-between": "always" }],
+            "import/extensions": [
+                "error",
+                "ignorePackages",
+                {
+                    ts: "never",
+                    tsx: "never",
+                    js: "never",
+                    jsx: "never",
+                },
+            ],
         },
         settings: {
             "import/resolver": {

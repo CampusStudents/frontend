@@ -1,3 +1,3 @@
-import AppRouter from "./config/AppRouter";
+import AppRouter from "@app/routes/AppRouter";
 
 export default AppRouter;

@@ -1,3 +1,3 @@
-import ProjectPage from "./ui/ProjectPage.tsx";
+import ProjectPage from "./ui/ProjectPage";
 
 export { ProjectPage };

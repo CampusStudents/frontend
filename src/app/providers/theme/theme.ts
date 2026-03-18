@@ -1,7 +1,7 @@
 import { createTheme } from "@mui/material";
 
-import { palette } from "./palette.ts";
-import { shape } from "./shape.ts";
+import { palette } from "./palette";
+import { shape } from "./shape";
 
 export const theme = createTheme({
     palette,

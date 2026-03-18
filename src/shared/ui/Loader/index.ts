@@ -1,3 +1,3 @@
-import Loader from "./ui/Loader.tsx";
+import Loader from "./Loader";
 
 export { Loader };

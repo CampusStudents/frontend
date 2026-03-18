@@ -8,6 +8,7 @@
         "build": "tsc -b && vite build",
         "lint": "eslint .",
         "test": "vitest",
+        "arch": "steiger ./src",
         "preview": "vite preview",
         "prepare": "husky",
         "format": "prettier --write .",
@@ -39,6 +40,7 @@
     },
     "devDependencies": {
         "@eslint/js": "^9.39.1",
+        "@feature-sliced/steiger-plugin": "^0.5.7",
         "@testing-library/dom": "^10.4.1",
         "@testing-library/jest-dom": "^6.9.1",
         "@testing-library/react": "^16.3.2",
@@ -61,6 +63,7 @@
         "lint-staged": "^16.2.7",
         "prettier": "^3.8.1",
         "react-router-dom": "^7.13.1",
+        "steiger": "^0.5.11",
         "stylelint": "^17.3.0",
         "stylelint-config-standard": "^40.0.0",
         "stylelint-order": "^7.0.1",
