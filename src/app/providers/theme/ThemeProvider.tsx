@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { ThemeProvider as MuiThemeProvider, CssBaseline } from "@mui/material";
+
 import { theme } from "./theme";
 
 interface ThemeProviderProps {

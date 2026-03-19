@@ -1,1 +1,3 @@
-export { theme } from "./theme";
+import { ThemeProvider } from "@app/providers/theme/ThemeProvider";
+
+export { ThemeProvider };
