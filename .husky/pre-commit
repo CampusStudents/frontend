@@ -1,1 +1,2 @@
+npm run arch
 npx lint-staged
