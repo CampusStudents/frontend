@@ -3,6 +3,7 @@ import { HomePage } from "@pages/home";
 import { ProfilePage } from "@pages/profile";
 import { ProjectPage } from "@pages/project";
 import { ProjectsPage } from "@pages/projects";
+import { RegisterPage } from "@pages/register";
 
 export const routeConfig: RouteConfig = {
     [AppRoutes.HOME]: {
@@ -21,5 +22,9 @@ export const routeConfig: RouteConfig = {
         element: <ProfilePage />,
         path: routePaths.profile,
         isPrivate: true,
+    },
+    [AppRoutes.REGISTER]: {
+        element: <RegisterPage />,
+        path: routePaths.register,
     },
 };
