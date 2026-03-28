@@ -5,6 +5,7 @@ export const routePaths: Record<AppRoutes, string> = {
     [AppRoutes.HOME]: "/",
     [AppRoutes.LOGIN]: "/login",
     // [AppRoutes.ORGANIZER]: "/organizer",
+    [AppRoutes.ORGANIZER]: "/organizer/:id",
     [AppRoutes.PROJECTS]: "/projects",
     [AppRoutes.PROJECT]: "/projects/:id",
     [AppRoutes.PROFILE]: "/profile",
