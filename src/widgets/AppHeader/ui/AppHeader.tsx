@@ -20,7 +20,11 @@ const navigationItems = [
         icon: <NotificationsNoneRounded fontSize="small" />,
         label: "Уведомления",
     },
-    { icon: <FavoriteBorderRounded fontSize="small" />, label: "Избранное" },
+    {
+        icon: <FavoriteBorderRounded fontSize="small" />,
+        label: "Избранное",
+        to: routePaths.favorites,
+    },
     {
         icon: <PersonOutlineRounded fontSize="small" />,
         label: "Профиль",
