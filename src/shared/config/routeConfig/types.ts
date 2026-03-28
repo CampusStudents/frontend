@@ -4,7 +4,7 @@ export const AppRoutes = {
     FAVORITES: "favorites",
     HOME: "home",
     LOGIN: "login",
-    // ORGANIZER: "organizer",
+    ORGANIZER: "organizer",
     PROFILE: "profile",
     PROJECTS: "projects",
     PROJECT: "project",

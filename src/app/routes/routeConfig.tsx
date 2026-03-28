@@ -6,6 +6,7 @@ import { ProjectsPage } from "@pages/projects";
 import { RegisterPage } from "@pages/register";
 import { HomePage } from "@pages/home";
 import { LoginPage } from "@pages/login";
+import { OrganizerPage } from "@pages/organizer";
 
 export const routeConfig: RouteConfig = {
     [AppRoutes.FAVORITES]: {
@@ -16,10 +17,10 @@ export const routeConfig: RouteConfig = {
         element: <HomePage />,
         path: routePaths.home,
     },
-    // [AppRoutes.ORGANIZER]: {
-    //     element: <OrganizerPage />,
-    //     path: routePaths.organizer,
-    // },
+    [AppRoutes.ORGANIZER]: {
+        element: <OrganizerPage />,
+        path: routePaths.organizer,
+    },
     [AppRoutes.PROJECT]: {
         element: <ProjectPage />,
         path: routePaths.project,
