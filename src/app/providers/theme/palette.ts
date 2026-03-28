@@ -14,6 +14,7 @@ export const palette: PaletteOptions = {
     grey: {
         100: "#F4F5F6",
         200: "#EAEBEC",
+        500: "#A3A5A5",
     },
     divider: "#EAEBEC",
 };
