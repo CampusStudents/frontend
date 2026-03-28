@@ -1,13 +1,19 @@
 import { AppRoutes, routePaths, type RouteConfig } from "@shared/config";
 import { HomePage } from "@pages/home";
+import { LoginPage } from "@pages/login";
 import { ProfilePage } from "@pages/profile";
 import { ProjectPage } from "@pages/project";
 import { ProjectsPage } from "@pages/projects";
+import { RegisterPage } from "@pages/register";
 
 export const routeConfig: RouteConfig = {
     [AppRoutes.HOME]: {
         element: <HomePage />,
         path: routePaths.home,
+    },
+    [AppRoutes.LOGIN]: {
+        element: <LoginPage />,
+        path: routePaths.login,
     },
     [AppRoutes.PROJECT]: {
         element: <ProjectPage />,
@@ -21,5 +27,9 @@ export const routeConfig: RouteConfig = {
         element: <ProfilePage />,
         path: routePaths.profile,
         isPrivate: true,
+    },
+    [AppRoutes.REGISTER]: {
+        element: <RegisterPage />,
+        path: routePaths.register,
     },
 };

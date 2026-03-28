@@ -2,9 +2,11 @@ import type { ReactNode } from "react";
 
 export const AppRoutes = {
     HOME: "home",
+    LOGIN: "login",
     PROFILE: "profile",
     PROJECTS: "projects",
     PROJECT: "project",
+    REGISTER: "register",
 } as const;
 
 export type AppRoutes = (typeof AppRoutes)[keyof typeof AppRoutes];
