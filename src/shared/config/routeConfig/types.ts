@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
 
 export const AppRoutes = {
+    FAVORITES: "favorites",
     HOME: "home",
     LOGIN: "login",
+    // ORGANIZER: "organizer",
     PROFILE: "profile",
     PROJECTS: "projects",
     PROJECT: "project",
