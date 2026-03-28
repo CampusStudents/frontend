@@ -5,23 +5,18 @@ import { describe, expect, it, vi } from "vitest";
 import FormWrapper from "./FormWrapper";
 
 describe("FormWrapper", () => {
-    it("renders all slots and submits form", () => {
+    it("renders all sections and submits form", () => {
         const handleSubmit = vi.fn((event) => event.preventDefault());
 
         render(
-            <FormWrapper onSubmit={handleSubmit}>
-                <FormWrapper.Title>Test title</FormWrapper.Title>
-                <FormWrapper.Actions>
-                    <button type="button">action</button>
-                </FormWrapper.Actions>
-                <FormWrapper.Fields>
-                    <input aria-label="email" />
-                </FormWrapper.Fields>
-                <FormWrapper.Submit>
-                    <button type="submit">submit</button>
-                </FormWrapper.Submit>
-                <FormWrapper.Footer>footer</FormWrapper.Footer>
-            </FormWrapper>,
+            <FormWrapper
+                onSubmit={handleSubmit}
+                renderTitle={() => "Test title"}
+                renderActions={() => <button type="button">action</button>}
+                renderFields={() => <input aria-label="email" />}
+                renderSubmit={() => <button type="submit">submit</button>}
+                renderFooter={() => "footer"}
+            />,
         );
 
         expect(screen.getByText("Test title")).toBeTruthy();

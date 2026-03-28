@@ -1,73 +1,51 @@
 /**
  * @example
- * <FormWrapper onSubmit={handleSubmit}>
- *     <FormWrapper.Title>Регистрация</FormWrapper.Title>
- *     <FormWrapper.Actions>
+ * <FormWrapper
+ *     onSubmit={handleSubmit}
+ *     renderTitle={() => "Регистрация"}
+ *     renderActions={() => (
  *         <ToggleButtonGroup value={role} exclusive onChange={handleRole}>
  *             <ToggleButton value="participant">Участник</ToggleButton>
  *             <ToggleButton value="organizer">Организатор</ToggleButton>
  *         </ToggleButtonGroup>
- *     </FormWrapper.Actions>
- *     <FormWrapper.Fields>
- *         <TextField label="Email" />
- *         <TextField label="Пароль" type="password" />
- *     </FormWrapper.Fields>
- *     <FormWrapper.Submit>
- *         <Button type="submit" variant="contained" fullWidth>Войти</Button>
- *     </FormWrapper.Submit>
- *     <FormWrapper.Footer>
+ *     )}
+ *     renderFields={() => (
+ *         <>
+ *             <TextField label="Email" />
+ *             <TextField label="Пароль" type="password" />
+ *         </>
+ *     )}
+ *     renderSubmit={() => (
+ *         <Button type="submit" variant="contained" fullWidth>
+ *             Войти
+ *         </Button>
+ *     )}
+ *     renderFooter={() => (
  *         <Typography>Нет аккаунта? <Link to="/register">Регистрация</Link></Typography>
- *     </FormWrapper.Footer>
- * </FormWrapper>
+ *     )}
+ * />
  */
-import { Container, Paper, Typography, Box } from "@mui/material";
-import React from "react";
+import { Box, Container, Paper, Typography } from "@mui/material";
 
 interface FormWrapperProps {
     onSubmit: React.ComponentPropsWithoutRef<"form">["onSubmit"];
-    children: React.ReactNode;
+    renderTitle?: () => React.ReactNode;
+    renderDescription?: () => React.ReactNode;
+    renderActions?: () => React.ReactNode;
+    renderFields: () => React.ReactNode;
+    renderSubmit?: () => React.ReactNode;
+    renderFooter?: () => React.ReactNode;
 }
 
-interface FormWrapperSlotProps {
-    children: React.ReactNode;
-}
-
-type FormWrapperComponent = React.FC<FormWrapperProps> & {
-    Title: React.FC<FormWrapperSlotProps>;
-    Actions: React.FC<FormWrapperSlotProps>;
-    Fields: React.FC<FormWrapperSlotProps>;
-    Submit: React.FC<FormWrapperSlotProps>;
-    Footer: React.FC<FormWrapperSlotProps>;
-};
-
-const FormWrapper = (({ onSubmit, children }) => {
-    const childrenArray = React.Children.toArray(children);
-
-    const titleNode = childrenArray.find(
-        (child) =>
-            React.isValidElement(child) && child.type === FormWrapper.Title,
-    );
-
-    const actionsNode = childrenArray.find(
-        (child) =>
-            React.isValidElement(child) && child.type === FormWrapper.Actions,
-    );
-
-    const fieldsNode = childrenArray.find(
-        (child) =>
-            React.isValidElement(child) && child.type === FormWrapper.Fields,
-    );
-
-    const submitNode = childrenArray.find(
-        (child) =>
-            React.isValidElement(child) && child.type === FormWrapper.Submit,
-    );
-
-    const footerNode = childrenArray.find(
-        (child) =>
-            React.isValidElement(child) && child.type === FormWrapper.Footer,
-    );
-
+const FormWrapper = ({
+    onSubmit,
+    renderTitle,
+    renderDescription,
+    renderActions,
+    renderFields,
+    renderSubmit,
+    renderFooter,
+}: FormWrapperProps) => {
     return (
         <Container
             maxWidth="sm"
@@ -88,75 +66,108 @@ const FormWrapper = (({ onSubmit, children }) => {
                     borderRadius: 4,
                     border: 1,
                     borderColor: "divider",
+                    boxShadow: "0 20px 60px rgba(19, 21, 23, 0.06)",
                 }}
             >
-                {titleNode}
+                {renderTitle && (
+                    <Typography
+                        variant="h6"
+                        component="h1"
+                        sx={{ fontWeight: 700, textAlign: "center", mb: 1 }}
+                    >
+                        {renderTitle()}
+                    </Typography>
+                )}
 
-                {actionsNode}
+                {renderDescription && (
+                    <Box
+                        sx={{
+                            mb: 2,
+                        }}
+                    >
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{
+                                textAlign: "center",
+                                maxWidth: 420,
+                                mx: "auto",
+                            }}
+                        >
+                            {renderDescription()}
+                        </Typography>
+                    </Box>
+                )}
+
+                {renderActions && (
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "center",
+                            mb: 2.5,
+                            "& .MuiToggleButton-root": {
+                                px: 1.5,
+                                py: 0.5,
+                                fontSize: "0.875rem",
+                            },
+                        }}
+                    >
+                        {renderActions()}
+                    </Box>
+                )}
 
                 <Box
                     component="form"
                     onSubmit={onSubmit}
-                    sx={{ display: "flex", flexDirection: "column" }}
+                    sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        width: "100%",
+                        alignItems: "stretch",
+                    }}
                 >
-                    {fieldsNode}
-                    {submitNode}
-                    {footerNode}
+                    <Box
+                        sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 0.75,
+                            "& .MuiFormControl-root": {
+                                width: "100%",
+                            },
+                            "& .MuiFormHelperText-root": {
+                                mt: 0.5,
+                                fontSize: "0.75rem",
+                                minHeight: "1.25rem",
+                            },
+                        }}
+                    >
+                        {renderFields()}
+                    </Box>
+
+                    {renderSubmit && (
+                        <Box
+                            sx={{
+                                width: "100%",
+                                mt: 2,
+                                "& .MuiButton-root": {
+                                    textTransform: "none",
+                                    fontWeight: 600,
+                                },
+                            }}
+                        >
+                            {renderSubmit()}
+                        </Box>
+                    )}
+
+                    {renderFooter && (
+                        <Box sx={{ textAlign: "center", mt: 2 }}>
+                            {renderFooter()}
+                        </Box>
+                    )}
                 </Box>
             </Paper>
         </Container>
     );
-}) as FormWrapperComponent;
-
-FormWrapper.Title = ({ children }) => {
-    return (
-        <Typography
-            variant="h5"
-            component="h1"
-            sx={{ fontWeight: 700, textAlign: "center", mb: 3 }}
-        >
-            {children}
-        </Typography>
-    );
-};
-
-FormWrapper.Actions = ({ children }) => {
-    return (
-        <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
-            {children}
-        </Box>
-    );
-};
-
-FormWrapper.Fields = ({ children }) => {
-    return (
-        <Box sx={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            {children}
-        </Box>
-    );
-};
-
-FormWrapper.Submit = ({ children }) => {
-    return (
-        <Box
-            sx={{
-                mt: 1,
-                "& .MuiButton-root": {
-                    borderRadius: "borderRadiusPillSmall",
-                    py: 1.5,
-                    textTransform: "none",
-                    fontWeight: 600,
-                    fontSize: "1rem",
-                },
-            }}
-        >
-            {children}
-        </Box>
-    );
-};
-
-FormWrapper.Footer = ({ children }) => {
-    return <Box sx={{ textAlign: "center", mt: 0.5 }}>{children}</Box>;
 };
 
 export default FormWrapper;
