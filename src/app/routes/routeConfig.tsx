@@ -1,20 +1,25 @@
 import { AppRoutes, routePaths, type RouteConfig } from "@shared/config";
-import { HomePage } from "@pages/home";
-import { LoginPage } from "@pages/login";
+import { FavoritesPage } from "@pages/favorites";
 import { ProfilePage } from "@pages/profile";
 import { ProjectPage } from "@pages/project";
 import { ProjectsPage } from "@pages/projects";
 import { RegisterPage } from "@pages/register";
+import { HomePage } from "@pages/home";
+import { LoginPage } from "@pages/login";
 
 export const routeConfig: RouteConfig = {
+    [AppRoutes.FAVORITES]: {
+        element: <FavoritesPage />,
+        path: routePaths.favorites,
+    },
     [AppRoutes.HOME]: {
         element: <HomePage />,
         path: routePaths.home,
     },
-    [AppRoutes.LOGIN]: {
-        element: <LoginPage />,
-        path: routePaths.login,
-    },
+    // [AppRoutes.ORGANIZER]: {
+    //     element: <OrganizerPage />,
+    //     path: routePaths.organizer,
+    // },
     [AppRoutes.PROJECT]: {
         element: <ProjectPage />,
         path: routePaths.project,
@@ -31,5 +36,9 @@ export const routeConfig: RouteConfig = {
     [AppRoutes.REGISTER]: {
         element: <RegisterPage />,
         path: routePaths.register,
+    },
+    [AppRoutes.LOGIN]: {
+        element: <LoginPage />,
+        path: routePaths.login,
     },
 };
