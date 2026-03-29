@@ -13,16 +13,7 @@ import {
     Typography,
 } from "@mui/material";
 
-export type ProjectCardData = {
-    id: number;
-    date: string;
-    title: string;
-    destination: string;
-    subtitle: string;
-    description: string;
-    meta: string;
-    members: string;
-};
+import type { ProjectCardData } from "@entities/project";
 
 type ProjectCardProps = {
     card: ProjectCardData;
@@ -142,7 +133,7 @@ const ProjectCard = ({ card, tags }: ProjectCardProps) => {
                                 label={tag}
                                 size="small"
                                 sx={{
-                                    bgcolor: "#F5F7FB",
+                                    bgcolor: "background.default",
                                     color: "text.secondary",
                                     borderRadius: 1.5,
                                 }}
@@ -187,7 +178,7 @@ const ProjectCard = ({ card, tags }: ProjectCardProps) => {
                                     width: 36,
                                     height: 36,
                                     borderRadius: 1.5,
-                                    bgcolor: "#F5F7FB",
+                                    bgcolor: "background.default",
                                 }}
                             >
                                 <FavoriteRounded

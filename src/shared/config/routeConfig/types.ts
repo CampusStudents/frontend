@@ -16,6 +16,7 @@ export type AppRoutes = (typeof AppRoutes)[keyof typeof AppRoutes];
 export type RouteConfigItem = {
     element: ReactNode;
     path: string;
+    layout?: "main";
     isPrivate?: boolean;
 };
 

@@ -11,14 +11,17 @@ import { OrganizerPage } from "@pages/organizer";
 export const routeConfig: RouteConfig = {
     [AppRoutes.FAVORITES]: {
         element: <FavoritesPage />,
+        layout: "main",
         path: routePaths.favorites,
     },
     [AppRoutes.HOME]: {
         element: <HomePage />,
+        layout: "main",
         path: routePaths.home,
     },
     [AppRoutes.ORGANIZER]: {
         element: <OrganizerPage />,
+        layout: "main",
         path: routePaths.organizer,
     },
     [AppRoutes.PROJECT]: {
