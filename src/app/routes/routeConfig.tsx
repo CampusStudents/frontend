@@ -30,6 +30,7 @@ export const routeConfig: RouteConfig = {
     },
     [AppRoutes.PROJECTS]: {
         element: <ProjectsPage />,
+        layout: "main",
         path: routePaths.projects,
     },
     [AppRoutes.PROFILE]: {

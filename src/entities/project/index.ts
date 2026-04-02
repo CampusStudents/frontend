@@ -1,4 +1,6 @@
 import ProjectCard from "./ui/ProjectCard";
 
 export { ProjectCard };
-export type { ProjectCardData } from "./model/types";
+
+export { default as MyProjectCard } from "./ui/MyProjectCard";
+export type { MyProjectCardData } from "./model/types";
