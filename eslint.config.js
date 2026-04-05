@@ -58,8 +58,13 @@ export default tseslint.config(
         },
         settings: {
             "import/resolver": {
-                typescript: true,
-                node: true,
+                typescript: {
+                    alwaysTryTypes: true,
+                    project: "./tsconfig.eslint.json",
+                },
+                node: {
+                    extensions: [".js", ".jsx", ".ts", ".tsx", ".d.ts"],
+                },
             },
         },
     },

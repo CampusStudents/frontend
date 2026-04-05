@@ -1,11 +1,11 @@
 import { Paper, Stack, Typography } from "@mui/material";
 
-import { projectCards } from "../model/mockData";
+import { candidateCards, candidatesCardTags } from "../model/mockData";
 
-import { MyProjectCard } from "@entities/project";
-import { ProjectsToggleGroup } from "@widgets/ContentFilters";
+import { CandidateCard } from "@entities/project"
+import { ContentFindFilters } from "@widgets/ContentFilters";
 
-const ProjectsPage = () => {
+const CandidatesPage = () => {
     return (
         <Stack spacing={3}>
             <Paper
@@ -24,21 +24,25 @@ const ProjectsPage = () => {
                                 lineHeight: 1.1,
                             }}
                         >
-                            Мои Проекты
+                            Кандидаты
                         </Typography>
                     </Stack>
                 </Stack>
             </Paper>
 
-            <ProjectsToggleGroup />
+            <ContentFindFilters />
 
             <Stack spacing={3}>
-                {projectCards.map((card) => (
-                    <MyProjectCard key={card.id} card={card} />
+                {candidateCards.map((card) => (
+                    <CandidateCard
+                        key={card.id}
+                        card={card}
+                        tags={candidatesCardTags}
+                    />
                 ))}
             </Stack>
         </Stack>
     );
 };
 
-export default ProjectsPage;
+export default CandidatesPage;

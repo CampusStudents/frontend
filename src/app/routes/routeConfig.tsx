@@ -7,6 +7,7 @@ import { RegisterPage } from "@pages/register";
 import { HomePage } from "@pages/home";
 import { LoginPage } from "@pages/login";
 import { OrganizerPage } from "@pages/organizer";
+import { CandidatesPage } from "@pages/candidates";
 
 export const routeConfig: RouteConfig = {
     [AppRoutes.FAVORITES]: {
@@ -30,6 +31,7 @@ export const routeConfig: RouteConfig = {
     },
     [AppRoutes.PROJECTS]: {
         element: <ProjectsPage />,
+        layout: "main",
         path: routePaths.projects,
     },
     [AppRoutes.PROFILE]: {
@@ -44,5 +46,10 @@ export const routeConfig: RouteConfig = {
     [AppRoutes.LOGIN]: {
         element: <LoginPage />,
         path: routePaths.login,
+    },
+    [AppRoutes.CANDIDATES]: {
+        element: <CandidatesPage />,
+        layout:"main",
+        path: routePaths.candidates,
     },
 };
