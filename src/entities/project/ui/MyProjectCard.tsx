@@ -43,8 +43,8 @@ const MyProjectCard = ({ card }: ProjectCardProps) => {
                             height: 96,
                             flexShrink: 0,
                             borderRadius: 2,
-                            bgcolor: "#EEF2F7",
-                            border: "1px solid #D7DEE8",
+                            bgcolor: "photo",
+                            border: "1px solid border",
                             color: "text.secondary",
                             fontSize: 12,
                             fontWeight: 600,
@@ -124,11 +124,6 @@ const MyProjectCard = ({ card }: ProjectCardProps) => {
                             >
                                 Перейти в чат
                             </Button>
-                            <Stack
-                                direction="row"
-                                spacing={1.5}
-                                alignItems="center"
-                            ></Stack>
                         </Stack>
                     </Stack>
                 </Stack>
