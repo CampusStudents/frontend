@@ -1,4 +1,4 @@
 import ContentFilters from "./ui/ContentFilters";
 
 export { ContentFilters };
-export { default as ProjectsToogleGroup } from "./ui/ProjectsToogleGroup";
+export { default as ProjectsToggleGroup } from "./ui/ProjectsToggleGroup";

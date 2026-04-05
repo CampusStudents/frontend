@@ -3,7 +3,7 @@ import { Paper, Stack, Typography } from "@mui/material";
 import { projectCards } from "../model/mockData";
 
 import { MyProjectCard } from "@entities/project";
-import { ProjectsToogleGroup } from "@widgets/ContentFilters";
+import { ProjectsToggleGroup } from "@widgets/ContentFilters";
 
 const ProjectsPage = () => {
     return (
@@ -30,7 +30,7 @@ const ProjectsPage = () => {
                 </Stack>
             </Paper>
 
-            <ProjectsToogleGroup />
+            <ProjectsToggleGroup />
 
             <Stack spacing={3}>
                 {projectCards.map((card) => (

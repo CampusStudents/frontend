@@ -1,5 +1,6 @@
 import type { PaletteOptions } from "@mui/material";
 
+
 export const palette: PaletteOptions = {
     primary: {
         main: "#3C66E0",
@@ -17,4 +18,6 @@ export const palette: PaletteOptions = {
         500: "#A3A5A5",
     },
     divider: "#EAEBEC",
+    photo: "#EEF2F7",
+    border: "#D7DEE8",    
 };
