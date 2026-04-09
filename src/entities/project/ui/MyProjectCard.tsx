@@ -44,7 +44,8 @@ const MyProjectCard = ({ card }: ProjectCardProps) => {
                             flexShrink: 0,
                             borderRadius: 2,
                             bgcolor: "photo",
-                            border: "1px solid border",
+                            border: (theme) =>
+                                `1px solid ${theme.palette.border}`,
                             color: "text.secondary",
                             fontSize: 12,
                             fontWeight: 600,

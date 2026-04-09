@@ -26,6 +26,7 @@ export const routeConfig: RouteConfig = {
     },
     [AppRoutes.PROJECT]: {
         element: <ProjectPage />,
+        layout: "main",
         path: routePaths.project,
     },
     [AppRoutes.PROJECTS]: {
@@ -35,6 +36,7 @@ export const routeConfig: RouteConfig = {
     },
     [AppRoutes.PROFILE]: {
         element: <ProfilePage />,
+        layout: "main",
         path: routePaths.profile,
         isPrivate: true,
     },

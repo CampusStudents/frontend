@@ -1,5 +1,16 @@
 import type { PaletteOptions } from "@mui/material";
 
+declare module "@mui/material/styles" {
+    interface Palette {
+        photo: string;
+        border: string;
+    }
+
+    interface PaletteOptions {
+        photo?: string;
+        border?: string;
+    }
+}
 
 export const palette: PaletteOptions = {
     primary: {
@@ -19,5 +30,5 @@ export const palette: PaletteOptions = {
     },
     divider: "#EAEBEC",
     photo: "#EEF2F7",
-    border: "#D7DEE8",    
+    border: "#D7DEE8",
 };
