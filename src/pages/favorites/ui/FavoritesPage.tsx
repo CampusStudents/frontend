@@ -1,11 +1,15 @@
 import { Paper, Stack, Typography } from "@mui/material";
+import { generatePath, useNavigate } from "react-router-dom";
 
 import { favoriteCards, favoriteCardTags } from "../model/mockData";
 
 import { ProjectCard } from "@entities/project";
+import { routePaths } from "@shared/config";
 import { ContentFilters } from "@widgets/ContentFilters";
 
 const FavoritesPage = () => {
+    const navigate = useNavigate();
+
     return (
         <Stack spacing={3}>
             <Paper
@@ -38,6 +42,13 @@ const FavoritesPage = () => {
                         key={card.id}
                         card={card}
                         tags={favoriteCardTags}
+                        onClick={() =>
+                            navigate(
+                                generatePath(routePaths.project, {
+                                    id: String(card.id),
+                                }),
+                            )
+                        }
                     />
                 ))}
             </Stack>
