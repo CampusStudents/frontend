@@ -1,0 +1,20 @@
+export type EventDetails = {
+    id: number;
+    organizerId: number;
+    projectId: number;
+    title: string;
+    month: string;
+    day: string;
+    dateLabel: string;
+    timeLabel: string;
+    locationName: string;
+    address: string;
+    organizerLabel: string;
+    organizerName: string;
+    organizerDescription: string;
+    aboutLabel: string;
+    description: string[];
+    primaryActionLabel: string;
+    secondaryActionLabel: string;
+    gallery: string[];
+};

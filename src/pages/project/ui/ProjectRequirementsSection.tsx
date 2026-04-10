@@ -2,9 +2,12 @@ import { Paper, Stack, Typography } from "@mui/material";
 
 import type { ProjectRequirement } from "../model/types";
 
-import ProjectCarousel from "./ProjectCarousel";
 import ProjectRequirementCard from "./ProjectRequirementCard";
-import ProjectSectionDivider from "./ProjectSectionDivider";
+
+import {
+    DetailsCarousel,
+    DetailsSectionDivider,
+} from "@widgets/DetailSections";
 
 type ProjectRequirementsSectionProps = {
     title: string;
@@ -32,7 +35,7 @@ const ProjectRequirementsSection = ({
                     {title}
                 </Typography>
 
-                <ProjectCarousel
+                <DetailsCarousel
                     items={requirements}
                     getKey={(requirement) => requirement.title}
                     renderSlide={(requirement) => (
@@ -49,7 +52,7 @@ const ProjectRequirementsSection = ({
                 <Typography variant="body2" color="text.secondary">
                     {footer}
                 </Typography>
-                <ProjectSectionDivider />
+                <DetailsSectionDivider />
             </Stack>
         </Paper>
     );

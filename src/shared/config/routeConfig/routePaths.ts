@@ -1,6 +1,7 @@
 import { AppRoutes } from "@shared/config/routeConfig/types";
 
 export const routePaths: Record<AppRoutes, string> = {
+    [AppRoutes.EVENT]: "/events/:id",
     [AppRoutes.FAVORITES]: "/favorites",
     [AppRoutes.HOME]: "/",
     [AppRoutes.LOGIN]: "/login",

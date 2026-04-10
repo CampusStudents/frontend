@@ -1,10 +1,14 @@
 import { OpenInNewRounded } from "@mui/icons-material";
 import { Box, Link, Paper, Stack, Typography } from "@mui/material";
+import { generatePath, Link as RouterLink } from "react-router-dom";
 
 import type { ProjectDetails } from "../model/types";
 
-import ProjectCarousel from "./ProjectCarousel";
-import ProjectSectionDivider from "./ProjectSectionDivider";
+import {
+    DetailsCarousel,
+    DetailsSectionDivider,
+} from "@widgets/DetailSections";
+import { routePaths } from "@shared/config";
 
 type ProjectEventSectionProps = {
     details: ProjectDetails;
@@ -32,7 +36,7 @@ const ProjectEventSection = ({ details }: ProjectEventSectionProps) => {
                     <Typography variant="body2" color="text.secondary">
                         {details.aboutLabel}
                     </Typography>
-                    <ProjectSectionDivider />
+                    <DetailsSectionDivider />
                 </Stack>
 
                 {details.description.map((paragraph) => (
@@ -46,7 +50,10 @@ const ProjectEventSection = ({ details }: ProjectEventSectionProps) => {
                 ))}
 
                 <Link
-                    href="#"
+                    component={RouterLink}
+                    to={generatePath(routePaths.event, {
+                        id: String(details.eventId),
+                    })}
                     underline="hover"
                     sx={{
                         display: "inline-flex",
@@ -64,7 +71,7 @@ const ProjectEventSection = ({ details }: ProjectEventSectionProps) => {
                     <Typography sx={{ fontWeight: 600 }}>
                         {details.galleryTitle}
                     </Typography>
-                    <ProjectCarousel
+                    <DetailsCarousel
                         items={details.gallery}
                         getKey={(image) => image}
                         renderSlide={(image) => {

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 export const AppRoutes = {
+    EVENT: "event",
     FAVORITES: "favorites",
     HOME: "home",
     LOGIN: "login",

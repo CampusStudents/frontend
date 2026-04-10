@@ -3,8 +3,10 @@ import { Button, IconButton, Paper, Stack, Typography } from "@mui/material";
 
 import type { ProjectDetails } from "../model/types";
 
-import ProjectDateBadge from "./ProjectDateBadge";
-import ProjectLocationBadge from "./ProjectLocationBadge";
+import {
+    DetailsDateBadge,
+    DetailsLocationBadge,
+} from "@widgets/DetailSections";
 
 type ProjectInfoPanelProps = {
     details: ProjectDetails;
@@ -24,7 +26,7 @@ const ProjectInfoPanel = ({ details }: ProjectInfoPanelProps) => {
                     spacing={1.25}
                     alignItems={{ xs: "flex-start", sm: "center" }}
                 >
-                    <ProjectDateBadge />
+                    <DetailsDateBadge day="11" month="ноя" />
 
                     <Stack spacing={0.2}>
                         <Typography
@@ -53,7 +55,7 @@ const ProjectInfoPanel = ({ details }: ProjectInfoPanelProps) => {
                     spacing={1.25}
                     alignItems={{ xs: "flex-start", sm: "center" }}
                 >
-                    <ProjectLocationBadge />
+                    <DetailsLocationBadge />
 
                     <Stack spacing={0.2}>
                         <Stack

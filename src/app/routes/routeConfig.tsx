@@ -1,4 +1,5 @@
 import { AppRoutes, routePaths, type RouteConfig } from "@shared/config";
+import { EventPage } from "@pages/event";
 import { FavoritesPage } from "@pages/favorites";
 import { ProfilePage } from "@pages/profile";
 import { ProjectPage } from "@pages/project";
@@ -9,6 +10,11 @@ import { LoginPage } from "@pages/login";
 import { OrganizerPage } from "@pages/organizer";
 
 export const routeConfig: RouteConfig = {
+    [AppRoutes.EVENT]: {
+        element: <EventPage />,
+        layout: "main",
+        path: routePaths.event,
+    },
     [AppRoutes.FAVORITES]: {
         element: <FavoritesPage />,
         layout: "main",

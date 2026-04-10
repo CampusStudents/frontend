@@ -1,4 +1,5 @@
 export type ProjectDetails = {
+    eventId: number;
     title: string;
     organizer: string;
     venue: string;
