@@ -9,6 +9,7 @@ export const AppRoutes = {
     PROJECTS: "projects",
     PROJECT: "project",
     REGISTER: "register",
+    CANDIDATES: "candidates",
 } as const;
 
 export type AppRoutes = (typeof AppRoutes)[keyof typeof AppRoutes];
