@@ -4,3 +4,8 @@ export { ProjectCard };
 
 export { default as MyProjectCard } from "./ui/MyProjectCard";
 export type { MyProjectCardData, ProjectCardData } from "./model/types";
+export { default as CandidateCard } from "./ui/CandidateCard";
+export type { MyProjectCardData } from "./model/types";
+export type { ProjectCardData } from "./model/types";
+export type { CandidatesCardData } from "./model/types";
+export type { MyProjectCardData } from "./model/types";

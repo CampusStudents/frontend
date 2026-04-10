@@ -20,3 +20,11 @@ export type MyProjectCardData = {
     meta: string;
     members: string;
 };
+
+export type CandidatesCardData = {
+        id: number,
+        name: string,
+        age: number,
+        about:string, 
+        city: string,    
+}
