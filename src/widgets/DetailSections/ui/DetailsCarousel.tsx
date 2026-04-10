@@ -6,7 +6,7 @@ import { Swiper, SwiperSlide, useSwiper } from "swiper/react";
 
 import "swiper/css";
 
-type ProjectCarouselProps<T> = {
+type DetailsCarouselProps<T> = {
     items: T[];
     getKey: (item: T) => string | number;
     renderSlide: (item: T) => ReactNode;
@@ -51,7 +51,7 @@ const CarouselArrow = ({ direction }: CarouselArrowProps) => {
                 transition:
                     "opacity 180ms ease, background-color 180ms ease, transform 180ms ease",
                 pointerEvents: "none",
-                ".project-carousel:hover &": {
+                ".details-carousel:hover &": {
                     opacity: 1,
                     pointerEvents: "auto",
                 },
@@ -70,17 +70,17 @@ const CarouselArrow = ({ direction }: CarouselArrowProps) => {
     );
 };
 
-const ProjectCarousel = <T,>({
+const DetailsCarousel = <T,>({
     items,
     getKey,
     renderSlide,
     breakpoints,
     slidesPerView = 1,
     spaceBetween = 16,
-}: ProjectCarouselProps<T>) => {
+}: DetailsCarouselProps<T>) => {
     return (
         <Box
-            className="project-carousel"
+            className="details-carousel"
             sx={{
                 overflow: "hidden",
                 position: "relative",
@@ -108,4 +108,4 @@ const ProjectCarousel = <T,>({
     );
 };
 
-export default ProjectCarousel;
+export default DetailsCarousel;

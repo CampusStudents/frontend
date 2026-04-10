@@ -1,7 +1,7 @@
 import { LocationOnOutlined } from "@mui/icons-material";
 import { Paper } from "@mui/material";
 
-const ProjectLocationBadge = () => {
+const DetailsLocationBadge = () => {
     return (
         <Paper
             variant="outlined"
@@ -22,4 +22,4 @@ const ProjectLocationBadge = () => {
     );
 };
 
-export default ProjectLocationBadge;
+export default DetailsLocationBadge;

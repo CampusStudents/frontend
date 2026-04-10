@@ -1,6 +1,11 @@
 import { Box, Paper, Typography } from "@mui/material";
 
-const ProjectDateBadge = () => {
+type DetailsDateBadgeProps = {
+    month: string;
+    day: string;
+};
+
+const DetailsDateBadge = ({ month, day }: DetailsDateBadgeProps) => {
     return (
         <Paper
             variant="outlined"
@@ -33,7 +38,7 @@ const ProjectDateBadge = () => {
                         lineHeight: 1,
                     }}
                 >
-                    ноя
+                    {month}
                 </Typography>
             </Box>
             <Box
@@ -53,11 +58,11 @@ const ProjectDateBadge = () => {
                         lineHeight: 1,
                     }}
                 >
-                    11
+                    {day}
                 </Typography>
             </Box>
         </Paper>
     );
 };
 
-export default ProjectDateBadge;
+export default DetailsDateBadge;

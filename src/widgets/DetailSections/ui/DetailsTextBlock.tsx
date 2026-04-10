@@ -1,13 +1,13 @@
 import { Stack, Typography } from "@mui/material";
 
-import ProjectSectionDivider from "./ProjectSectionDivider";
+import DetailsSectionDivider from "./DetailsSectionDivider";
 
-type ProjectAboutBlockProps = {
+type DetailsTextBlockProps = {
     label: string;
     paragraphs: string[];
 };
 
-const ProjectAboutBlock = ({ label, paragraphs }: ProjectAboutBlockProps) => {
+const DetailsTextBlock = ({ label, paragraphs }: DetailsTextBlockProps) => {
     return (
         <Stack spacing={1.25}>
             <Typography
@@ -19,7 +19,7 @@ const ProjectAboutBlock = ({ label, paragraphs }: ProjectAboutBlockProps) => {
             >
                 {label}
             </Typography>
-            <ProjectSectionDivider />
+            <DetailsSectionDivider />
             {paragraphs.map((paragraph) => (
                 <Typography
                     key={paragraph}
@@ -36,4 +36,4 @@ const ProjectAboutBlock = ({ label, paragraphs }: ProjectAboutBlockProps) => {
     );
 };
 
-export default ProjectAboutBlock;
+export default DetailsTextBlock;
