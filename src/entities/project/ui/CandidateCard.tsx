@@ -1,4 +1,4 @@
-import {
+import {    
     LocationOnOutlined,
 } from "@mui/icons-material";
 import {
@@ -7,7 +7,7 @@ import {
     Chip,
     Paper,
     Stack,
-    Typography,
+    Typography, 
 } from "@mui/material";
 
 import type { CandidatesCardData } from "@entities/project";
