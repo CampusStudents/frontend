@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { Link as RouterLink, Outlet } from "react-router-dom";
 
 import MainLayoutHeader from "./MainLayoutHeader";
+import ScrollToTop from "./ScrollToTop";
 
 import { routePaths } from "@shared/config";
 
@@ -113,6 +114,7 @@ const MainLayout = ({ children, maxWidth = 1280, sx }: MainLayoutProps) => {
                     flexDirection: "column",
                 }}
             >
+                <ScrollToTop />
                 <MainLayoutHeader />
                 <Box sx={{ flex: 1 }}>{children ?? <Outlet />}</Box>
                 <MainLayoutFooter />
