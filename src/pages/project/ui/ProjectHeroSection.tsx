@@ -2,8 +2,9 @@ import { Box, Paper, Stack, Typography } from "@mui/material";
 
 import type { ProjectDetails } from "../model/types";
 
-import ProjectAboutBlock from "./ProjectAboutBlock";
 import ProjectInfoPanel from "./ProjectInfoPanel";
+
+import { DetailsTextBlock } from "@widgets/DetailSections";
 
 type ProjectHeroSectionProps = {
     details: ProjectDetails;
@@ -48,7 +49,7 @@ const ProjectHeroSection = ({ details }: ProjectHeroSectionProps) => {
                     </Typography>
 
                     <ProjectInfoPanel details={details} />
-                    <ProjectAboutBlock
+                    <DetailsTextBlock
                         label={details.aboutLabel}
                         paragraphs={details.description}
                     />

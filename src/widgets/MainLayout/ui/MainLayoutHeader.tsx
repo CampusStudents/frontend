@@ -95,6 +95,8 @@ const MainLayoutHeader = () => {
                     sx={{ width: { xs: "100%", md: "auto" } }}
                 >
                     <Button
+                        component={RouterLink}
+                        to={routePaths.projects}
                         variant="outlined"
                         sx={{
                             minWidth: 0,
@@ -106,6 +108,8 @@ const MainLayoutHeader = () => {
                         Мои проекты
                     </Button>
                     <Button
+                        component={RouterLink}
+                        to={routePaths.register}
                         variant="outlined"
                         sx={{
                             minWidth: 0,
