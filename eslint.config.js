@@ -14,7 +14,7 @@ const __dirname = path.dirname(__filename);
 
 export default tseslint.config(
     {
-        ignores: ["dist"],
+        ignores: ["dist", "src/shared/api/generated", "orval.config.ts", "steiger.config.ts"],
     },
     js.configs.recommended,
     ...tseslint.configs.recommended,
