@@ -1,13 +1,15 @@
 import { ArrowForwardRounded } from "@mui/icons-material";
 import { Box, Button, Paper, Stack, Typography } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 
 import type { MyProjectCardData } from "@entities/project/model/types";
 
 type ProjectCardProps = {
     card: MyProjectCardData;
+    detailsTo?: string;
 };
 
-const MyProjectCard = ({ card }: ProjectCardProps) => {
+const MyProjectCard = ({ card, detailsTo }: ProjectCardProps) => {
     return (
         <Stack spacing={1}>
             <Typography
@@ -44,7 +46,8 @@ const MyProjectCard = ({ card }: ProjectCardProps) => {
                             flexShrink: 0,
                             borderRadius: 2,
                             bgcolor: "photo",
-                            border: "1px solid border",
+                            border: (theme) =>
+                                `1px solid ${theme.palette.border}`,
                             color: "text.secondary",
                             fontSize: 12,
                             fontWeight: 600,
@@ -105,6 +108,8 @@ const MyProjectCard = ({ card }: ProjectCardProps) => {
                         >
                             <Button
                                 variant="outlined"
+                                component={detailsTo ? RouterLink : "button"}
+                                to={detailsTo}
                                 sx={{
                                     minWidth: { sm: 240 },
                                     height: 44,

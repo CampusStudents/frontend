@@ -1,8 +1,10 @@
 import { Paper, Stack, Typography } from "@mui/material";
+import { generatePath } from "react-router-dom";
 
 import { projectCards } from "../model/mockData";
 
 import { MyProjectCard } from "@entities/project";
+import { routePaths } from "@shared/config";
 import { ProjectsToggleGroup } from "@widgets/ContentFilters";
 
 const ProjectsPage = () => {
@@ -34,7 +36,13 @@ const ProjectsPage = () => {
 
             <Stack spacing={3}>
                 {projectCards.map((card) => (
-                    <MyProjectCard key={card.id} card={card} />
+                    <MyProjectCard
+                        key={card.id}
+                        card={card}
+                        detailsTo={generatePath(routePaths.project, {
+                            id: String(card.id),
+                        })}
+                    />
                 ))}
             </Stack>
         </Stack>

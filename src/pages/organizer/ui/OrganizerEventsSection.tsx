@@ -39,6 +39,8 @@ export const OrganizerEventsSection = () => {
                         {organizerEvents.map((event) => (
                             <EventCard
                                 key={event.id}
+                                id={event.id}
+                                projectId={event.projectId}
                                 title={event.title}
                                 description={event.description}
                             />

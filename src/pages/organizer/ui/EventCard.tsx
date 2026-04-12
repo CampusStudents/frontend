@@ -1,11 +1,21 @@
 import { Box, Button, Paper, Stack, Typography } from "@mui/material";
+import { generatePath, Link as RouterLink } from "react-router-dom";
+
+import { routePaths } from "@shared/config";
 
 type EventCardProps = {
+    id: number;
+    projectId: number;
     title: string;
     description: string;
 };
 
-export const EventCard = ({ title, description }: EventCardProps) => {
+export const EventCard = ({
+    id,
+    projectId,
+    title,
+    description,
+}: EventCardProps) => {
     return (
         <Paper
             elevation={0}
@@ -73,6 +83,10 @@ export const EventCard = ({ title, description }: EventCardProps) => {
                         >
                             <Button
                                 variant="outlined"
+                                component={RouterLink}
+                                to={generatePath(routePaths.event, {
+                                    id: String(id),
+                                })}
                                 sx={{
                                     minWidth: { sm: 250 },
                                     flex: 1,
@@ -84,6 +98,10 @@ export const EventCard = ({ title, description }: EventCardProps) => {
                             </Button>
                             <Button
                                 variant="contained"
+                                component={RouterLink}
+                                to={generatePath(routePaths.project, {
+                                    id: String(projectId),
+                                })}
                                 sx={{
                                     minWidth: { sm: 250 },
                                     flex: 1,

@@ -1,4 +1,5 @@
 export const organizerProfile = {
+    id: 1,
     name: "Страдиариум от Страдающего Средневековья",
     description:
         "Курсы по гуманитарным наукам от одного из крупнейших медиа-проектов. Аудитория больше 1 000 000 чел.",
@@ -8,6 +9,7 @@ export const organizerProfile = {
 export const organizerEvents = [
     {
         id: 1,
+        projectId: 1,
         date: "11 ноября",
         weekday: "Понедельник",
         title: "Стажировка Т-Банк",
@@ -16,6 +18,7 @@ export const organizerEvents = [
     },
     {
         id: 2,
+        projectId: 2,
         date: "11 ноября",
         weekday: "Понедельник",
         title: "Стажировка Т-Банк",

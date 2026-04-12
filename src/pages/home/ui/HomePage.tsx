@@ -1,12 +1,16 @@
 import { Stack } from "@mui/material";
+import { generatePath, useNavigate } from "react-router-dom";
 
 import { cards, cardTags } from "../model/mockData";
 
 import { ProjectCard } from "@entities/project";
+import { routePaths } from "@shared/config";
 import { ContentFilters } from "@widgets/ContentFilters";
 import { EmptyState } from "@shared/ui/EmptyState";
 
 const HomePage = () => {
+    const navigate = useNavigate();
+
     return (
         <Stack spacing={3}>
             <ContentFilters />
@@ -18,6 +22,13 @@ const HomePage = () => {
                             key={card.id}
                             card={card}
                             tags={cardTags}
+                            onClick={() =>
+                                navigate(
+                                    generatePath(routePaths.project, {
+                                        id: String(card.id),
+                                    }),
+                                )
+                            }
                         />
                     ))}
                 </Stack>

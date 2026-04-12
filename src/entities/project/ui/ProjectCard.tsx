@@ -18,16 +18,48 @@ import type { ProjectCardData } from "@entities/project";
 type ProjectCardProps = {
     card: ProjectCardData;
     tags: string[];
+    onClick?: () => void;
 };
 
-const ProjectCard = ({ card, tags }: ProjectCardProps) => {
+const ProjectCard = ({ card, tags, onClick }: ProjectCardProps) => {
+    const isInteractive = Boolean(onClick);
+
     return (
         <Paper
             elevation={0}
+            onClick={onClick}
+            onKeyDown={
+                isInteractive
+                    ? (event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              onClick?.();
+                          }
+                      }
+                    : undefined
+            }
+            role={isInteractive ? "link" : undefined}
+            tabIndex={isInteractive ? 0 : undefined}
             sx={{
                 borderRadius: 1.5,
                 px: { xs: 2, md: 2.5 },
                 py: { xs: 2, md: 2.75 },
+                cursor: isInteractive ? "pointer" : "default",
+                transition:
+                    "transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease",
+                "&:hover": isInteractive
+                    ? {
+                          transform: "translateY(-2px)",
+                          boxShadow: "0 12px 32px rgba(19, 21, 23, 0.08)",
+                      }
+                    : undefined,
+                "&:focus-visible": isInteractive
+                    ? {
+                          outline: "2px solid",
+                          outlineColor: "primary.main",
+                          outlineOffset: 3,
+                      }
+                    : undefined,
             }}
         >
             <Stack direction={{ xs: "column", md: "row" }} spacing={2.5}>
@@ -149,6 +181,10 @@ const ProjectCard = ({ card, tags }: ProjectCardProps) => {
                     >
                         <Button
                             variant="outlined"
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                onClick?.();
+                            }}
                             sx={{
                                 minWidth: { sm: 240 },
                                 height: 44,
@@ -159,6 +195,9 @@ const ProjectCard = ({ card, tags }: ProjectCardProps) => {
                         </Button>
                         <Button
                             variant="contained"
+                            onClick={(event) => {
+                                event.stopPropagation();
+                            }}
                             sx={{
                                 minWidth: { sm: 240 },
                                 height: 44,
@@ -174,6 +213,9 @@ const ProjectCard = ({ card, tags }: ProjectCardProps) => {
                             alignItems="center"
                         >
                             <IconButton
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                }}
                                 sx={{
                                     width: 36,
                                     height: 36,
