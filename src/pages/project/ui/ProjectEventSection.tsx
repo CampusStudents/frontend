@@ -39,9 +39,9 @@ const ProjectEventSection = ({ details }: ProjectEventSectionProps) => {
                     <DetailsSectionDivider />
                 </Stack>
 
-                {details.description.map((paragraph) => (
+                {details.description.map((paragraph, index) => (
                     <Typography
-                        key={`event-${paragraph}`}
+                        key={index}
                         variant="body2"
                         sx={{ color: "text.secondary", lineHeight: 1.7 }}
                     >
@@ -94,9 +94,9 @@ const ProjectEventSection = ({ details }: ProjectEventSectionProps) => {
                         }}
                         spaceBetween={16}
                         breakpoints={{
-                            0: { slidesPerView: 1.1, spaceBetween: 12 },
-                            700: { slidesPerView: 2.2, spaceBetween: 16 },
-                            1100: { slidesPerView: 3.2, spaceBetween: 18 },
+                            0: { slidesPerView: 1, spaceBetween: 12 },
+                            700: { slidesPerView: 2, spaceBetween: 16 },
+                            1100: { slidesPerView: 3, spaceBetween: 18 },
                         }}
                     />
                 </Stack>

@@ -20,9 +20,9 @@ const DetailsTextBlock = ({ label, paragraphs }: DetailsTextBlockProps) => {
                 {label}
             </Typography>
             <DetailsSectionDivider />
-            {paragraphs.map((paragraph) => (
+            {paragraphs.map((paragraph, index) => (
                 <Typography
-                    key={paragraph}
+                    key={index}
                     variant="body2"
                     sx={{
                         color: "text.secondary",

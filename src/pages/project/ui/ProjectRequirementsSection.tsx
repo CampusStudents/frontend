@@ -43,9 +43,9 @@ const ProjectRequirementsSection = ({
                     )}
                     spaceBetween={16}
                     breakpoints={{
-                        0: { slidesPerView: 1.05, spaceBetween: 12 },
+                        0: { slidesPerView: 1, spaceBetween: 12 },
                         700: { slidesPerView: 2, spaceBetween: 16 },
-                        1100: { slidesPerView: 2.2, spaceBetween: 20 },
+                        1100: { slidesPerView: 2, spaceBetween: 20 },
                     }}
                 />
 

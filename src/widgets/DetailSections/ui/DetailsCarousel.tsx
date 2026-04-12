@@ -84,8 +84,13 @@ const DetailsCarousel = <T,>({
             sx={{
                 overflow: "hidden",
                 position: "relative",
+                cursor: "grab",
+                "&:active": {
+                    cursor: "grabbing",
+                },
                 "& .swiper": {
                     overflow: "hidden",
+                    cursor: "inherit",
                 },
             }}
         >

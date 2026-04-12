@@ -67,9 +67,9 @@ const EventPage = () => {
                     }}
                     spaceBetween={10}
                     breakpoints={{
-                        0: { slidesPerView: 1.08, spaceBetween: 10 },
-                        700: { slidesPerView: 2.15, spaceBetween: 10 },
-                        1100: { slidesPerView: 3.3, spaceBetween: 10 },
+                        0: { slidesPerView: 1, spaceBetween: 10 },
+                        700: { slidesPerView: 2, spaceBetween: 10 },
+                        1100: { slidesPerView: 3, spaceBetween: 10 },
                         1380: { slidesPerView: 5, spaceBetween: 10 },
                     }}
                 />
@@ -241,9 +241,9 @@ const EventPage = () => {
                             {eventDetails.aboutLabel}
                         </Typography>
                         <DetailsSectionDivider />
-                        {eventDetails.description.map((paragraph) => (
+                        {eventDetails.description.map((paragraph, index) => (
                             <Typography
-                                key={paragraph}
+                                key={index}
                                 sx={{
                                     fontSize: 16,
                                     lineHeight: 1.7,
