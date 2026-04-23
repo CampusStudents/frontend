@@ -5,12 +5,31 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import App from "@app/App.tsx";
 import { ThemeProvider } from "@app/providers/theme";
 import { queryClient } from "@shared/api";
+import { ErrorBoundary } from "@shared/ui/ErrorBoundary";
+import { ErrorFallback } from "@shared/ui/ErrorFallback";
 
 createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
         <BrowserRouter>
             <ThemeProvider>
-                <App />
+                <ErrorBoundary
+                    onError={(error, errorInfo) => {
+                        console.error("Ошибка на уровне приложения", {
+                            error,
+                            componentStack: errorInfo.componentStack,
+                        });
+                    }}
+                    fallback={({ error, reset }) => (
+                        <ErrorFallback
+                            title="Приложение временно недоступно"
+                            description="Произошла критическая ошибка на верхнем уровне приложения. Попробуйте перерисовать экран."
+                            error={error}
+                            onRetry={reset}
+                        />
+                    )}
+                >
+                    <App />
+                </ErrorBoundary>
             </ThemeProvider>
         </BrowserRouter>
     </QueryClientProvider>,
