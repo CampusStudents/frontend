@@ -2,7 +2,7 @@ import { ArrowForwardRounded } from "@mui/icons-material";
 import { Box, Button, Paper, Stack, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 
-import type { MyProjectCardData } from "@entities/project/model/types";
+import type { MyProjectCardData } from "../model/types";
 
 type ProjectCardProps = {
     card: MyProjectCardData;
