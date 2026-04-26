@@ -1,9 +1,16 @@
 import type { FC, ReactNode } from "react";
+import { Navigate } from "react-router";
+
+import { tokenStorage } from "@shared/lib/auth";
+import { routePaths } from "@shared/config";
 
 const ProtectedRoute: FC<{ children: ReactNode }> = ({ children }) => {
-    console.log("Это приватный маршрут");
+    const token = tokenStorage.get();
+    if (!token) {
+        return <Navigate to={routePaths.home} />;
+    }
 
-    // TODO: реализовать логику приватного маршрута
+    // TODO: handle by roles
     return <div>{children}</div>;
 };
 
