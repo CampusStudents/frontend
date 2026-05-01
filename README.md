@@ -166,10 +166,10 @@ src/shared/api/generated/
 ### GET-запрос — получение текущего пользователя
 
 ```tsx
-import { useGetUserApiV1AuthMeGet } from "@shared/api";
+import { useAuthGetUser } from "@shared/api";
 
 function UserProfile() {
-    const { data: user, isLoading, error } = useGetUserApiV1AuthMeGet();
+    const { data: user, isLoading, error } = useAuthGetUser();
 
     if (isLoading) return <div>Загрузка...</div>;
     if (error) return <div>Ошибка загрузки профиля</div>;
@@ -181,10 +181,10 @@ function UserProfile() {
 ### POST-запрос (мутация) — логин
 
 ```tsx
-import { useLoginApiV1AuthLoginPost } from "@shared/api";
+import { useAuthLogin } from "@shared/api";
 
 function LoginForm() {
-    const { mutate: login, isPending } = useLoginApiV1AuthLoginPost();
+    const { mutate: login, isPending } = useAuthLogin();
 
     const handleSubmit = (email: string, password: string) => {
         login(
@@ -207,10 +207,10 @@ function LoginForm() {
 ### POST-запрос без body — выход из системы
 
 ```tsx
-import { useLogoutApiV1AuthLogoutPost } from "@shared/api";
+import { useAuthLogout } from "@shared/api";
 
 function LogoutButton() {
-    const { mutate: logout } = useLogoutApiV1AuthLogoutPost();
+    const { mutate: logout } = useAuthLogout();
 
     return <button onClick={() => logout()}>Выйти</button>;
 }

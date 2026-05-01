@@ -23,7 +23,7 @@ import {
     type LoginFormValues,
 } from "../model/loginForm";
 
-import { HttpStatuses, useLoginApiV1AuthLoginPost } from "@shared/api";
+import { HttpStatuses, useAuthLogin } from "@shared/api";
 import { routePaths } from "@shared/config";
 import { tokenStorage } from "@shared/lib/auth";
 import { fieldHelper } from "@shared/lib/form";
@@ -56,7 +56,7 @@ const LoginPage = () => {
         mode: "onBlur",
     });
 
-    const { mutate: login, isPending } = useLoginApiV1AuthLoginPost({
+    const { mutate: login, isPending } = useAuthLogin({
         mutation: {
             onSuccess: ({ access_token }) => {
                 tokenStorage.set(access_token);

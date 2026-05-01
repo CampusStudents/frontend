@@ -22,7 +22,7 @@ import {
     type RegisterFormValues,
 } from "../model/registerForm";
 
-import { HttpStatuses, useRegisterApiV1AuthRegisterPost } from "@shared/api";
+import { HttpStatuses, useAuthRegister } from "@shared/api";
 import { routePaths } from "@shared/config";
 import { fieldHelper } from "@shared/lib/form";
 import { FormWrapper } from "@shared/ui/FormWrapper";
@@ -50,30 +50,29 @@ const RegisterPage = () => {
 
     const role = useWatch({ control, name: "role" });
 
-    const { mutate: registerUser, isPending } =
-        useRegisterApiV1AuthRegisterPost({
-            mutation: {
-                onSuccess: () => {
-                    navigate(routePaths.login, {
-                        replace: true,
-                        state: { registered: true },
-                    });
-                },
-                onError: (error) => {
-                    const status = axios.isAxiosError(error)
-                        ? error.response?.status
-                        : undefined;
-
-                    setError("root", {
-                        message:
-                            status === HttpStatuses.BAD_REQUEST ||
-                            status === HttpStatuses.CONFLICT
-                                ? "Пользователь с таким email уже существует"
-                                : "Не удалось создать аккаунт. Попробуйте позже.",
-                    });
-                },
+    const { mutate: registerUser, isPending } = useAuthRegister({
+        mutation: {
+            onSuccess: () => {
+                navigate(routePaths.login, {
+                    replace: true,
+                    state: { registered: true },
+                });
             },
-        });
+            onError: (error) => {
+                const status = axios.isAxiosError(error)
+                    ? error.response?.status
+                    : undefined;
+
+                setError("root", {
+                    message:
+                        status === HttpStatuses.BAD_REQUEST ||
+                        status === HttpStatuses.CONFLICT
+                            ? "Пользователь с таким email уже существует"
+                            : "Не удалось создать аккаунт. Попробуйте позже.",
+                });
+            },
+        },
+    });
 
     const onSubmit = (data: RegisterFormValues) => {
         clearErrors("root");

@@ -15,7 +15,7 @@ import {
     useSearchParams,
 } from "react-router-dom";
 
-import { useVerifyAccountApiV1AuthVerifyGet } from "@shared/api";
+import { useAuthVerifyAccount } from "@shared/api";
 import { routePaths } from "@shared/config";
 
 const REDIRECT_DELAY_MS = 2000;
@@ -25,8 +25,9 @@ const VerifyEmailPage = () => {
     const navigate = useNavigate();
     const token = searchParams.get("token") ?? "";
 
-    const { isLoading, isSuccess, isError, error } =
-        useVerifyAccountApiV1AuthVerifyGet({ token });
+    const { isLoading, isSuccess, isError, error } = useAuthVerifyAccount({
+        token,
+    });
 
     useEffect(() => {
         if (!isSuccess) return;
