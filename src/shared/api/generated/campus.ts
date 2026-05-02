@@ -6,9 +6,14 @@
  */
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
+    DataTag,
+    DefinedInitialDataOptions,
+    DefinedUseQueryResult,
     MutationFunction,
+    QueryClient,
     QueryFunction,
     QueryKey,
+    UndefinedInitialDataOptions,
     UseMutationOptions,
     UseMutationResult,
     UseQueryOptions,
@@ -16,14 +21,24 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+    AuthVerifyAccountParams,
     ChangePasswordSchema,
+    CreateCitySchema,
+    CreateProjectSchema,
+    CreateProjectVacancySchema,
+    CreateUniversitySchema,
+    CreateUserProfileSchema,
     ForgotPasswordSchema,
     HTTPValidationError,
     LoginSchema,
     RegisterSchema,
     ResetPasswordSchema,
+    UpdateCitySchema,
+    UpdateProjectSchema,
+    UpdateProjectVacancySchema,
+    UpdateUniversitySchema,
+    UpdateUserProfileSchema,
     UpdateUserRolesSchema,
-    VerifyAccountApiV1AuthVerifyGetParams,
 } from "./model";
 
 import { faker } from "@faker-js/faker";
@@ -31,7 +46,16 @@ import { faker } from "@faker-js/faker";
 import { HttpResponse, delay, http } from "msw";
 import type { RequestHandlerOptions } from "msw";
 
-import type { AccessToken, UserDTO } from "./model";
+import { ProjectFormat, ProjectStatus, ProjectType } from "./model";
+import type {
+    AccessToken,
+    CityDTO,
+    ProjectDTO,
+    ProjectVacancyDTO,
+    UniversityDTO,
+    UserDTO,
+    UserProfileDTO,
+} from "./model";
 
 import { customInstance } from "../axios";
 /**
@@ -40,7 +64,7 @@ import { customInstance } from "../axios";
 It returns 200 if the project is healthy.
  * @summary Health Check
  */
-export const healthCheckApiHealthGet = (signal?: AbortSignal) => {
+export const healthHealthCheck = (signal?: AbortSignal) => {
     return customInstance<unknown>({
         url: `/api/health`,
         method: "GET",
@@ -48,60 +72,136 @@ export const healthCheckApiHealthGet = (signal?: AbortSignal) => {
     });
 };
 
-export const getHealthCheckApiHealthGetQueryKey = () => {
+export const getHealthHealthCheckQueryKey = () => {
     return [`/api/health`] as const;
 };
 
-export const getHealthCheckApiHealthGetQueryOptions = <
-    TData = Awaited<ReturnType<typeof healthCheckApiHealthGet>>,
+export const getHealthHealthCheckQueryOptions = <
+    TData = Awaited<ReturnType<typeof healthHealthCheck>>,
     TError = unknown,
 >(options?: {
-    query?: UseQueryOptions<
-        Awaited<ReturnType<typeof healthCheckApiHealthGet>>,
-        TError,
-        TData
+    query?: Partial<
+        UseQueryOptions<
+            Awaited<ReturnType<typeof healthHealthCheck>>,
+            TError,
+            TData
+        >
     >;
 }) => {
     const { query: queryOptions } = options ?? {};
 
-    const queryKey =
-        queryOptions?.queryKey ?? getHealthCheckApiHealthGetQueryKey();
+    const queryKey = queryOptions?.queryKey ?? getHealthHealthCheckQueryKey();
 
     const queryFn: QueryFunction<
-        Awaited<ReturnType<typeof healthCheckApiHealthGet>>
-    > = ({ signal }) => healthCheckApiHealthGet(signal);
+        Awaited<ReturnType<typeof healthHealthCheck>>
+    > = ({ signal }) => healthHealthCheck(signal);
 
     return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-        Awaited<ReturnType<typeof healthCheckApiHealthGet>>,
+        Awaited<ReturnType<typeof healthHealthCheck>>,
         TError,
         TData
-    > & { queryKey: QueryKey };
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
-export type HealthCheckApiHealthGetQueryResult = NonNullable<
-    Awaited<ReturnType<typeof healthCheckApiHealthGet>>
+export type HealthHealthCheckQueryResult = NonNullable<
+    Awaited<ReturnType<typeof healthHealthCheck>>
 >;
-export type HealthCheckApiHealthGetQueryError = unknown;
+export type HealthHealthCheckQueryError = unknown;
 
+export function useHealthHealthCheck<
+    TData = Awaited<ReturnType<typeof healthHealthCheck>>,
+    TError = unknown,
+>(
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof healthHealthCheck>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof healthHealthCheck>>,
+                    TError,
+                    Awaited<ReturnType<typeof healthHealthCheck>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useHealthHealthCheck<
+    TData = Awaited<ReturnType<typeof healthHealthCheck>>,
+    TError = unknown,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof healthHealthCheck>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof healthHealthCheck>>,
+                    TError,
+                    Awaited<ReturnType<typeof healthHealthCheck>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useHealthHealthCheck<
+    TData = Awaited<ReturnType<typeof healthHealthCheck>>,
+    TError = unknown,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof healthHealthCheck>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary Health Check
  */
 
-export function useHealthCheckApiHealthGet<
-    TData = Awaited<ReturnType<typeof healthCheckApiHealthGet>>,
+export function useHealthHealthCheck<
+    TData = Awaited<ReturnType<typeof healthHealthCheck>>,
     TError = unknown,
->(options?: {
-    query?: UseQueryOptions<
-        Awaited<ReturnType<typeof healthCheckApiHealthGet>>,
-        TError,
-        TData
-    >;
-}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-    const queryOptions = getHealthCheckApiHealthGetQueryOptions(options);
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof healthHealthCheck>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getHealthHealthCheckQueryOptions(options);
 
-    const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-        queryKey: QueryKey;
-    };
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
 
     query.queryKey = queryOptions.queryKey;
 
@@ -112,7 +212,7 @@ export function useHealthCheckApiHealthGet<
  * Получение текущего пользователя.
  * @summary Get User
  */
-export const getUserApiV1AuthMeGet = (signal?: AbortSignal) => {
+export const authGetUser = (signal?: AbortSignal) => {
     return customInstance<unknown>({
         url: `/api/v1/auth/me`,
         method: "GET",
@@ -120,60 +220,132 @@ export const getUserApiV1AuthMeGet = (signal?: AbortSignal) => {
     });
 };
 
-export const getGetUserApiV1AuthMeGetQueryKey = () => {
+export const getAuthGetUserQueryKey = () => {
     return [`/api/v1/auth/me`] as const;
 };
 
-export const getGetUserApiV1AuthMeGetQueryOptions = <
-    TData = Awaited<ReturnType<typeof getUserApiV1AuthMeGet>>,
+export const getAuthGetUserQueryOptions = <
+    TData = Awaited<ReturnType<typeof authGetUser>>,
     TError = unknown,
 >(options?: {
-    query?: UseQueryOptions<
-        Awaited<ReturnType<typeof getUserApiV1AuthMeGet>>,
-        TError,
-        TData
+    query?: Partial<
+        UseQueryOptions<Awaited<ReturnType<typeof authGetUser>>, TError, TData>
     >;
 }) => {
     const { query: queryOptions } = options ?? {};
 
-    const queryKey =
-        queryOptions?.queryKey ?? getGetUserApiV1AuthMeGetQueryKey();
+    const queryKey = queryOptions?.queryKey ?? getAuthGetUserQueryKey();
 
-    const queryFn: QueryFunction<
-        Awaited<ReturnType<typeof getUserApiV1AuthMeGet>>
-    > = ({ signal }) => getUserApiV1AuthMeGet(signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof authGetUser>>> = ({
+        signal,
+    }) => authGetUser(signal);
 
     return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-        Awaited<ReturnType<typeof getUserApiV1AuthMeGet>>,
+        Awaited<ReturnType<typeof authGetUser>>,
         TError,
         TData
-    > & { queryKey: QueryKey };
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
-export type GetUserApiV1AuthMeGetQueryResult = NonNullable<
-    Awaited<ReturnType<typeof getUserApiV1AuthMeGet>>
+export type AuthGetUserQueryResult = NonNullable<
+    Awaited<ReturnType<typeof authGetUser>>
 >;
-export type GetUserApiV1AuthMeGetQueryError = unknown;
+export type AuthGetUserQueryError = unknown;
 
+export function useAuthGetUser<
+    TData = Awaited<ReturnType<typeof authGetUser>>,
+    TError = unknown,
+>(
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof authGetUser>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof authGetUser>>,
+                    TError,
+                    Awaited<ReturnType<typeof authGetUser>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useAuthGetUser<
+    TData = Awaited<ReturnType<typeof authGetUser>>,
+    TError = unknown,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof authGetUser>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof authGetUser>>,
+                    TError,
+                    Awaited<ReturnType<typeof authGetUser>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useAuthGetUser<
+    TData = Awaited<ReturnType<typeof authGetUser>>,
+    TError = unknown,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof authGetUser>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary Get User
  */
 
-export function useGetUserApiV1AuthMeGet<
-    TData = Awaited<ReturnType<typeof getUserApiV1AuthMeGet>>,
+export function useAuthGetUser<
+    TData = Awaited<ReturnType<typeof authGetUser>>,
     TError = unknown,
->(options?: {
-    query?: UseQueryOptions<
-        Awaited<ReturnType<typeof getUserApiV1AuthMeGet>>,
-        TError,
-        TData
-    >;
-}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-    const queryOptions = getGetUserApiV1AuthMeGetQueryOptions(options);
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof authGetUser>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getAuthGetUserQueryOptions(options);
 
-    const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-        queryKey: QueryKey;
-    };
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
 
     query.queryKey = queryOptions.queryKey;
 
@@ -185,10 +357,7 @@ export function useGetUserApiV1AuthMeGet<
 Возвращает access token, refresh token устанавливается в HTTP-only cookie.
  * @summary Login
  */
-export const loginApiV1AuthLoginPost = (
-    loginSchema: LoginSchema,
-    signal?: AbortSignal,
-) => {
+export const authLogin = (loginSchema: LoginSchema, signal?: AbortSignal) => {
     return customInstance<AccessToken>({
         url: `/api/v1/auth/login`,
         method: "POST",
@@ -198,23 +367,23 @@ export const loginApiV1AuthLoginPost = (
     });
 };
 
-export const getLoginApiV1AuthLoginPostMutationOptions = <
+export const getAuthLoginMutationOptions = <
     TError = HTTPValidationError,
     TContext = unknown,
 >(options?: {
     mutation?: UseMutationOptions<
-        Awaited<ReturnType<typeof loginApiV1AuthLoginPost>>,
+        Awaited<ReturnType<typeof authLogin>>,
         TError,
         { data: LoginSchema },
         TContext
     >;
 }): UseMutationOptions<
-    Awaited<ReturnType<typeof loginApiV1AuthLoginPost>>,
+    Awaited<ReturnType<typeof authLogin>>,
     TError,
     { data: LoginSchema },
     TContext
 > => {
-    const mutationKey = ["loginApiV1AuthLoginPost"];
+    const mutationKey = ["authLogin"];
     const { mutation: mutationOptions } = options
         ? options.mutation &&
           "mutationKey" in options.mutation &&
@@ -224,45 +393,45 @@ export const getLoginApiV1AuthLoginPostMutationOptions = <
         : { mutation: { mutationKey } };
 
     const mutationFn: MutationFunction<
-        Awaited<ReturnType<typeof loginApiV1AuthLoginPost>>,
+        Awaited<ReturnType<typeof authLogin>>,
         { data: LoginSchema }
     > = (props) => {
         const { data } = props ?? {};
 
-        return loginApiV1AuthLoginPost(data);
+        return authLogin(data);
     };
 
     return { mutationFn, ...mutationOptions };
 };
 
-export type LoginApiV1AuthLoginPostMutationResult = NonNullable<
-    Awaited<ReturnType<typeof loginApiV1AuthLoginPost>>
+export type AuthLoginMutationResult = NonNullable<
+    Awaited<ReturnType<typeof authLogin>>
 >;
-export type LoginApiV1AuthLoginPostMutationBody = LoginSchema;
-export type LoginApiV1AuthLoginPostMutationError = HTTPValidationError;
+export type AuthLoginMutationBody = LoginSchema;
+export type AuthLoginMutationError = HTTPValidationError;
 
 /**
  * @summary Login
  */
-export const useLoginApiV1AuthLoginPost = <
-    TError = HTTPValidationError,
-    TContext = unknown,
->(options?: {
-    mutation?: UseMutationOptions<
-        Awaited<ReturnType<typeof loginApiV1AuthLoginPost>>,
-        TError,
-        { data: LoginSchema },
-        TContext
-    >;
-}): UseMutationResult<
-    Awaited<ReturnType<typeof loginApiV1AuthLoginPost>>,
+export const useAuthLogin = <TError = HTTPValidationError, TContext = unknown>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof authLogin>>,
+            TError,
+            { data: LoginSchema },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof authLogin>>,
     TError,
     { data: LoginSchema },
     TContext
 > => {
-    const mutationOptions = getLoginApiV1AuthLoginPostMutationOptions(options);
+    const mutationOptions = getAuthLoginMutationOptions(options);
 
-    return useMutation(mutationOptions);
+    return useMutation(mutationOptions, queryClient);
 };
 
 /**
@@ -270,7 +439,7 @@ export const useLoginApiV1AuthLoginPost = <
 Отправляет email с подтверждением.
  * @summary Register
  */
-export const registerApiV1AuthRegisterPost = (
+export const authRegister = (
     registerSchema: RegisterSchema,
     signal?: AbortSignal,
 ) => {
@@ -283,23 +452,23 @@ export const registerApiV1AuthRegisterPost = (
     });
 };
 
-export const getRegisterApiV1AuthRegisterPostMutationOptions = <
+export const getAuthRegisterMutationOptions = <
     TError = HTTPValidationError,
     TContext = unknown,
 >(options?: {
     mutation?: UseMutationOptions<
-        Awaited<ReturnType<typeof registerApiV1AuthRegisterPost>>,
+        Awaited<ReturnType<typeof authRegister>>,
         TError,
         { data: RegisterSchema },
         TContext
     >;
 }): UseMutationOptions<
-    Awaited<ReturnType<typeof registerApiV1AuthRegisterPost>>,
+    Awaited<ReturnType<typeof authRegister>>,
     TError,
     { data: RegisterSchema },
     TContext
 > => {
-    const mutationKey = ["registerApiV1AuthRegisterPost"];
+    const mutationKey = ["authRegister"];
     const { mutation: mutationOptions } = options
         ? options.mutation &&
           "mutationKey" in options.mutation &&
@@ -309,53 +478,55 @@ export const getRegisterApiV1AuthRegisterPostMutationOptions = <
         : { mutation: { mutationKey } };
 
     const mutationFn: MutationFunction<
-        Awaited<ReturnType<typeof registerApiV1AuthRegisterPost>>,
+        Awaited<ReturnType<typeof authRegister>>,
         { data: RegisterSchema }
     > = (props) => {
         const { data } = props ?? {};
 
-        return registerApiV1AuthRegisterPost(data);
+        return authRegister(data);
     };
 
     return { mutationFn, ...mutationOptions };
 };
 
-export type RegisterApiV1AuthRegisterPostMutationResult = NonNullable<
-    Awaited<ReturnType<typeof registerApiV1AuthRegisterPost>>
+export type AuthRegisterMutationResult = NonNullable<
+    Awaited<ReturnType<typeof authRegister>>
 >;
-export type RegisterApiV1AuthRegisterPostMutationBody = RegisterSchema;
-export type RegisterApiV1AuthRegisterPostMutationError = HTTPValidationError;
+export type AuthRegisterMutationBody = RegisterSchema;
+export type AuthRegisterMutationError = HTTPValidationError;
 
 /**
  * @summary Register
  */
-export const useRegisterApiV1AuthRegisterPost = <
+export const useAuthRegister = <
     TError = HTTPValidationError,
     TContext = unknown,
->(options?: {
-    mutation?: UseMutationOptions<
-        Awaited<ReturnType<typeof registerApiV1AuthRegisterPost>>,
-        TError,
-        { data: RegisterSchema },
-        TContext
-    >;
-}): UseMutationResult<
-    Awaited<ReturnType<typeof registerApiV1AuthRegisterPost>>,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof authRegister>>,
+            TError,
+            { data: RegisterSchema },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof authRegister>>,
     TError,
     { data: RegisterSchema },
     TContext
 > => {
-    const mutationOptions =
-        getRegisterApiV1AuthRegisterPostMutationOptions(options);
+    const mutationOptions = getAuthRegisterMutationOptions(options);
 
-    return useMutation(mutationOptions);
+    return useMutation(mutationOptions, queryClient);
 };
 
 /**
  * Обновление пары токенов с использованием refresh token из cookie.
  * @summary Refresh Jwt
  */
-export const refreshJwtApiV1AuthRefreshPost = (signal?: AbortSignal) => {
+export const authRefreshJwt = (signal?: AbortSignal) => {
     return customInstance<AccessToken>({
         url: `/api/v1/auth/refresh`,
         method: "POST",
@@ -363,23 +534,23 @@ export const refreshJwtApiV1AuthRefreshPost = (signal?: AbortSignal) => {
     });
 };
 
-export const getRefreshJwtApiV1AuthRefreshPostMutationOptions = <
+export const getAuthRefreshJwtMutationOptions = <
     TError = unknown,
     TContext = unknown,
 >(options?: {
     mutation?: UseMutationOptions<
-        Awaited<ReturnType<typeof refreshJwtApiV1AuthRefreshPost>>,
+        Awaited<ReturnType<typeof authRefreshJwt>>,
         TError,
         void,
         TContext
     >;
 }): UseMutationOptions<
-    Awaited<ReturnType<typeof refreshJwtApiV1AuthRefreshPost>>,
+    Awaited<ReturnType<typeof authRefreshJwt>>,
     TError,
     void,
     TContext
 > => {
-    const mutationKey = ["refreshJwtApiV1AuthRefreshPost"];
+    const mutationKey = ["authRefreshJwt"];
     const { mutation: mutationOptions } = options
         ? options.mutation &&
           "mutationKey" in options.mutation &&
@@ -389,44 +560,43 @@ export const getRefreshJwtApiV1AuthRefreshPostMutationOptions = <
         : { mutation: { mutationKey } };
 
     const mutationFn: MutationFunction<
-        Awaited<ReturnType<typeof refreshJwtApiV1AuthRefreshPost>>,
+        Awaited<ReturnType<typeof authRefreshJwt>>,
         void
     > = () => {
-        return refreshJwtApiV1AuthRefreshPost();
+        return authRefreshJwt();
     };
 
     return { mutationFn, ...mutationOptions };
 };
 
-export type RefreshJwtApiV1AuthRefreshPostMutationResult = NonNullable<
-    Awaited<ReturnType<typeof refreshJwtApiV1AuthRefreshPost>>
+export type AuthRefreshJwtMutationResult = NonNullable<
+    Awaited<ReturnType<typeof authRefreshJwt>>
 >;
 
-export type RefreshJwtApiV1AuthRefreshPostMutationError = unknown;
+export type AuthRefreshJwtMutationError = unknown;
 
 /**
  * @summary Refresh Jwt
  */
-export const useRefreshJwtApiV1AuthRefreshPost = <
-    TError = unknown,
-    TContext = unknown,
->(options?: {
-    mutation?: UseMutationOptions<
-        Awaited<ReturnType<typeof refreshJwtApiV1AuthRefreshPost>>,
-        TError,
-        void,
-        TContext
-    >;
-}): UseMutationResult<
-    Awaited<ReturnType<typeof refreshJwtApiV1AuthRefreshPost>>,
+export const useAuthRefreshJwt = <TError = unknown, TContext = unknown>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof authRefreshJwt>>,
+            TError,
+            void,
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof authRefreshJwt>>,
     TError,
     void,
     TContext
 > => {
-    const mutationOptions =
-        getRefreshJwtApiV1AuthRefreshPostMutationOptions(options);
+    const mutationOptions = getAuthRefreshJwtMutationOptions(options);
 
-    return useMutation(mutationOptions);
+    return useMutation(mutationOptions, queryClient);
 };
 
 /**
@@ -434,7 +604,7 @@ export const useRefreshJwtApiV1AuthRefreshPost = <
 Инвалидирует refresh token и удаляет cookie.
  * @summary Logout
  */
-export const logoutApiV1AuthLogoutPost = (signal?: AbortSignal) => {
+export const authLogout = (signal?: AbortSignal) => {
     return customInstance<unknown>({
         url: `/api/v1/auth/logout`,
         method: "POST",
@@ -442,23 +612,23 @@ export const logoutApiV1AuthLogoutPost = (signal?: AbortSignal) => {
     });
 };
 
-export const getLogoutApiV1AuthLogoutPostMutationOptions = <
+export const getAuthLogoutMutationOptions = <
     TError = unknown,
     TContext = unknown,
 >(options?: {
     mutation?: UseMutationOptions<
-        Awaited<ReturnType<typeof logoutApiV1AuthLogoutPost>>,
+        Awaited<ReturnType<typeof authLogout>>,
         TError,
         void,
         TContext
     >;
 }): UseMutationOptions<
-    Awaited<ReturnType<typeof logoutApiV1AuthLogoutPost>>,
+    Awaited<ReturnType<typeof authLogout>>,
     TError,
     void,
     TContext
 > => {
-    const mutationKey = ["logoutApiV1AuthLogoutPost"];
+    const mutationKey = ["authLogout"];
     const { mutation: mutationOptions } = options
         ? options.mutation &&
           "mutationKey" in options.mutation &&
@@ -468,51 +638,50 @@ export const getLogoutApiV1AuthLogoutPostMutationOptions = <
         : { mutation: { mutationKey } };
 
     const mutationFn: MutationFunction<
-        Awaited<ReturnType<typeof logoutApiV1AuthLogoutPost>>,
+        Awaited<ReturnType<typeof authLogout>>,
         void
     > = () => {
-        return logoutApiV1AuthLogoutPost();
+        return authLogout();
     };
 
     return { mutationFn, ...mutationOptions };
 };
 
-export type LogoutApiV1AuthLogoutPostMutationResult = NonNullable<
-    Awaited<ReturnType<typeof logoutApiV1AuthLogoutPost>>
+export type AuthLogoutMutationResult = NonNullable<
+    Awaited<ReturnType<typeof authLogout>>
 >;
 
-export type LogoutApiV1AuthLogoutPostMutationError = unknown;
+export type AuthLogoutMutationError = unknown;
 
 /**
  * @summary Logout
  */
-export const useLogoutApiV1AuthLogoutPost = <
-    TError = unknown,
-    TContext = unknown,
->(options?: {
-    mutation?: UseMutationOptions<
-        Awaited<ReturnType<typeof logoutApiV1AuthLogoutPost>>,
-        TError,
-        void,
-        TContext
-    >;
-}): UseMutationResult<
-    Awaited<ReturnType<typeof logoutApiV1AuthLogoutPost>>,
+export const useAuthLogout = <TError = unknown, TContext = unknown>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof authLogout>>,
+            TError,
+            void,
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof authLogout>>,
     TError,
     void,
     TContext
 > => {
-    const mutationOptions =
-        getLogoutApiV1AuthLogoutPostMutationOptions(options);
+    const mutationOptions = getAuthLogoutMutationOptions(options);
 
-    return useMutation(mutationOptions);
+    return useMutation(mutationOptions, queryClient);
 };
 
 /**
  * Смена пароля текущего пользователя.
  * @summary Change Password
  */
-export const changePasswordApiV1AuthChangePasswordPost = (
+export const authChangePassword = (
     changePasswordSchema: ChangePasswordSchema,
     signal?: AbortSignal,
 ) => {
@@ -525,23 +694,23 @@ export const changePasswordApiV1AuthChangePasswordPost = (
     });
 };
 
-export const getChangePasswordApiV1AuthChangePasswordPostMutationOptions = <
+export const getAuthChangePasswordMutationOptions = <
     TError = HTTPValidationError,
     TContext = unknown,
 >(options?: {
     mutation?: UseMutationOptions<
-        Awaited<ReturnType<typeof changePasswordApiV1AuthChangePasswordPost>>,
+        Awaited<ReturnType<typeof authChangePassword>>,
         TError,
         { data: ChangePasswordSchema },
         TContext
     >;
 }): UseMutationOptions<
-    Awaited<ReturnType<typeof changePasswordApiV1AuthChangePasswordPost>>,
+    Awaited<ReturnType<typeof authChangePassword>>,
     TError,
     { data: ChangePasswordSchema },
     TContext
 > => {
-    const mutationKey = ["changePasswordApiV1AuthChangePasswordPost"];
+    const mutationKey = ["authChangePassword"];
     const { mutation: mutationOptions } = options
         ? options.mutation &&
           "mutationKey" in options.mutation &&
@@ -551,56 +720,55 @@ export const getChangePasswordApiV1AuthChangePasswordPostMutationOptions = <
         : { mutation: { mutationKey } };
 
     const mutationFn: MutationFunction<
-        Awaited<ReturnType<typeof changePasswordApiV1AuthChangePasswordPost>>,
+        Awaited<ReturnType<typeof authChangePassword>>,
         { data: ChangePasswordSchema }
     > = (props) => {
         const { data } = props ?? {};
 
-        return changePasswordApiV1AuthChangePasswordPost(data);
+        return authChangePassword(data);
     };
 
     return { mutationFn, ...mutationOptions };
 };
 
-export type ChangePasswordApiV1AuthChangePasswordPostMutationResult =
-    NonNullable<
-        Awaited<ReturnType<typeof changePasswordApiV1AuthChangePasswordPost>>
-    >;
-export type ChangePasswordApiV1AuthChangePasswordPostMutationBody =
-    ChangePasswordSchema;
-export type ChangePasswordApiV1AuthChangePasswordPostMutationError =
-    HTTPValidationError;
+export type AuthChangePasswordMutationResult = NonNullable<
+    Awaited<ReturnType<typeof authChangePassword>>
+>;
+export type AuthChangePasswordMutationBody = ChangePasswordSchema;
+export type AuthChangePasswordMutationError = HTTPValidationError;
 
 /**
  * @summary Change Password
  */
-export const useChangePasswordApiV1AuthChangePasswordPost = <
+export const useAuthChangePassword = <
     TError = HTTPValidationError,
     TContext = unknown,
->(options?: {
-    mutation?: UseMutationOptions<
-        Awaited<ReturnType<typeof changePasswordApiV1AuthChangePasswordPost>>,
-        TError,
-        { data: ChangePasswordSchema },
-        TContext
-    >;
-}): UseMutationResult<
-    Awaited<ReturnType<typeof changePasswordApiV1AuthChangePasswordPost>>,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof authChangePassword>>,
+            TError,
+            { data: ChangePasswordSchema },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof authChangePassword>>,
     TError,
     { data: ChangePasswordSchema },
     TContext
 > => {
-    const mutationOptions =
-        getChangePasswordApiV1AuthChangePasswordPostMutationOptions(options);
+    const mutationOptions = getAuthChangePasswordMutationOptions(options);
 
-    return useMutation(mutationOptions);
+    return useMutation(mutationOptions, queryClient);
 };
 
 /**
  * Завершение всех сессий пользователя.
  * @summary Quit All
  */
-export const quitAllApiV1AuthQuitAllPost = (signal?: AbortSignal) => {
+export const authQuitAll = (signal?: AbortSignal) => {
     return customInstance<unknown>({
         url: `/api/v1/auth/quit_all`,
         method: "POST",
@@ -608,23 +776,23 @@ export const quitAllApiV1AuthQuitAllPost = (signal?: AbortSignal) => {
     });
 };
 
-export const getQuitAllApiV1AuthQuitAllPostMutationOptions = <
+export const getAuthQuitAllMutationOptions = <
     TError = unknown,
     TContext = unknown,
 >(options?: {
     mutation?: UseMutationOptions<
-        Awaited<ReturnType<typeof quitAllApiV1AuthQuitAllPost>>,
+        Awaited<ReturnType<typeof authQuitAll>>,
         TError,
         void,
         TContext
     >;
 }): UseMutationOptions<
-    Awaited<ReturnType<typeof quitAllApiV1AuthQuitAllPost>>,
+    Awaited<ReturnType<typeof authQuitAll>>,
     TError,
     void,
     TContext
 > => {
-    const mutationKey = ["quitAllApiV1AuthQuitAllPost"];
+    const mutationKey = ["authQuitAll"];
     const { mutation: mutationOptions } = options
         ? options.mutation &&
           "mutationKey" in options.mutation &&
@@ -634,44 +802,43 @@ export const getQuitAllApiV1AuthQuitAllPostMutationOptions = <
         : { mutation: { mutationKey } };
 
     const mutationFn: MutationFunction<
-        Awaited<ReturnType<typeof quitAllApiV1AuthQuitAllPost>>,
+        Awaited<ReturnType<typeof authQuitAll>>,
         void
     > = () => {
-        return quitAllApiV1AuthQuitAllPost();
+        return authQuitAll();
     };
 
     return { mutationFn, ...mutationOptions };
 };
 
-export type QuitAllApiV1AuthQuitAllPostMutationResult = NonNullable<
-    Awaited<ReturnType<typeof quitAllApiV1AuthQuitAllPost>>
+export type AuthQuitAllMutationResult = NonNullable<
+    Awaited<ReturnType<typeof authQuitAll>>
 >;
 
-export type QuitAllApiV1AuthQuitAllPostMutationError = unknown;
+export type AuthQuitAllMutationError = unknown;
 
 /**
  * @summary Quit All
  */
-export const useQuitAllApiV1AuthQuitAllPost = <
-    TError = unknown,
-    TContext = unknown,
->(options?: {
-    mutation?: UseMutationOptions<
-        Awaited<ReturnType<typeof quitAllApiV1AuthQuitAllPost>>,
-        TError,
-        void,
-        TContext
-    >;
-}): UseMutationResult<
-    Awaited<ReturnType<typeof quitAllApiV1AuthQuitAllPost>>,
+export const useAuthQuitAll = <TError = unknown, TContext = unknown>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof authQuitAll>>,
+            TError,
+            void,
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof authQuitAll>>,
     TError,
     void,
     TContext
 > => {
-    const mutationOptions =
-        getQuitAllApiV1AuthQuitAllPostMutationOptions(options);
+    const mutationOptions = getAuthQuitAllMutationOptions(options);
 
-    return useMutation(mutationOptions);
+    return useMutation(mutationOptions, queryClient);
 };
 
 /**
@@ -679,8 +846,8 @@ export const useQuitAllApiV1AuthQuitAllPost = <
 Ссылка из письма ведет сюда.
  * @summary Verify Account
  */
-export const verifyAccountApiV1AuthVerifyGet = (
-    params: VerifyAccountApiV1AuthVerifyGetParams,
+export const authVerifyAccount = (
+    params: AuthVerifyAccountParams,
     signal?: AbortSignal,
 ) => {
     return customInstance<unknown>({
@@ -691,72 +858,146 @@ export const verifyAccountApiV1AuthVerifyGet = (
     });
 };
 
-export const getVerifyAccountApiV1AuthVerifyGetQueryKey = (
-    params?: VerifyAccountApiV1AuthVerifyGetParams,
+export const getAuthVerifyAccountQueryKey = (
+    params?: AuthVerifyAccountParams,
 ) => {
     return [`/api/v1/auth/verify`, ...(params ? [params] : [])] as const;
 };
 
-export const getVerifyAccountApiV1AuthVerifyGetQueryOptions = <
-    TData = Awaited<ReturnType<typeof verifyAccountApiV1AuthVerifyGet>>,
+export const getAuthVerifyAccountQueryOptions = <
+    TData = Awaited<ReturnType<typeof authVerifyAccount>>,
     TError = HTTPValidationError,
 >(
-    params: VerifyAccountApiV1AuthVerifyGetParams,
+    params: AuthVerifyAccountParams,
     options?: {
-        query?: UseQueryOptions<
-            Awaited<ReturnType<typeof verifyAccountApiV1AuthVerifyGet>>,
-            TError,
-            TData
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof authVerifyAccount>>,
+                TError,
+                TData
+            >
         >;
     },
 ) => {
     const { query: queryOptions } = options ?? {};
 
     const queryKey =
-        queryOptions?.queryKey ??
-        getVerifyAccountApiV1AuthVerifyGetQueryKey(params);
+        queryOptions?.queryKey ?? getAuthVerifyAccountQueryKey(params);
 
     const queryFn: QueryFunction<
-        Awaited<ReturnType<typeof verifyAccountApiV1AuthVerifyGet>>
-    > = ({ signal }) => verifyAccountApiV1AuthVerifyGet(params, signal);
+        Awaited<ReturnType<typeof authVerifyAccount>>
+    > = ({ signal }) => authVerifyAccount(params, signal);
 
     return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
-        Awaited<ReturnType<typeof verifyAccountApiV1AuthVerifyGet>>,
+        Awaited<ReturnType<typeof authVerifyAccount>>,
         TError,
         TData
-    > & { queryKey: QueryKey };
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
-export type VerifyAccountApiV1AuthVerifyGetQueryResult = NonNullable<
-    Awaited<ReturnType<typeof verifyAccountApiV1AuthVerifyGet>>
+export type AuthVerifyAccountQueryResult = NonNullable<
+    Awaited<ReturnType<typeof authVerifyAccount>>
 >;
-export type VerifyAccountApiV1AuthVerifyGetQueryError = HTTPValidationError;
+export type AuthVerifyAccountQueryError = HTTPValidationError;
 
+export function useAuthVerifyAccount<
+    TData = Awaited<ReturnType<typeof authVerifyAccount>>,
+    TError = HTTPValidationError,
+>(
+    params: AuthVerifyAccountParams,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof authVerifyAccount>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof authVerifyAccount>>,
+                    TError,
+                    Awaited<ReturnType<typeof authVerifyAccount>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useAuthVerifyAccount<
+    TData = Awaited<ReturnType<typeof authVerifyAccount>>,
+    TError = HTTPValidationError,
+>(
+    params: AuthVerifyAccountParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof authVerifyAccount>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof authVerifyAccount>>,
+                    TError,
+                    Awaited<ReturnType<typeof authVerifyAccount>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useAuthVerifyAccount<
+    TData = Awaited<ReturnType<typeof authVerifyAccount>>,
+    TError = HTTPValidationError,
+>(
+    params: AuthVerifyAccountParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof authVerifyAccount>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary Verify Account
  */
 
-export function useVerifyAccountApiV1AuthVerifyGet<
-    TData = Awaited<ReturnType<typeof verifyAccountApiV1AuthVerifyGet>>,
+export function useAuthVerifyAccount<
+    TData = Awaited<ReturnType<typeof authVerifyAccount>>,
     TError = HTTPValidationError,
 >(
-    params: VerifyAccountApiV1AuthVerifyGetParams,
+    params: AuthVerifyAccountParams,
     options?: {
-        query?: UseQueryOptions<
-            Awaited<ReturnType<typeof verifyAccountApiV1AuthVerifyGet>>,
-            TError,
-            TData
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof authVerifyAccount>>,
+                TError,
+                TData
+            >
         >;
     },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-    const queryOptions = getVerifyAccountApiV1AuthVerifyGetQueryOptions(
-        params,
-        options,
-    );
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getAuthVerifyAccountQueryOptions(params, options);
 
-    const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-        queryKey: QueryKey;
-    };
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
 
     query.queryKey = queryOptions.queryKey;
 
@@ -767,9 +1008,7 @@ export function useVerifyAccountApiV1AuthVerifyGet<
  * Повторная отправка письма с подтверждением email.
  * @summary Resend Verification
  */
-export const resendVerificationApiV1AuthResendVerificationPost = (
-    signal?: AbortSignal,
-) => {
+export const authResendVerification = (signal?: AbortSignal) => {
     return customInstance<unknown>({
         url: `/api/v1/auth/resend_verification`,
         method: "POST",
@@ -777,90 +1016,69 @@ export const resendVerificationApiV1AuthResendVerificationPost = (
     });
 };
 
-export const getResendVerificationApiV1AuthResendVerificationPostMutationOptions =
-    <TError = unknown, TContext = unknown>(options?: {
-        mutation?: UseMutationOptions<
-            Awaited<
-                ReturnType<
-                    typeof resendVerificationApiV1AuthResendVerificationPost
-                >
-            >,
-            TError,
-            void,
-            TContext
-        >;
-    }): UseMutationOptions<
-        Awaited<
-            ReturnType<typeof resendVerificationApiV1AuthResendVerificationPost>
-        >,
-        TError,
-        void,
-        TContext
-    > => {
-        const mutationKey = [
-            "resendVerificationApiV1AuthResendVerificationPost",
-        ];
-        const { mutation: mutationOptions } = options
-            ? options.mutation &&
-              "mutationKey" in options.mutation &&
-              options.mutation.mutationKey
-                ? options
-                : { ...options, mutation: { ...options.mutation, mutationKey } }
-            : { mutation: { mutationKey } };
-
-        const mutationFn: MutationFunction<
-            Awaited<
-                ReturnType<
-                    typeof resendVerificationApiV1AuthResendVerificationPost
-                >
-            >,
-            void
-        > = () => {
-            return resendVerificationApiV1AuthResendVerificationPost();
-        };
-
-        return { mutationFn, ...mutationOptions };
-    };
-
-export type ResendVerificationApiV1AuthResendVerificationPostMutationResult =
-    NonNullable<
-        Awaited<
-            ReturnType<typeof resendVerificationApiV1AuthResendVerificationPost>
-        >
-    >;
-
-export type ResendVerificationApiV1AuthResendVerificationPostMutationError =
-    unknown;
-
-/**
- * @summary Resend Verification
- */
-export const useResendVerificationApiV1AuthResendVerificationPost = <
+export const getAuthResendVerificationMutationOptions = <
     TError = unknown,
     TContext = unknown,
 >(options?: {
     mutation?: UseMutationOptions<
-        Awaited<
-            ReturnType<typeof resendVerificationApiV1AuthResendVerificationPost>
-        >,
+        Awaited<ReturnType<typeof authResendVerification>>,
         TError,
         void,
         TContext
     >;
-}): UseMutationResult<
-    Awaited<
-        ReturnType<typeof resendVerificationApiV1AuthResendVerificationPost>
-    >,
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof authResendVerification>>,
     TError,
     void,
     TContext
 > => {
-    const mutationOptions =
-        getResendVerificationApiV1AuthResendVerificationPostMutationOptions(
-            options,
-        );
+    const mutationKey = ["authResendVerification"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
 
-    return useMutation(mutationOptions);
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof authResendVerification>>,
+        void
+    > = () => {
+        return authResendVerification();
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type AuthResendVerificationMutationResult = NonNullable<
+    Awaited<ReturnType<typeof authResendVerification>>
+>;
+
+export type AuthResendVerificationMutationError = unknown;
+
+/**
+ * @summary Resend Verification
+ */
+export const useAuthResendVerification = <TError = unknown, TContext = unknown>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof authResendVerification>>,
+            TError,
+            void,
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof authResendVerification>>,
+    TError,
+    void,
+    TContext
+> => {
+    const mutationOptions = getAuthResendVerificationMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
 };
 
 /**
@@ -869,7 +1087,7 @@ export const useResendVerificationApiV1AuthResendVerificationPost = <
 Всегда возвращает успех, чтобы не раскрывать существование email в системе.
  * @summary Forgot Password
  */
-export const forgotPasswordApiV1AuthForgotPasswordPost = (
+export const authForgotPassword = (
     forgotPasswordSchema: ForgotPasswordSchema,
     signal?: AbortSignal,
 ) => {
@@ -882,23 +1100,23 @@ export const forgotPasswordApiV1AuthForgotPasswordPost = (
     });
 };
 
-export const getForgotPasswordApiV1AuthForgotPasswordPostMutationOptions = <
+export const getAuthForgotPasswordMutationOptions = <
     TError = HTTPValidationError,
     TContext = unknown,
 >(options?: {
     mutation?: UseMutationOptions<
-        Awaited<ReturnType<typeof forgotPasswordApiV1AuthForgotPasswordPost>>,
+        Awaited<ReturnType<typeof authForgotPassword>>,
         TError,
         { data: ForgotPasswordSchema },
         TContext
     >;
 }): UseMutationOptions<
-    Awaited<ReturnType<typeof forgotPasswordApiV1AuthForgotPasswordPost>>,
+    Awaited<ReturnType<typeof authForgotPassword>>,
     TError,
     { data: ForgotPasswordSchema },
     TContext
 > => {
-    const mutationKey = ["forgotPasswordApiV1AuthForgotPasswordPost"];
+    const mutationKey = ["authForgotPassword"];
     const { mutation: mutationOptions } = options
         ? options.mutation &&
           "mutationKey" in options.mutation &&
@@ -908,56 +1126,55 @@ export const getForgotPasswordApiV1AuthForgotPasswordPostMutationOptions = <
         : { mutation: { mutationKey } };
 
     const mutationFn: MutationFunction<
-        Awaited<ReturnType<typeof forgotPasswordApiV1AuthForgotPasswordPost>>,
+        Awaited<ReturnType<typeof authForgotPassword>>,
         { data: ForgotPasswordSchema }
     > = (props) => {
         const { data } = props ?? {};
 
-        return forgotPasswordApiV1AuthForgotPasswordPost(data);
+        return authForgotPassword(data);
     };
 
     return { mutationFn, ...mutationOptions };
 };
 
-export type ForgotPasswordApiV1AuthForgotPasswordPostMutationResult =
-    NonNullable<
-        Awaited<ReturnType<typeof forgotPasswordApiV1AuthForgotPasswordPost>>
-    >;
-export type ForgotPasswordApiV1AuthForgotPasswordPostMutationBody =
-    ForgotPasswordSchema;
-export type ForgotPasswordApiV1AuthForgotPasswordPostMutationError =
-    HTTPValidationError;
+export type AuthForgotPasswordMutationResult = NonNullable<
+    Awaited<ReturnType<typeof authForgotPassword>>
+>;
+export type AuthForgotPasswordMutationBody = ForgotPasswordSchema;
+export type AuthForgotPasswordMutationError = HTTPValidationError;
 
 /**
  * @summary Forgot Password
  */
-export const useForgotPasswordApiV1AuthForgotPasswordPost = <
+export const useAuthForgotPassword = <
     TError = HTTPValidationError,
     TContext = unknown,
->(options?: {
-    mutation?: UseMutationOptions<
-        Awaited<ReturnType<typeof forgotPasswordApiV1AuthForgotPasswordPost>>,
-        TError,
-        { data: ForgotPasswordSchema },
-        TContext
-    >;
-}): UseMutationResult<
-    Awaited<ReturnType<typeof forgotPasswordApiV1AuthForgotPasswordPost>>,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof authForgotPassword>>,
+            TError,
+            { data: ForgotPasswordSchema },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof authForgotPassword>>,
     TError,
     { data: ForgotPasswordSchema },
     TContext
 > => {
-    const mutationOptions =
-        getForgotPasswordApiV1AuthForgotPasswordPostMutationOptions(options);
+    const mutationOptions = getAuthForgotPasswordMutationOptions(options);
 
-    return useMutation(mutationOptions);
+    return useMutation(mutationOptions, queryClient);
 };
 
 /**
  * Сброс пароля по токену из письма.
  * @summary Reset Password
  */
-export const resetPasswordApiV1AuthResetPasswordPost = (
+export const authResetPassword = (
     resetPasswordSchema: ResetPasswordSchema,
     signal?: AbortSignal,
 ) => {
@@ -970,23 +1187,23 @@ export const resetPasswordApiV1AuthResetPasswordPost = (
     });
 };
 
-export const getResetPasswordApiV1AuthResetPasswordPostMutationOptions = <
+export const getAuthResetPasswordMutationOptions = <
     TError = HTTPValidationError,
     TContext = unknown,
 >(options?: {
     mutation?: UseMutationOptions<
-        Awaited<ReturnType<typeof resetPasswordApiV1AuthResetPasswordPost>>,
+        Awaited<ReturnType<typeof authResetPassword>>,
         TError,
         { data: ResetPasswordSchema },
         TContext
     >;
 }): UseMutationOptions<
-    Awaited<ReturnType<typeof resetPasswordApiV1AuthResetPasswordPost>>,
+    Awaited<ReturnType<typeof authResetPassword>>,
     TError,
     { data: ResetPasswordSchema },
     TContext
 > => {
-    const mutationKey = ["resetPasswordApiV1AuthResetPasswordPost"];
+    const mutationKey = ["authResetPassword"];
     const { mutation: mutationOptions } = options
         ? options.mutation &&
           "mutationKey" in options.mutation &&
@@ -996,55 +1213,2833 @@ export const getResetPasswordApiV1AuthResetPasswordPostMutationOptions = <
         : { mutation: { mutationKey } };
 
     const mutationFn: MutationFunction<
-        Awaited<ReturnType<typeof resetPasswordApiV1AuthResetPasswordPost>>,
+        Awaited<ReturnType<typeof authResetPassword>>,
         { data: ResetPasswordSchema }
     > = (props) => {
         const { data } = props ?? {};
 
-        return resetPasswordApiV1AuthResetPasswordPost(data);
+        return authResetPassword(data);
     };
 
     return { mutationFn, ...mutationOptions };
 };
 
-export type ResetPasswordApiV1AuthResetPasswordPostMutationResult = NonNullable<
-    Awaited<ReturnType<typeof resetPasswordApiV1AuthResetPasswordPost>>
+export type AuthResetPasswordMutationResult = NonNullable<
+    Awaited<ReturnType<typeof authResetPassword>>
 >;
-export type ResetPasswordApiV1AuthResetPasswordPostMutationBody =
-    ResetPasswordSchema;
-export type ResetPasswordApiV1AuthResetPasswordPostMutationError =
-    HTTPValidationError;
+export type AuthResetPasswordMutationBody = ResetPasswordSchema;
+export type AuthResetPasswordMutationError = HTTPValidationError;
 
 /**
  * @summary Reset Password
  */
-export const useResetPasswordApiV1AuthResetPasswordPost = <
+export const useAuthResetPassword = <
     TError = HTTPValidationError,
     TContext = unknown,
->(options?: {
-    mutation?: UseMutationOptions<
-        Awaited<ReturnType<typeof resetPasswordApiV1AuthResetPasswordPost>>,
-        TError,
-        { data: ResetPasswordSchema },
-        TContext
-    >;
-}): UseMutationResult<
-    Awaited<ReturnType<typeof resetPasswordApiV1AuthResetPasswordPost>>,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof authResetPassword>>,
+            TError,
+            { data: ResetPasswordSchema },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof authResetPassword>>,
     TError,
     { data: ResetPasswordSchema },
     TContext
 > => {
-    const mutationOptions =
-        getResetPasswordApiV1AuthResetPasswordPostMutationOptions(options);
+    const mutationOptions = getAuthResetPasswordMutationOptions(options);
 
-    return useMutation(mutationOptions);
+    return useMutation(mutationOptions, queryClient);
 };
+
+/**
+ * @summary Get Cities
+ */
+export const citiesGetCities = (signal?: AbortSignal) => {
+    return customInstance<CityDTO[]>({
+        url: `/api/v1/cities/`,
+        method: "GET",
+        signal,
+    });
+};
+
+export const getCitiesGetCitiesQueryKey = () => {
+    return [`/api/v1/cities/`] as const;
+};
+
+export const getCitiesGetCitiesQueryOptions = <
+    TData = Awaited<ReturnType<typeof citiesGetCities>>,
+    TError = unknown,
+>(options?: {
+    query?: Partial<
+        UseQueryOptions<
+            Awaited<ReturnType<typeof citiesGetCities>>,
+            TError,
+            TData
+        >
+    >;
+}) => {
+    const { query: queryOptions } = options ?? {};
+
+    const queryKey = queryOptions?.queryKey ?? getCitiesGetCitiesQueryKey();
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof citiesGetCities>>
+    > = ({ signal }) => citiesGetCities(signal);
+
+    return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+        Awaited<ReturnType<typeof citiesGetCities>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type CitiesGetCitiesQueryResult = NonNullable<
+    Awaited<ReturnType<typeof citiesGetCities>>
+>;
+export type CitiesGetCitiesQueryError = unknown;
+
+export function useCitiesGetCities<
+    TData = Awaited<ReturnType<typeof citiesGetCities>>,
+    TError = unknown,
+>(
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof citiesGetCities>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof citiesGetCities>>,
+                    TError,
+                    Awaited<ReturnType<typeof citiesGetCities>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useCitiesGetCities<
+    TData = Awaited<ReturnType<typeof citiesGetCities>>,
+    TError = unknown,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof citiesGetCities>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof citiesGetCities>>,
+                    TError,
+                    Awaited<ReturnType<typeof citiesGetCities>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useCitiesGetCities<
+    TData = Awaited<ReturnType<typeof citiesGetCities>>,
+    TError = unknown,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof citiesGetCities>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get Cities
+ */
+
+export function useCitiesGetCities<
+    TData = Awaited<ReturnType<typeof citiesGetCities>>,
+    TError = unknown,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof citiesGetCities>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getCitiesGetCitiesQueryOptions(options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * @summary Create City
+ */
+export const citiesCreateCity = (
+    createCitySchema: CreateCitySchema,
+    signal?: AbortSignal,
+) => {
+    return customInstance<CityDTO>({
+        url: `/api/v1/cities/`,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        data: createCitySchema,
+        signal,
+    });
+};
+
+export const getCitiesCreateCityMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof citiesCreateCity>>,
+        TError,
+        { data: CreateCitySchema },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof citiesCreateCity>>,
+    TError,
+    { data: CreateCitySchema },
+    TContext
+> => {
+    const mutationKey = ["citiesCreateCity"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof citiesCreateCity>>,
+        { data: CreateCitySchema }
+    > = (props) => {
+        const { data } = props ?? {};
+
+        return citiesCreateCity(data);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type CitiesCreateCityMutationResult = NonNullable<
+    Awaited<ReturnType<typeof citiesCreateCity>>
+>;
+export type CitiesCreateCityMutationBody = CreateCitySchema;
+export type CitiesCreateCityMutationError = HTTPValidationError;
+
+/**
+ * @summary Create City
+ */
+export const useCitiesCreateCity = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof citiesCreateCity>>,
+            TError,
+            { data: CreateCitySchema },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof citiesCreateCity>>,
+    TError,
+    { data: CreateCitySchema },
+    TContext
+> => {
+    const mutationOptions = getCitiesCreateCityMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Get City
+ */
+export const citiesGetCity = (cityId: string, signal?: AbortSignal) => {
+    return customInstance<CityDTO>({
+        url: `/api/v1/cities/${cityId}`,
+        method: "GET",
+        signal,
+    });
+};
+
+export const getCitiesGetCityQueryKey = (cityId?: string) => {
+    return [`/api/v1/cities/${cityId}`] as const;
+};
+
+export const getCitiesGetCityQueryOptions = <
+    TData = Awaited<ReturnType<typeof citiesGetCity>>,
+    TError = HTTPValidationError,
+>(
+    cityId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof citiesGetCity>>,
+                TError,
+                TData
+            >
+        >;
+    },
+) => {
+    const { query: queryOptions } = options ?? {};
+
+    const queryKey = queryOptions?.queryKey ?? getCitiesGetCityQueryKey(cityId);
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof citiesGetCity>>> = ({
+        signal,
+    }) => citiesGetCity(cityId, signal);
+
+    return {
+        queryKey,
+        queryFn,
+        enabled: !!cityId,
+        ...queryOptions,
+    } as UseQueryOptions<
+        Awaited<ReturnType<typeof citiesGetCity>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type CitiesGetCityQueryResult = NonNullable<
+    Awaited<ReturnType<typeof citiesGetCity>>
+>;
+export type CitiesGetCityQueryError = HTTPValidationError;
+
+export function useCitiesGetCity<
+    TData = Awaited<ReturnType<typeof citiesGetCity>>,
+    TError = HTTPValidationError,
+>(
+    cityId: string,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof citiesGetCity>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof citiesGetCity>>,
+                    TError,
+                    Awaited<ReturnType<typeof citiesGetCity>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useCitiesGetCity<
+    TData = Awaited<ReturnType<typeof citiesGetCity>>,
+    TError = HTTPValidationError,
+>(
+    cityId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof citiesGetCity>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof citiesGetCity>>,
+                    TError,
+                    Awaited<ReturnType<typeof citiesGetCity>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useCitiesGetCity<
+    TData = Awaited<ReturnType<typeof citiesGetCity>>,
+    TError = HTTPValidationError,
+>(
+    cityId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof citiesGetCity>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get City
+ */
+
+export function useCitiesGetCity<
+    TData = Awaited<ReturnType<typeof citiesGetCity>>,
+    TError = HTTPValidationError,
+>(
+    cityId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof citiesGetCity>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getCitiesGetCityQueryOptions(cityId, options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * @summary Update City
+ */
+export const citiesUpdateCity = (
+    cityId: string,
+    updateCitySchema: UpdateCitySchema,
+) => {
+    return customInstance<CityDTO>({
+        url: `/api/v1/cities/${cityId}`,
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        data: updateCitySchema,
+    });
+};
+
+export const getCitiesUpdateCityMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof citiesUpdateCity>>,
+        TError,
+        { cityId: string; data: UpdateCitySchema },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof citiesUpdateCity>>,
+    TError,
+    { cityId: string; data: UpdateCitySchema },
+    TContext
+> => {
+    const mutationKey = ["citiesUpdateCity"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof citiesUpdateCity>>,
+        { cityId: string; data: UpdateCitySchema }
+    > = (props) => {
+        const { cityId, data } = props ?? {};
+
+        return citiesUpdateCity(cityId, data);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type CitiesUpdateCityMutationResult = NonNullable<
+    Awaited<ReturnType<typeof citiesUpdateCity>>
+>;
+export type CitiesUpdateCityMutationBody = UpdateCitySchema;
+export type CitiesUpdateCityMutationError = HTTPValidationError;
+
+/**
+ * @summary Update City
+ */
+export const useCitiesUpdateCity = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof citiesUpdateCity>>,
+            TError,
+            { cityId: string; data: UpdateCitySchema },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof citiesUpdateCity>>,
+    TError,
+    { cityId: string; data: UpdateCitySchema },
+    TContext
+> => {
+    const mutationOptions = getCitiesUpdateCityMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Delete City
+ */
+export const citiesDeleteCity = (cityId: string) => {
+    return customInstance<void>({
+        url: `/api/v1/cities/${cityId}`,
+        method: "DELETE",
+    });
+};
+
+export const getCitiesDeleteCityMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof citiesDeleteCity>>,
+        TError,
+        { cityId: string },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof citiesDeleteCity>>,
+    TError,
+    { cityId: string },
+    TContext
+> => {
+    const mutationKey = ["citiesDeleteCity"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof citiesDeleteCity>>,
+        { cityId: string }
+    > = (props) => {
+        const { cityId } = props ?? {};
+
+        return citiesDeleteCity(cityId);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type CitiesDeleteCityMutationResult = NonNullable<
+    Awaited<ReturnType<typeof citiesDeleteCity>>
+>;
+
+export type CitiesDeleteCityMutationError = HTTPValidationError;
+
+/**
+ * @summary Delete City
+ */
+export const useCitiesDeleteCity = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof citiesDeleteCity>>,
+            TError,
+            { cityId: string },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof citiesDeleteCity>>,
+    TError,
+    { cityId: string },
+    TContext
+> => {
+    const mutationOptions = getCitiesDeleteCityMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Get Projects
+ */
+export const projectsGetProjects = (signal?: AbortSignal) => {
+    return customInstance<ProjectDTO[]>({
+        url: `/api/v1/projects/`,
+        method: "GET",
+        signal,
+    });
+};
+
+export const getProjectsGetProjectsQueryKey = () => {
+    return [`/api/v1/projects/`] as const;
+};
+
+export const getProjectsGetProjectsQueryOptions = <
+    TData = Awaited<ReturnType<typeof projectsGetProjects>>,
+    TError = unknown,
+>(options?: {
+    query?: Partial<
+        UseQueryOptions<
+            Awaited<ReturnType<typeof projectsGetProjects>>,
+            TError,
+            TData
+        >
+    >;
+}) => {
+    const { query: queryOptions } = options ?? {};
+
+    const queryKey = queryOptions?.queryKey ?? getProjectsGetProjectsQueryKey();
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof projectsGetProjects>>
+    > = ({ signal }) => projectsGetProjects(signal);
+
+    return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+        Awaited<ReturnType<typeof projectsGetProjects>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type ProjectsGetProjectsQueryResult = NonNullable<
+    Awaited<ReturnType<typeof projectsGetProjects>>
+>;
+export type ProjectsGetProjectsQueryError = unknown;
+
+export function useProjectsGetProjects<
+    TData = Awaited<ReturnType<typeof projectsGetProjects>>,
+    TError = unknown,
+>(
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProjects>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof projectsGetProjects>>,
+                    TError,
+                    Awaited<ReturnType<typeof projectsGetProjects>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useProjectsGetProjects<
+    TData = Awaited<ReturnType<typeof projectsGetProjects>>,
+    TError = unknown,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProjects>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof projectsGetProjects>>,
+                    TError,
+                    Awaited<ReturnType<typeof projectsGetProjects>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useProjectsGetProjects<
+    TData = Awaited<ReturnType<typeof projectsGetProjects>>,
+    TError = unknown,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProjects>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get Projects
+ */
+
+export function useProjectsGetProjects<
+    TData = Awaited<ReturnType<typeof projectsGetProjects>>,
+    TError = unknown,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProjects>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getProjectsGetProjectsQueryOptions(options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * @summary Create Project
+ */
+export const projectsCreateProject = (
+    createProjectSchema: CreateProjectSchema,
+    signal?: AbortSignal,
+) => {
+    return customInstance<ProjectDTO>({
+        url: `/api/v1/projects/`,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        data: createProjectSchema,
+        signal,
+    });
+};
+
+export const getProjectsCreateProjectMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof projectsCreateProject>>,
+        TError,
+        { data: CreateProjectSchema },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof projectsCreateProject>>,
+    TError,
+    { data: CreateProjectSchema },
+    TContext
+> => {
+    const mutationKey = ["projectsCreateProject"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof projectsCreateProject>>,
+        { data: CreateProjectSchema }
+    > = (props) => {
+        const { data } = props ?? {};
+
+        return projectsCreateProject(data);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type ProjectsCreateProjectMutationResult = NonNullable<
+    Awaited<ReturnType<typeof projectsCreateProject>>
+>;
+export type ProjectsCreateProjectMutationBody = CreateProjectSchema;
+export type ProjectsCreateProjectMutationError = HTTPValidationError;
+
+/**
+ * @summary Create Project
+ */
+export const useProjectsCreateProject = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof projectsCreateProject>>,
+            TError,
+            { data: CreateProjectSchema },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof projectsCreateProject>>,
+    TError,
+    { data: CreateProjectSchema },
+    TContext
+> => {
+    const mutationOptions = getProjectsCreateProjectMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Get Project
+ */
+export const projectsGetProject = (projectId: string, signal?: AbortSignal) => {
+    return customInstance<ProjectDTO>({
+        url: `/api/v1/projects/${projectId}`,
+        method: "GET",
+        signal,
+    });
+};
+
+export const getProjectsGetProjectQueryKey = (projectId?: string) => {
+    return [`/api/v1/projects/${projectId}`] as const;
+};
+
+export const getProjectsGetProjectQueryOptions = <
+    TData = Awaited<ReturnType<typeof projectsGetProject>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProject>>,
+                TError,
+                TData
+            >
+        >;
+    },
+) => {
+    const { query: queryOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ?? getProjectsGetProjectQueryKey(projectId);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof projectsGetProject>>
+    > = ({ signal }) => projectsGetProject(projectId, signal);
+
+    return {
+        queryKey,
+        queryFn,
+        enabled: !!projectId,
+        ...queryOptions,
+    } as UseQueryOptions<
+        Awaited<ReturnType<typeof projectsGetProject>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type ProjectsGetProjectQueryResult = NonNullable<
+    Awaited<ReturnType<typeof projectsGetProject>>
+>;
+export type ProjectsGetProjectQueryError = HTTPValidationError;
+
+export function useProjectsGetProject<
+    TData = Awaited<ReturnType<typeof projectsGetProject>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProject>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof projectsGetProject>>,
+                    TError,
+                    Awaited<ReturnType<typeof projectsGetProject>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useProjectsGetProject<
+    TData = Awaited<ReturnType<typeof projectsGetProject>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProject>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof projectsGetProject>>,
+                    TError,
+                    Awaited<ReturnType<typeof projectsGetProject>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useProjectsGetProject<
+    TData = Awaited<ReturnType<typeof projectsGetProject>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProject>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get Project
+ */
+
+export function useProjectsGetProject<
+    TData = Awaited<ReturnType<typeof projectsGetProject>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProject>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getProjectsGetProjectQueryOptions(projectId, options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * @summary Update Project
+ */
+export const projectsUpdateProject = (
+    projectId: string,
+    updateProjectSchema: UpdateProjectSchema,
+) => {
+    return customInstance<ProjectDTO>({
+        url: `/api/v1/projects/${projectId}`,
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        data: updateProjectSchema,
+    });
+};
+
+export const getProjectsUpdateProjectMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof projectsUpdateProject>>,
+        TError,
+        { projectId: string; data: UpdateProjectSchema },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof projectsUpdateProject>>,
+    TError,
+    { projectId: string; data: UpdateProjectSchema },
+    TContext
+> => {
+    const mutationKey = ["projectsUpdateProject"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof projectsUpdateProject>>,
+        { projectId: string; data: UpdateProjectSchema }
+    > = (props) => {
+        const { projectId, data } = props ?? {};
+
+        return projectsUpdateProject(projectId, data);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type ProjectsUpdateProjectMutationResult = NonNullable<
+    Awaited<ReturnType<typeof projectsUpdateProject>>
+>;
+export type ProjectsUpdateProjectMutationBody = UpdateProjectSchema;
+export type ProjectsUpdateProjectMutationError = HTTPValidationError;
+
+/**
+ * @summary Update Project
+ */
+export const useProjectsUpdateProject = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof projectsUpdateProject>>,
+            TError,
+            { projectId: string; data: UpdateProjectSchema },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof projectsUpdateProject>>,
+    TError,
+    { projectId: string; data: UpdateProjectSchema },
+    TContext
+> => {
+    const mutationOptions = getProjectsUpdateProjectMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Delete Project
+ */
+export const projectsDeleteProject = (projectId: string) => {
+    return customInstance<void>({
+        url: `/api/v1/projects/${projectId}`,
+        method: "DELETE",
+    });
+};
+
+export const getProjectsDeleteProjectMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof projectsDeleteProject>>,
+        TError,
+        { projectId: string },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof projectsDeleteProject>>,
+    TError,
+    { projectId: string },
+    TContext
+> => {
+    const mutationKey = ["projectsDeleteProject"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof projectsDeleteProject>>,
+        { projectId: string }
+    > = (props) => {
+        const { projectId } = props ?? {};
+
+        return projectsDeleteProject(projectId);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type ProjectsDeleteProjectMutationResult = NonNullable<
+    Awaited<ReturnType<typeof projectsDeleteProject>>
+>;
+
+export type ProjectsDeleteProjectMutationError = HTTPValidationError;
+
+/**
+ * @summary Delete Project
+ */
+export const useProjectsDeleteProject = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof projectsDeleteProject>>,
+            TError,
+            { projectId: string },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof projectsDeleteProject>>,
+    TError,
+    { projectId: string },
+    TContext
+> => {
+    const mutationOptions = getProjectsDeleteProjectMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Get Project Vacancies
+ */
+export const projectsGetProjectVacancies = (
+    projectId: string,
+    signal?: AbortSignal,
+) => {
+    return customInstance<ProjectVacancyDTO[]>({
+        url: `/api/v1/projects/${projectId}/vacancies`,
+        method: "GET",
+        signal,
+    });
+};
+
+export const getProjectsGetProjectVacanciesQueryKey = (projectId?: string) => {
+    return [`/api/v1/projects/${projectId}/vacancies`] as const;
+};
+
+export const getProjectsGetProjectVacanciesQueryOptions = <
+    TData = Awaited<ReturnType<typeof projectsGetProjectVacancies>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProjectVacancies>>,
+                TError,
+                TData
+            >
+        >;
+    },
+) => {
+    const { query: queryOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ??
+        getProjectsGetProjectVacanciesQueryKey(projectId);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof projectsGetProjectVacancies>>
+    > = ({ signal }) => projectsGetProjectVacancies(projectId, signal);
+
+    return {
+        queryKey,
+        queryFn,
+        enabled: !!projectId,
+        ...queryOptions,
+    } as UseQueryOptions<
+        Awaited<ReturnType<typeof projectsGetProjectVacancies>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type ProjectsGetProjectVacanciesQueryResult = NonNullable<
+    Awaited<ReturnType<typeof projectsGetProjectVacancies>>
+>;
+export type ProjectsGetProjectVacanciesQueryError = HTTPValidationError;
+
+export function useProjectsGetProjectVacancies<
+    TData = Awaited<ReturnType<typeof projectsGetProjectVacancies>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProjectVacancies>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof projectsGetProjectVacancies>>,
+                    TError,
+                    Awaited<ReturnType<typeof projectsGetProjectVacancies>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useProjectsGetProjectVacancies<
+    TData = Awaited<ReturnType<typeof projectsGetProjectVacancies>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProjectVacancies>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof projectsGetProjectVacancies>>,
+                    TError,
+                    Awaited<ReturnType<typeof projectsGetProjectVacancies>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useProjectsGetProjectVacancies<
+    TData = Awaited<ReturnType<typeof projectsGetProjectVacancies>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProjectVacancies>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get Project Vacancies
+ */
+
+export function useProjectsGetProjectVacancies<
+    TData = Awaited<ReturnType<typeof projectsGetProjectVacancies>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProjectVacancies>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getProjectsGetProjectVacanciesQueryOptions(
+        projectId,
+        options,
+    );
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * @summary Create Project Vacancy
+ */
+export const projectsCreateProjectVacancy = (
+    projectId: string,
+    createProjectVacancySchema: CreateProjectVacancySchema,
+    signal?: AbortSignal,
+) => {
+    return customInstance<ProjectVacancyDTO>({
+        url: `/api/v1/projects/${projectId}/vacancies`,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        data: createProjectVacancySchema,
+        signal,
+    });
+};
+
+export const getProjectsCreateProjectVacancyMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof projectsCreateProjectVacancy>>,
+        TError,
+        { projectId: string; data: CreateProjectVacancySchema },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof projectsCreateProjectVacancy>>,
+    TError,
+    { projectId: string; data: CreateProjectVacancySchema },
+    TContext
+> => {
+    const mutationKey = ["projectsCreateProjectVacancy"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof projectsCreateProjectVacancy>>,
+        { projectId: string; data: CreateProjectVacancySchema }
+    > = (props) => {
+        const { projectId, data } = props ?? {};
+
+        return projectsCreateProjectVacancy(projectId, data);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type ProjectsCreateProjectVacancyMutationResult = NonNullable<
+    Awaited<ReturnType<typeof projectsCreateProjectVacancy>>
+>;
+export type ProjectsCreateProjectVacancyMutationBody =
+    CreateProjectVacancySchema;
+export type ProjectsCreateProjectVacancyMutationError = HTTPValidationError;
+
+/**
+ * @summary Create Project Vacancy
+ */
+export const useProjectsCreateProjectVacancy = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof projectsCreateProjectVacancy>>,
+            TError,
+            { projectId: string; data: CreateProjectVacancySchema },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof projectsCreateProjectVacancy>>,
+    TError,
+    { projectId: string; data: CreateProjectVacancySchema },
+    TContext
+> => {
+    const mutationOptions =
+        getProjectsCreateProjectVacancyMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Get Project Vacancy
+ */
+export const projectsGetProjectVacancy = (
+    projectId: string,
+    vacancyId: string,
+    signal?: AbortSignal,
+) => {
+    return customInstance<ProjectVacancyDTO>({
+        url: `/api/v1/projects/${projectId}/vacancies/${vacancyId}`,
+        method: "GET",
+        signal,
+    });
+};
+
+export const getProjectsGetProjectVacancyQueryKey = (
+    projectId?: string,
+    vacancyId?: string,
+) => {
+    return [`/api/v1/projects/${projectId}/vacancies/${vacancyId}`] as const;
+};
+
+export const getProjectsGetProjectVacancyQueryOptions = <
+    TData = Awaited<ReturnType<typeof projectsGetProjectVacancy>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    vacancyId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProjectVacancy>>,
+                TError,
+                TData
+            >
+        >;
+    },
+) => {
+    const { query: queryOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ??
+        getProjectsGetProjectVacancyQueryKey(projectId, vacancyId);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof projectsGetProjectVacancy>>
+    > = ({ signal }) => projectsGetProjectVacancy(projectId, vacancyId, signal);
+
+    return {
+        queryKey,
+        queryFn,
+        enabled: !!(projectId && vacancyId),
+        ...queryOptions,
+    } as UseQueryOptions<
+        Awaited<ReturnType<typeof projectsGetProjectVacancy>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type ProjectsGetProjectVacancyQueryResult = NonNullable<
+    Awaited<ReturnType<typeof projectsGetProjectVacancy>>
+>;
+export type ProjectsGetProjectVacancyQueryError = HTTPValidationError;
+
+export function useProjectsGetProjectVacancy<
+    TData = Awaited<ReturnType<typeof projectsGetProjectVacancy>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    vacancyId: string,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProjectVacancy>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof projectsGetProjectVacancy>>,
+                    TError,
+                    Awaited<ReturnType<typeof projectsGetProjectVacancy>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useProjectsGetProjectVacancy<
+    TData = Awaited<ReturnType<typeof projectsGetProjectVacancy>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    vacancyId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProjectVacancy>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof projectsGetProjectVacancy>>,
+                    TError,
+                    Awaited<ReturnType<typeof projectsGetProjectVacancy>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useProjectsGetProjectVacancy<
+    TData = Awaited<ReturnType<typeof projectsGetProjectVacancy>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    vacancyId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProjectVacancy>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get Project Vacancy
+ */
+
+export function useProjectsGetProjectVacancy<
+    TData = Awaited<ReturnType<typeof projectsGetProjectVacancy>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    vacancyId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProjectVacancy>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getProjectsGetProjectVacancyQueryOptions(
+        projectId,
+        vacancyId,
+        options,
+    );
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * @summary Update Project Vacancy
+ */
+export const projectsUpdateProjectVacancy = (
+    projectId: string,
+    vacancyId: string,
+    updateProjectVacancySchema: UpdateProjectVacancySchema,
+) => {
+    return customInstance<ProjectVacancyDTO>({
+        url: `/api/v1/projects/${projectId}/vacancies/${vacancyId}`,
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        data: updateProjectVacancySchema,
+    });
+};
+
+export const getProjectsUpdateProjectVacancyMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof projectsUpdateProjectVacancy>>,
+        TError,
+        {
+            projectId: string;
+            vacancyId: string;
+            data: UpdateProjectVacancySchema;
+        },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof projectsUpdateProjectVacancy>>,
+    TError,
+    { projectId: string; vacancyId: string; data: UpdateProjectVacancySchema },
+    TContext
+> => {
+    const mutationKey = ["projectsUpdateProjectVacancy"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof projectsUpdateProjectVacancy>>,
+        {
+            projectId: string;
+            vacancyId: string;
+            data: UpdateProjectVacancySchema;
+        }
+    > = (props) => {
+        const { projectId, vacancyId, data } = props ?? {};
+
+        return projectsUpdateProjectVacancy(projectId, vacancyId, data);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type ProjectsUpdateProjectVacancyMutationResult = NonNullable<
+    Awaited<ReturnType<typeof projectsUpdateProjectVacancy>>
+>;
+export type ProjectsUpdateProjectVacancyMutationBody =
+    UpdateProjectVacancySchema;
+export type ProjectsUpdateProjectVacancyMutationError = HTTPValidationError;
+
+/**
+ * @summary Update Project Vacancy
+ */
+export const useProjectsUpdateProjectVacancy = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof projectsUpdateProjectVacancy>>,
+            TError,
+            {
+                projectId: string;
+                vacancyId: string;
+                data: UpdateProjectVacancySchema;
+            },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof projectsUpdateProjectVacancy>>,
+    TError,
+    { projectId: string; vacancyId: string; data: UpdateProjectVacancySchema },
+    TContext
+> => {
+    const mutationOptions =
+        getProjectsUpdateProjectVacancyMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Delete Project Vacancy
+ */
+export const projectsDeleteProjectVacancy = (
+    projectId: string,
+    vacancyId: string,
+) => {
+    return customInstance<void>({
+        url: `/api/v1/projects/${projectId}/vacancies/${vacancyId}`,
+        method: "DELETE",
+    });
+};
+
+export const getProjectsDeleteProjectVacancyMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof projectsDeleteProjectVacancy>>,
+        TError,
+        { projectId: string; vacancyId: string },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof projectsDeleteProjectVacancy>>,
+    TError,
+    { projectId: string; vacancyId: string },
+    TContext
+> => {
+    const mutationKey = ["projectsDeleteProjectVacancy"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof projectsDeleteProjectVacancy>>,
+        { projectId: string; vacancyId: string }
+    > = (props) => {
+        const { projectId, vacancyId } = props ?? {};
+
+        return projectsDeleteProjectVacancy(projectId, vacancyId);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type ProjectsDeleteProjectVacancyMutationResult = NonNullable<
+    Awaited<ReturnType<typeof projectsDeleteProjectVacancy>>
+>;
+
+export type ProjectsDeleteProjectVacancyMutationError = HTTPValidationError;
+
+/**
+ * @summary Delete Project Vacancy
+ */
+export const useProjectsDeleteProjectVacancy = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof projectsDeleteProjectVacancy>>,
+            TError,
+            { projectId: string; vacancyId: string },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof projectsDeleteProjectVacancy>>,
+    TError,
+    { projectId: string; vacancyId: string },
+    TContext
+> => {
+    const mutationOptions =
+        getProjectsDeleteProjectVacancyMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Get Universities
+ */
+export const universitiesGetUniversities = (signal?: AbortSignal) => {
+    return customInstance<UniversityDTO[]>({
+        url: `/api/v1/universities/`,
+        method: "GET",
+        signal,
+    });
+};
+
+export const getUniversitiesGetUniversitiesQueryKey = () => {
+    return [`/api/v1/universities/`] as const;
+};
+
+export const getUniversitiesGetUniversitiesQueryOptions = <
+    TData = Awaited<ReturnType<typeof universitiesGetUniversities>>,
+    TError = unknown,
+>(options?: {
+    query?: Partial<
+        UseQueryOptions<
+            Awaited<ReturnType<typeof universitiesGetUniversities>>,
+            TError,
+            TData
+        >
+    >;
+}) => {
+    const { query: queryOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ?? getUniversitiesGetUniversitiesQueryKey();
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof universitiesGetUniversities>>
+    > = ({ signal }) => universitiesGetUniversities(signal);
+
+    return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+        Awaited<ReturnType<typeof universitiesGetUniversities>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type UniversitiesGetUniversitiesQueryResult = NonNullable<
+    Awaited<ReturnType<typeof universitiesGetUniversities>>
+>;
+export type UniversitiesGetUniversitiesQueryError = unknown;
+
+export function useUniversitiesGetUniversities<
+    TData = Awaited<ReturnType<typeof universitiesGetUniversities>>,
+    TError = unknown,
+>(
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof universitiesGetUniversities>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof universitiesGetUniversities>>,
+                    TError,
+                    Awaited<ReturnType<typeof universitiesGetUniversities>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useUniversitiesGetUniversities<
+    TData = Awaited<ReturnType<typeof universitiesGetUniversities>>,
+    TError = unknown,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof universitiesGetUniversities>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof universitiesGetUniversities>>,
+                    TError,
+                    Awaited<ReturnType<typeof universitiesGetUniversities>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useUniversitiesGetUniversities<
+    TData = Awaited<ReturnType<typeof universitiesGetUniversities>>,
+    TError = unknown,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof universitiesGetUniversities>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get Universities
+ */
+
+export function useUniversitiesGetUniversities<
+    TData = Awaited<ReturnType<typeof universitiesGetUniversities>>,
+    TError = unknown,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof universitiesGetUniversities>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getUniversitiesGetUniversitiesQueryOptions(options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * @summary Create University
+ */
+export const universitiesCreateUniversity = (
+    createUniversitySchema: CreateUniversitySchema,
+    signal?: AbortSignal,
+) => {
+    return customInstance<UniversityDTO>({
+        url: `/api/v1/universities/`,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        data: createUniversitySchema,
+        signal,
+    });
+};
+
+export const getUniversitiesCreateUniversityMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof universitiesCreateUniversity>>,
+        TError,
+        { data: CreateUniversitySchema },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof universitiesCreateUniversity>>,
+    TError,
+    { data: CreateUniversitySchema },
+    TContext
+> => {
+    const mutationKey = ["universitiesCreateUniversity"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof universitiesCreateUniversity>>,
+        { data: CreateUniversitySchema }
+    > = (props) => {
+        const { data } = props ?? {};
+
+        return universitiesCreateUniversity(data);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type UniversitiesCreateUniversityMutationResult = NonNullable<
+    Awaited<ReturnType<typeof universitiesCreateUniversity>>
+>;
+export type UniversitiesCreateUniversityMutationBody = CreateUniversitySchema;
+export type UniversitiesCreateUniversityMutationError = HTTPValidationError;
+
+/**
+ * @summary Create University
+ */
+export const useUniversitiesCreateUniversity = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof universitiesCreateUniversity>>,
+            TError,
+            { data: CreateUniversitySchema },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof universitiesCreateUniversity>>,
+    TError,
+    { data: CreateUniversitySchema },
+    TContext
+> => {
+    const mutationOptions =
+        getUniversitiesCreateUniversityMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Get University
+ */
+export const universitiesGetUniversity = (
+    universityId: string,
+    signal?: AbortSignal,
+) => {
+    return customInstance<UniversityDTO>({
+        url: `/api/v1/universities/${universityId}`,
+        method: "GET",
+        signal,
+    });
+};
+
+export const getUniversitiesGetUniversityQueryKey = (universityId?: string) => {
+    return [`/api/v1/universities/${universityId}`] as const;
+};
+
+export const getUniversitiesGetUniversityQueryOptions = <
+    TData = Awaited<ReturnType<typeof universitiesGetUniversity>>,
+    TError = HTTPValidationError,
+>(
+    universityId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof universitiesGetUniversity>>,
+                TError,
+                TData
+            >
+        >;
+    },
+) => {
+    const { query: queryOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ??
+        getUniversitiesGetUniversityQueryKey(universityId);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof universitiesGetUniversity>>
+    > = ({ signal }) => universitiesGetUniversity(universityId, signal);
+
+    return {
+        queryKey,
+        queryFn,
+        enabled: !!universityId,
+        ...queryOptions,
+    } as UseQueryOptions<
+        Awaited<ReturnType<typeof universitiesGetUniversity>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type UniversitiesGetUniversityQueryResult = NonNullable<
+    Awaited<ReturnType<typeof universitiesGetUniversity>>
+>;
+export type UniversitiesGetUniversityQueryError = HTTPValidationError;
+
+export function useUniversitiesGetUniversity<
+    TData = Awaited<ReturnType<typeof universitiesGetUniversity>>,
+    TError = HTTPValidationError,
+>(
+    universityId: string,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof universitiesGetUniversity>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof universitiesGetUniversity>>,
+                    TError,
+                    Awaited<ReturnType<typeof universitiesGetUniversity>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useUniversitiesGetUniversity<
+    TData = Awaited<ReturnType<typeof universitiesGetUniversity>>,
+    TError = HTTPValidationError,
+>(
+    universityId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof universitiesGetUniversity>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof universitiesGetUniversity>>,
+                    TError,
+                    Awaited<ReturnType<typeof universitiesGetUniversity>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useUniversitiesGetUniversity<
+    TData = Awaited<ReturnType<typeof universitiesGetUniversity>>,
+    TError = HTTPValidationError,
+>(
+    universityId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof universitiesGetUniversity>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get University
+ */
+
+export function useUniversitiesGetUniversity<
+    TData = Awaited<ReturnType<typeof universitiesGetUniversity>>,
+    TError = HTTPValidationError,
+>(
+    universityId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof universitiesGetUniversity>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getUniversitiesGetUniversityQueryOptions(
+        universityId,
+        options,
+    );
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * @summary Update University
+ */
+export const universitiesUpdateUniversity = (
+    universityId: string,
+    updateUniversitySchema: UpdateUniversitySchema,
+) => {
+    return customInstance<UniversityDTO>({
+        url: `/api/v1/universities/${universityId}`,
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        data: updateUniversitySchema,
+    });
+};
+
+export const getUniversitiesUpdateUniversityMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof universitiesUpdateUniversity>>,
+        TError,
+        { universityId: string; data: UpdateUniversitySchema },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof universitiesUpdateUniversity>>,
+    TError,
+    { universityId: string; data: UpdateUniversitySchema },
+    TContext
+> => {
+    const mutationKey = ["universitiesUpdateUniversity"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof universitiesUpdateUniversity>>,
+        { universityId: string; data: UpdateUniversitySchema }
+    > = (props) => {
+        const { universityId, data } = props ?? {};
+
+        return universitiesUpdateUniversity(universityId, data);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type UniversitiesUpdateUniversityMutationResult = NonNullable<
+    Awaited<ReturnType<typeof universitiesUpdateUniversity>>
+>;
+export type UniversitiesUpdateUniversityMutationBody = UpdateUniversitySchema;
+export type UniversitiesUpdateUniversityMutationError = HTTPValidationError;
+
+/**
+ * @summary Update University
+ */
+export const useUniversitiesUpdateUniversity = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof universitiesUpdateUniversity>>,
+            TError,
+            { universityId: string; data: UpdateUniversitySchema },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof universitiesUpdateUniversity>>,
+    TError,
+    { universityId: string; data: UpdateUniversitySchema },
+    TContext
+> => {
+    const mutationOptions =
+        getUniversitiesUpdateUniversityMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Delete University
+ */
+export const universitiesDeleteUniversity = (universityId: string) => {
+    return customInstance<void>({
+        url: `/api/v1/universities/${universityId}`,
+        method: "DELETE",
+    });
+};
+
+export const getUniversitiesDeleteUniversityMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof universitiesDeleteUniversity>>,
+        TError,
+        { universityId: string },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof universitiesDeleteUniversity>>,
+    TError,
+    { universityId: string },
+    TContext
+> => {
+    const mutationKey = ["universitiesDeleteUniversity"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof universitiesDeleteUniversity>>,
+        { universityId: string }
+    > = (props) => {
+        const { universityId } = props ?? {};
+
+        return universitiesDeleteUniversity(universityId);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type UniversitiesDeleteUniversityMutationResult = NonNullable<
+    Awaited<ReturnType<typeof universitiesDeleteUniversity>>
+>;
+
+export type UniversitiesDeleteUniversityMutationError = HTTPValidationError;
+
+/**
+ * @summary Delete University
+ */
+export const useUniversitiesDeleteUniversity = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof universitiesDeleteUniversity>>,
+            TError,
+            { universityId: string },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof universitiesDeleteUniversity>>,
+    TError,
+    { universityId: string },
+    TContext
+> => {
+    const mutationOptions =
+        getUniversitiesDeleteUniversityMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Get My Profile
+ */
+export const usersGetMyProfile = (signal?: AbortSignal) => {
+    return customInstance<UserProfileDTO>({
+        url: `/api/v1/users/profile`,
+        method: "GET",
+        signal,
+    });
+};
+
+export const getUsersGetMyProfileQueryKey = () => {
+    return [`/api/v1/users/profile`] as const;
+};
+
+export const getUsersGetMyProfileQueryOptions = <
+    TData = Awaited<ReturnType<typeof usersGetMyProfile>>,
+    TError = unknown,
+>(options?: {
+    query?: Partial<
+        UseQueryOptions<
+            Awaited<ReturnType<typeof usersGetMyProfile>>,
+            TError,
+            TData
+        >
+    >;
+}) => {
+    const { query: queryOptions } = options ?? {};
+
+    const queryKey = queryOptions?.queryKey ?? getUsersGetMyProfileQueryKey();
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof usersGetMyProfile>>
+    > = ({ signal }) => usersGetMyProfile(signal);
+
+    return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+        Awaited<ReturnType<typeof usersGetMyProfile>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type UsersGetMyProfileQueryResult = NonNullable<
+    Awaited<ReturnType<typeof usersGetMyProfile>>
+>;
+export type UsersGetMyProfileQueryError = unknown;
+
+export function useUsersGetMyProfile<
+    TData = Awaited<ReturnType<typeof usersGetMyProfile>>,
+    TError = unknown,
+>(
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof usersGetMyProfile>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof usersGetMyProfile>>,
+                    TError,
+                    Awaited<ReturnType<typeof usersGetMyProfile>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useUsersGetMyProfile<
+    TData = Awaited<ReturnType<typeof usersGetMyProfile>>,
+    TError = unknown,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof usersGetMyProfile>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof usersGetMyProfile>>,
+                    TError,
+                    Awaited<ReturnType<typeof usersGetMyProfile>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useUsersGetMyProfile<
+    TData = Awaited<ReturnType<typeof usersGetMyProfile>>,
+    TError = unknown,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof usersGetMyProfile>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get My Profile
+ */
+
+export function useUsersGetMyProfile<
+    TData = Awaited<ReturnType<typeof usersGetMyProfile>>,
+    TError = unknown,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof usersGetMyProfile>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getUsersGetMyProfileQueryOptions(options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * @summary Create My Profile
+ */
+export const usersCreateMyProfile = (
+    createUserProfileSchema: CreateUserProfileSchema,
+    signal?: AbortSignal,
+) => {
+    return customInstance<UserProfileDTO>({
+        url: `/api/v1/users/profile`,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        data: createUserProfileSchema,
+        signal,
+    });
+};
+
+export const getUsersCreateMyProfileMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof usersCreateMyProfile>>,
+        TError,
+        { data: CreateUserProfileSchema },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof usersCreateMyProfile>>,
+    TError,
+    { data: CreateUserProfileSchema },
+    TContext
+> => {
+    const mutationKey = ["usersCreateMyProfile"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof usersCreateMyProfile>>,
+        { data: CreateUserProfileSchema }
+    > = (props) => {
+        const { data } = props ?? {};
+
+        return usersCreateMyProfile(data);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type UsersCreateMyProfileMutationResult = NonNullable<
+    Awaited<ReturnType<typeof usersCreateMyProfile>>
+>;
+export type UsersCreateMyProfileMutationBody = CreateUserProfileSchema;
+export type UsersCreateMyProfileMutationError = HTTPValidationError;
+
+/**
+ * @summary Create My Profile
+ */
+export const useUsersCreateMyProfile = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof usersCreateMyProfile>>,
+            TError,
+            { data: CreateUserProfileSchema },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof usersCreateMyProfile>>,
+    TError,
+    { data: CreateUserProfileSchema },
+    TContext
+> => {
+    const mutationOptions = getUsersCreateMyProfileMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Update My Profile
+ */
+export const usersUpdateMyProfile = (
+    updateUserProfileSchema: UpdateUserProfileSchema,
+) => {
+    return customInstance<UserProfileDTO>({
+        url: `/api/v1/users/profile`,
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        data: updateUserProfileSchema,
+    });
+};
+
+export const getUsersUpdateMyProfileMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof usersUpdateMyProfile>>,
+        TError,
+        { data: UpdateUserProfileSchema },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof usersUpdateMyProfile>>,
+    TError,
+    { data: UpdateUserProfileSchema },
+    TContext
+> => {
+    const mutationKey = ["usersUpdateMyProfile"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof usersUpdateMyProfile>>,
+        { data: UpdateUserProfileSchema }
+    > = (props) => {
+        const { data } = props ?? {};
+
+        return usersUpdateMyProfile(data);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type UsersUpdateMyProfileMutationResult = NonNullable<
+    Awaited<ReturnType<typeof usersUpdateMyProfile>>
+>;
+export type UsersUpdateMyProfileMutationBody = UpdateUserProfileSchema;
+export type UsersUpdateMyProfileMutationError = HTTPValidationError;
+
+/**
+ * @summary Update My Profile
+ */
+export const useUsersUpdateMyProfile = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof usersUpdateMyProfile>>,
+            TError,
+            { data: UpdateUserProfileSchema },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof usersUpdateMyProfile>>,
+    TError,
+    { data: UpdateUserProfileSchema },
+    TContext
+> => {
+    const mutationOptions = getUsersUpdateMyProfileMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Get User Profile
+ */
+export const usersGetUserProfile = (userId: string, signal?: AbortSignal) => {
+    return customInstance<UserProfileDTO>({
+        url: `/api/v1/users/${userId}/profile`,
+        method: "GET",
+        signal,
+    });
+};
+
+export const getUsersGetUserProfileQueryKey = (userId?: string) => {
+    return [`/api/v1/users/${userId}/profile`] as const;
+};
+
+export const getUsersGetUserProfileQueryOptions = <
+    TData = Awaited<ReturnType<typeof usersGetUserProfile>>,
+    TError = HTTPValidationError,
+>(
+    userId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof usersGetUserProfile>>,
+                TError,
+                TData
+            >
+        >;
+    },
+) => {
+    const { query: queryOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ?? getUsersGetUserProfileQueryKey(userId);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof usersGetUserProfile>>
+    > = ({ signal }) => usersGetUserProfile(userId, signal);
+
+    return {
+        queryKey,
+        queryFn,
+        enabled: !!userId,
+        ...queryOptions,
+    } as UseQueryOptions<
+        Awaited<ReturnType<typeof usersGetUserProfile>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type UsersGetUserProfileQueryResult = NonNullable<
+    Awaited<ReturnType<typeof usersGetUserProfile>>
+>;
+export type UsersGetUserProfileQueryError = HTTPValidationError;
+
+export function useUsersGetUserProfile<
+    TData = Awaited<ReturnType<typeof usersGetUserProfile>>,
+    TError = HTTPValidationError,
+>(
+    userId: string,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof usersGetUserProfile>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof usersGetUserProfile>>,
+                    TError,
+                    Awaited<ReturnType<typeof usersGetUserProfile>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useUsersGetUserProfile<
+    TData = Awaited<ReturnType<typeof usersGetUserProfile>>,
+    TError = HTTPValidationError,
+>(
+    userId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof usersGetUserProfile>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof usersGetUserProfile>>,
+                    TError,
+                    Awaited<ReturnType<typeof usersGetUserProfile>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useUsersGetUserProfile<
+    TData = Awaited<ReturnType<typeof usersGetUserProfile>>,
+    TError = HTTPValidationError,
+>(
+    userId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof usersGetUserProfile>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get User Profile
+ */
+
+export function useUsersGetUserProfile<
+    TData = Awaited<ReturnType<typeof usersGetUserProfile>>,
+    TError = HTTPValidationError,
+>(
+    userId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof usersGetUserProfile>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getUsersGetUserProfileQueryOptions(userId, options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
 
 /**
  * Назначение/обновление ролей пользователя.
  * @summary Update User Roles
  */
-export const updateUserRolesApiV1UsersUserIdRolesPut = (
+export const usersUpdateUserRoles = (
     userId: string,
     updateUserRolesSchema: UpdateUserRolesSchema,
 ) => {
@@ -1056,23 +4051,23 @@ export const updateUserRolesApiV1UsersUserIdRolesPut = (
     });
 };
 
-export const getUpdateUserRolesApiV1UsersUserIdRolesPutMutationOptions = <
+export const getUsersUpdateUserRolesMutationOptions = <
     TError = HTTPValidationError,
     TContext = unknown,
 >(options?: {
     mutation?: UseMutationOptions<
-        Awaited<ReturnType<typeof updateUserRolesApiV1UsersUserIdRolesPut>>,
+        Awaited<ReturnType<typeof usersUpdateUserRoles>>,
         TError,
         { userId: string; data: UpdateUserRolesSchema },
         TContext
     >;
 }): UseMutationOptions<
-    Awaited<ReturnType<typeof updateUserRolesApiV1UsersUserIdRolesPut>>,
+    Awaited<ReturnType<typeof usersUpdateUserRoles>>,
     TError,
     { userId: string; data: UpdateUserRolesSchema },
     TContext
 > => {
-    const mutationKey = ["updateUserRolesApiV1UsersUserIdRolesPut"];
+    const mutationKey = ["usersUpdateUserRoles"];
     const { mutation: mutationOptions } = options
         ? options.mutation &&
           "mutationKey" in options.mutation &&
@@ -1082,51 +4077,51 @@ export const getUpdateUserRolesApiV1UsersUserIdRolesPutMutationOptions = <
         : { mutation: { mutationKey } };
 
     const mutationFn: MutationFunction<
-        Awaited<ReturnType<typeof updateUserRolesApiV1UsersUserIdRolesPut>>,
+        Awaited<ReturnType<typeof usersUpdateUserRoles>>,
         { userId: string; data: UpdateUserRolesSchema }
     > = (props) => {
         const { userId, data } = props ?? {};
 
-        return updateUserRolesApiV1UsersUserIdRolesPut(userId, data);
+        return usersUpdateUserRoles(userId, data);
     };
 
     return { mutationFn, ...mutationOptions };
 };
 
-export type UpdateUserRolesApiV1UsersUserIdRolesPutMutationResult = NonNullable<
-    Awaited<ReturnType<typeof updateUserRolesApiV1UsersUserIdRolesPut>>
+export type UsersUpdateUserRolesMutationResult = NonNullable<
+    Awaited<ReturnType<typeof usersUpdateUserRoles>>
 >;
-export type UpdateUserRolesApiV1UsersUserIdRolesPutMutationBody =
-    UpdateUserRolesSchema;
-export type UpdateUserRolesApiV1UsersUserIdRolesPutMutationError =
-    HTTPValidationError;
+export type UsersUpdateUserRolesMutationBody = UpdateUserRolesSchema;
+export type UsersUpdateUserRolesMutationError = HTTPValidationError;
 
 /**
  * @summary Update User Roles
  */
-export const useUpdateUserRolesApiV1UsersUserIdRolesPut = <
+export const useUsersUpdateUserRoles = <
     TError = HTTPValidationError,
     TContext = unknown,
->(options?: {
-    mutation?: UseMutationOptions<
-        Awaited<ReturnType<typeof updateUserRolesApiV1UsersUserIdRolesPut>>,
-        TError,
-        { userId: string; data: UpdateUserRolesSchema },
-        TContext
-    >;
-}): UseMutationResult<
-    Awaited<ReturnType<typeof updateUserRolesApiV1UsersUserIdRolesPut>>,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof usersUpdateUserRoles>>,
+            TError,
+            { userId: string; data: UpdateUserRolesSchema },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof usersUpdateUserRoles>>,
     TError,
     { userId: string; data: UpdateUserRolesSchema },
     TContext
 > => {
-    const mutationOptions =
-        getUpdateUserRolesApiV1UsersUserIdRolesPutMutationOptions(options);
+    const mutationOptions = getUsersUpdateUserRolesMutationOptions(options);
 
-    return useMutation(mutationOptions);
+    return useMutation(mutationOptions, queryClient);
 };
 
-export const getLoginApiV1AuthLoginPostResponseMock = (
+export const getAuthLoginResponseMock = (
     overrideResponse: Partial<AccessToken> = {},
 ): AccessToken => ({
     access_token: faker.string.alpha({ length: { min: 10, max: 20 } }),
@@ -1137,10 +4132,15 @@ export const getLoginApiV1AuthLoginPostResponseMock = (
     ...overrideResponse,
 });
 
-export const getRegisterApiV1AuthRegisterPostResponseMock = (
+export const getAuthRegisterResponseMock = (
     overrideResponse: Partial<UserDTO> = {},
 ): UserDTO => ({
     id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
     email: faker.internet.email(),
     roles: faker.helpers.arrayElement([
         Array.from(
@@ -1169,7 +4169,7 @@ export const getRegisterApiV1AuthRegisterPostResponseMock = (
     ...overrideResponse,
 });
 
-export const getRefreshJwtApiV1AuthRefreshPostResponseMock = (
+export const getAuthRefreshJwtResponseMock = (
     overrideResponse: Partial<AccessToken> = {},
 ): AccessToken => ({
     access_token: faker.string.alpha({ length: { min: 10, max: 20 } }),
@@ -1180,10 +4180,543 @@ export const getRefreshJwtApiV1AuthRefreshPostResponseMock = (
     ...overrideResponse,
 });
 
-export const getUpdateUserRolesApiV1UsersUserIdRolesPutResponseMock = (
+export const getCitiesGetCitiesResponseMock = (): CityDTO[] =>
+    Array.from(
+        { length: faker.number.int({ min: 1, max: 10 }) },
+        (_, i) => i + 1,
+    ).map(() => ({
+        id: faker.string.uuid(),
+        created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+        updated_at: faker.helpers.arrayElement([
+            `${faker.date.past().toISOString().split(".")[0]}Z`,
+            null,
+        ]),
+        name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    }));
+
+export const getCitiesCreateCityResponseMock = (
+    overrideResponse: Partial<CityDTO> = {},
+): CityDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    ...overrideResponse,
+});
+
+export const getCitiesGetCityResponseMock = (
+    overrideResponse: Partial<CityDTO> = {},
+): CityDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    ...overrideResponse,
+});
+
+export const getCitiesUpdateCityResponseMock = (
+    overrideResponse: Partial<CityDTO> = {},
+): CityDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    ...overrideResponse,
+});
+
+export const getProjectsGetProjectsResponseMock = (): ProjectDTO[] =>
+    Array.from(
+        { length: faker.number.int({ min: 1, max: 10 }) },
+        (_, i) => i + 1,
+    ).map(() => ({
+        id: faker.string.uuid(),
+        created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+        updated_at: faker.helpers.arrayElement([
+            `${faker.date.past().toISOString().split(".")[0]}Z`,
+            null,
+        ]),
+        title: faker.string.alpha({ length: { min: 1, max: 255 } }),
+        description: faker.helpers.arrayElement([
+            faker.helpers.arrayElement([
+                faker.string.alpha({ length: { min: 10, max: 20 } }),
+                null,
+            ]),
+            undefined,
+        ]),
+        type: faker.helpers.arrayElement(Object.values(ProjectType)),
+        format: faker.helpers.arrayElement(Object.values(ProjectFormat)),
+        deadline: faker.helpers.arrayElement([
+            faker.helpers.arrayElement([
+                `${faker.date.past().toISOString().split(".")[0]}Z`,
+                null,
+            ]),
+            undefined,
+        ]),
+        status: faker.helpers.arrayElement([
+            faker.helpers.arrayElement(Object.values(ProjectStatus)),
+            undefined,
+        ]),
+        city_id: faker.helpers.arrayElement([
+            faker.helpers.arrayElement([faker.string.uuid(), null]),
+            undefined,
+        ]),
+        event_id: faker.helpers.arrayElement([
+            faker.helpers.arrayElement([faker.string.uuid(), null]),
+            undefined,
+        ]),
+        owner_id: faker.helpers.arrayElement([faker.string.uuid(), null]),
+    }));
+
+export const getProjectsCreateProjectResponseMock = (
+    overrideResponse: Partial<ProjectDTO> = {},
+): ProjectDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    title: faker.string.alpha({ length: { min: 1, max: 255 } }),
+    description: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            faker.string.alpha({ length: { min: 10, max: 20 } }),
+            null,
+        ]),
+        undefined,
+    ]),
+    type: faker.helpers.arrayElement(Object.values(ProjectType)),
+    format: faker.helpers.arrayElement(Object.values(ProjectFormat)),
+    deadline: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            `${faker.date.past().toISOString().split(".")[0]}Z`,
+            null,
+        ]),
+        undefined,
+    ]),
+    status: faker.helpers.arrayElement([
+        faker.helpers.arrayElement(Object.values(ProjectStatus)),
+        undefined,
+    ]),
+    city_id: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.uuid(), null]),
+        undefined,
+    ]),
+    event_id: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.uuid(), null]),
+        undefined,
+    ]),
+    owner_id: faker.helpers.arrayElement([faker.string.uuid(), null]),
+    ...overrideResponse,
+});
+
+export const getProjectsGetProjectResponseMock = (
+    overrideResponse: Partial<ProjectDTO> = {},
+): ProjectDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    title: faker.string.alpha({ length: { min: 1, max: 255 } }),
+    description: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            faker.string.alpha({ length: { min: 10, max: 20 } }),
+            null,
+        ]),
+        undefined,
+    ]),
+    type: faker.helpers.arrayElement(Object.values(ProjectType)),
+    format: faker.helpers.arrayElement(Object.values(ProjectFormat)),
+    deadline: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            `${faker.date.past().toISOString().split(".")[0]}Z`,
+            null,
+        ]),
+        undefined,
+    ]),
+    status: faker.helpers.arrayElement([
+        faker.helpers.arrayElement(Object.values(ProjectStatus)),
+        undefined,
+    ]),
+    city_id: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.uuid(), null]),
+        undefined,
+    ]),
+    event_id: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.uuid(), null]),
+        undefined,
+    ]),
+    owner_id: faker.helpers.arrayElement([faker.string.uuid(), null]),
+    ...overrideResponse,
+});
+
+export const getProjectsUpdateProjectResponseMock = (
+    overrideResponse: Partial<ProjectDTO> = {},
+): ProjectDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    title: faker.string.alpha({ length: { min: 1, max: 255 } }),
+    description: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            faker.string.alpha({ length: { min: 10, max: 20 } }),
+            null,
+        ]),
+        undefined,
+    ]),
+    type: faker.helpers.arrayElement(Object.values(ProjectType)),
+    format: faker.helpers.arrayElement(Object.values(ProjectFormat)),
+    deadline: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            `${faker.date.past().toISOString().split(".")[0]}Z`,
+            null,
+        ]),
+        undefined,
+    ]),
+    status: faker.helpers.arrayElement([
+        faker.helpers.arrayElement(Object.values(ProjectStatus)),
+        undefined,
+    ]),
+    city_id: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.uuid(), null]),
+        undefined,
+    ]),
+    event_id: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.uuid(), null]),
+        undefined,
+    ]),
+    owner_id: faker.helpers.arrayElement([faker.string.uuid(), null]),
+    ...overrideResponse,
+});
+
+export const getProjectsGetProjectVacanciesResponseMock =
+    (): ProjectVacancyDTO[] =>
+        Array.from(
+            { length: faker.number.int({ min: 1, max: 10 }) },
+            (_, i) => i + 1,
+        ).map(() => ({
+            id: faker.string.uuid(),
+            created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+            updated_at: faker.helpers.arrayElement([
+                `${faker.date.past().toISOString().split(".")[0]}Z`,
+                null,
+            ]),
+            team_role_id: faker.string.uuid(),
+            required_count: faker.number.int({
+                min: undefined,
+                max: undefined,
+            }),
+            description: faker.helpers.arrayElement([
+                faker.helpers.arrayElement([
+                    faker.string.alpha({ length: { min: 10, max: 20 } }),
+                    null,
+                ]),
+                undefined,
+            ]),
+            skill_ids: faker.helpers.arrayElement([
+                Array.from(
+                    { length: faker.number.int({ min: 1, max: 10 }) },
+                    (_, i) => i + 1,
+                ).map(() => faker.string.uuid()),
+                undefined,
+            ]),
+            project_id: faker.string.uuid(),
+            skills: Array.from(
+                { length: faker.number.int({ min: 1, max: 10 }) },
+                (_, i) => i + 1,
+            ).map(() => ({
+                id: faker.string.uuid(),
+                name: faker.string.alpha({ length: { min: 10, max: 20 } }),
+            })),
+        }));
+
+export const getProjectsCreateProjectVacancyResponseMock = (
+    overrideResponse: Partial<ProjectVacancyDTO> = {},
+): ProjectVacancyDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    team_role_id: faker.string.uuid(),
+    required_count: faker.number.int({ min: undefined, max: undefined }),
+    description: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            faker.string.alpha({ length: { min: 10, max: 20 } }),
+            null,
+        ]),
+        undefined,
+    ]),
+    skill_ids: faker.helpers.arrayElement([
+        Array.from(
+            { length: faker.number.int({ min: 1, max: 10 }) },
+            (_, i) => i + 1,
+        ).map(() => faker.string.uuid()),
+        undefined,
+    ]),
+    project_id: faker.string.uuid(),
+    skills: Array.from(
+        { length: faker.number.int({ min: 1, max: 10 }) },
+        (_, i) => i + 1,
+    ).map(() => ({
+        id: faker.string.uuid(),
+        name: faker.string.alpha({ length: { min: 10, max: 20 } }),
+    })),
+    ...overrideResponse,
+});
+
+export const getProjectsGetProjectVacancyResponseMock = (
+    overrideResponse: Partial<ProjectVacancyDTO> = {},
+): ProjectVacancyDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    team_role_id: faker.string.uuid(),
+    required_count: faker.number.int({ min: undefined, max: undefined }),
+    description: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            faker.string.alpha({ length: { min: 10, max: 20 } }),
+            null,
+        ]),
+        undefined,
+    ]),
+    skill_ids: faker.helpers.arrayElement([
+        Array.from(
+            { length: faker.number.int({ min: 1, max: 10 }) },
+            (_, i) => i + 1,
+        ).map(() => faker.string.uuid()),
+        undefined,
+    ]),
+    project_id: faker.string.uuid(),
+    skills: Array.from(
+        { length: faker.number.int({ min: 1, max: 10 }) },
+        (_, i) => i + 1,
+    ).map(() => ({
+        id: faker.string.uuid(),
+        name: faker.string.alpha({ length: { min: 10, max: 20 } }),
+    })),
+    ...overrideResponse,
+});
+
+export const getProjectsUpdateProjectVacancyResponseMock = (
+    overrideResponse: Partial<ProjectVacancyDTO> = {},
+): ProjectVacancyDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    team_role_id: faker.string.uuid(),
+    required_count: faker.number.int({ min: undefined, max: undefined }),
+    description: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            faker.string.alpha({ length: { min: 10, max: 20 } }),
+            null,
+        ]),
+        undefined,
+    ]),
+    skill_ids: faker.helpers.arrayElement([
+        Array.from(
+            { length: faker.number.int({ min: 1, max: 10 }) },
+            (_, i) => i + 1,
+        ).map(() => faker.string.uuid()),
+        undefined,
+    ]),
+    project_id: faker.string.uuid(),
+    skills: Array.from(
+        { length: faker.number.int({ min: 1, max: 10 }) },
+        (_, i) => i + 1,
+    ).map(() => ({
+        id: faker.string.uuid(),
+        name: faker.string.alpha({ length: { min: 10, max: 20 } }),
+    })),
+    ...overrideResponse,
+});
+
+export const getUniversitiesGetUniversitiesResponseMock = (): UniversityDTO[] =>
+    Array.from(
+        { length: faker.number.int({ min: 1, max: 10 }) },
+        (_, i) => i + 1,
+    ).map(() => ({
+        id: faker.string.uuid(),
+        created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+        updated_at: faker.helpers.arrayElement([
+            `${faker.date.past().toISOString().split(".")[0]}Z`,
+            null,
+        ]),
+        name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+        short_name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+        city_id: faker.string.uuid(),
+    }));
+
+export const getUniversitiesCreateUniversityResponseMock = (
+    overrideResponse: Partial<UniversityDTO> = {},
+): UniversityDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    short_name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    city_id: faker.string.uuid(),
+    ...overrideResponse,
+});
+
+export const getUniversitiesGetUniversityResponseMock = (
+    overrideResponse: Partial<UniversityDTO> = {},
+): UniversityDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    short_name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    city_id: faker.string.uuid(),
+    ...overrideResponse,
+});
+
+export const getUniversitiesUpdateUniversityResponseMock = (
+    overrideResponse: Partial<UniversityDTO> = {},
+): UniversityDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    short_name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    city_id: faker.string.uuid(),
+    ...overrideResponse,
+});
+
+export const getUsersGetMyProfileResponseMock = (
+    overrideResponse: Partial<UserProfileDTO> = {},
+): UserProfileDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    first_name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    last_name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    bio: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            faker.string.alpha({ length: { min: 1, max: 20 } }),
+            null,
+        ]),
+        undefined,
+    ]),
+    city_id: faker.string.uuid(),
+    university_id: faker.string.uuid(),
+    user_id: faker.string.uuid(),
+    ...overrideResponse,
+});
+
+export const getUsersCreateMyProfileResponseMock = (
+    overrideResponse: Partial<UserProfileDTO> = {},
+): UserProfileDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    first_name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    last_name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    bio: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            faker.string.alpha({ length: { min: 1, max: 20 } }),
+            null,
+        ]),
+        undefined,
+    ]),
+    city_id: faker.string.uuid(),
+    university_id: faker.string.uuid(),
+    user_id: faker.string.uuid(),
+    ...overrideResponse,
+});
+
+export const getUsersUpdateMyProfileResponseMock = (
+    overrideResponse: Partial<UserProfileDTO> = {},
+): UserProfileDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    first_name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    last_name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    bio: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            faker.string.alpha({ length: { min: 1, max: 20 } }),
+            null,
+        ]),
+        undefined,
+    ]),
+    city_id: faker.string.uuid(),
+    university_id: faker.string.uuid(),
+    user_id: faker.string.uuid(),
+    ...overrideResponse,
+});
+
+export const getUsersGetUserProfileResponseMock = (
+    overrideResponse: Partial<UserProfileDTO> = {},
+): UserProfileDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    first_name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    last_name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    bio: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            faker.string.alpha({ length: { min: 1, max: 20 } }),
+            null,
+        ]),
+        undefined,
+    ]),
+    city_id: faker.string.uuid(),
+    university_id: faker.string.uuid(),
+    user_id: faker.string.uuid(),
+    ...overrideResponse,
+});
+
+export const getUsersUpdateUserRolesResponseMock = (
     overrideResponse: Partial<UserDTO> = {},
 ): UserDTO => ({
     id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
     email: faker.internet.email(),
     roles: faker.helpers.arrayElement([
         Array.from(
@@ -1212,7 +4745,7 @@ export const getUpdateUserRolesApiV1UsersUserIdRolesPutResponseMock = (
     ...overrideResponse,
 });
 
-export const getHealthCheckApiHealthGetMockHandler = (
+export const getHealthHealthCheckMockHandler = (
     overrideResponse?:
         | unknown
         | ((
@@ -1233,7 +4766,7 @@ export const getHealthCheckApiHealthGetMockHandler = (
     );
 };
 
-export const getGetUserApiV1AuthMeGetMockHandler = (
+export const getAuthGetUserMockHandler = (
     overrideResponse?:
         | unknown
         | ((
@@ -1254,7 +4787,7 @@ export const getGetUserApiV1AuthMeGetMockHandler = (
     );
 };
 
-export const getLoginApiV1AuthLoginPostMockHandler = (
+export const getAuthLoginMockHandler = (
     overrideResponse?:
         | AccessToken
         | ((
@@ -1273,7 +4806,7 @@ export const getLoginApiV1AuthLoginPostMockHandler = (
                         ? typeof overrideResponse === "function"
                             ? await overrideResponse(info)
                             : overrideResponse
-                        : getLoginApiV1AuthLoginPostResponseMock(),
+                        : getAuthLoginResponseMock(),
                 ),
                 {
                     status: 200,
@@ -1285,7 +4818,7 @@ export const getLoginApiV1AuthLoginPostMockHandler = (
     );
 };
 
-export const getRegisterApiV1AuthRegisterPostMockHandler = (
+export const getAuthRegisterMockHandler = (
     overrideResponse?:
         | UserDTO
         | ((
@@ -1304,7 +4837,7 @@ export const getRegisterApiV1AuthRegisterPostMockHandler = (
                         ? typeof overrideResponse === "function"
                             ? await overrideResponse(info)
                             : overrideResponse
-                        : getRegisterApiV1AuthRegisterPostResponseMock(),
+                        : getAuthRegisterResponseMock(),
                 ),
                 {
                     status: 200,
@@ -1316,7 +4849,7 @@ export const getRegisterApiV1AuthRegisterPostMockHandler = (
     );
 };
 
-export const getRefreshJwtApiV1AuthRefreshPostMockHandler = (
+export const getAuthRefreshJwtMockHandler = (
     overrideResponse?:
         | AccessToken
         | ((
@@ -1335,7 +4868,7 @@ export const getRefreshJwtApiV1AuthRefreshPostMockHandler = (
                         ? typeof overrideResponse === "function"
                             ? await overrideResponse(info)
                             : overrideResponse
-                        : getRefreshJwtApiV1AuthRefreshPostResponseMock(),
+                        : getAuthRefreshJwtResponseMock(),
                 ),
                 {
                     status: 200,
@@ -1347,7 +4880,7 @@ export const getRefreshJwtApiV1AuthRefreshPostMockHandler = (
     );
 };
 
-export const getLogoutApiV1AuthLogoutPostMockHandler = (
+export const getAuthLogoutMockHandler = (
     overrideResponse?:
         | unknown
         | ((
@@ -1368,7 +4901,7 @@ export const getLogoutApiV1AuthLogoutPostMockHandler = (
     );
 };
 
-export const getChangePasswordApiV1AuthChangePasswordPostMockHandler = (
+export const getAuthChangePasswordMockHandler = (
     overrideResponse?:
         | unknown
         | ((
@@ -1389,7 +4922,7 @@ export const getChangePasswordApiV1AuthChangePasswordPostMockHandler = (
     );
 };
 
-export const getQuitAllApiV1AuthQuitAllPostMockHandler = (
+export const getAuthQuitAllMockHandler = (
     overrideResponse?:
         | unknown
         | ((
@@ -1410,7 +4943,7 @@ export const getQuitAllApiV1AuthQuitAllPostMockHandler = (
     );
 };
 
-export const getVerifyAccountApiV1AuthVerifyGetMockHandler = (
+export const getAuthVerifyAccountMockHandler = (
     overrideResponse?:
         | unknown
         | ((
@@ -1431,7 +4964,7 @@ export const getVerifyAccountApiV1AuthVerifyGetMockHandler = (
     );
 };
 
-export const getResendVerificationApiV1AuthResendVerificationPostMockHandler = (
+export const getAuthResendVerificationMockHandler = (
     overrideResponse?:
         | unknown
         | ((
@@ -1452,7 +4985,7 @@ export const getResendVerificationApiV1AuthResendVerificationPostMockHandler = (
     );
 };
 
-export const getForgotPasswordApiV1AuthForgotPasswordPostMockHandler = (
+export const getAuthForgotPasswordMockHandler = (
     overrideResponse?:
         | unknown
         | ((
@@ -1473,7 +5006,7 @@ export const getForgotPasswordApiV1AuthForgotPasswordPostMockHandler = (
     );
 };
 
-export const getResetPasswordApiV1AuthResetPasswordPostMockHandler = (
+export const getAuthResetPasswordMockHandler = (
     overrideResponse?:
         | unknown
         | ((
@@ -1494,7 +5027,711 @@ export const getResetPasswordApiV1AuthResetPasswordPostMockHandler = (
     );
 };
 
-export const getUpdateUserRolesApiV1UsersUserIdRolesPutMockHandler = (
+export const getCitiesGetCitiesMockHandler = (
+    overrideResponse?:
+        | CityDTO[]
+        | ((
+              info: Parameters<Parameters<typeof http.get>[1]>[0],
+          ) => Promise<CityDTO[]> | CityDTO[]),
+    options?: RequestHandlerOptions,
+) => {
+    return http.get(
+        "*/api/v1/cities/",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getCitiesGetCitiesResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getCitiesCreateCityMockHandler = (
+    overrideResponse?:
+        | CityDTO
+        | ((
+              info: Parameters<Parameters<typeof http.post>[1]>[0],
+          ) => Promise<CityDTO> | CityDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.post(
+        "*/api/v1/cities/",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getCitiesCreateCityResponseMock(),
+                ),
+                {
+                    status: 201,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getCitiesGetCityMockHandler = (
+    overrideResponse?:
+        | CityDTO
+        | ((
+              info: Parameters<Parameters<typeof http.get>[1]>[0],
+          ) => Promise<CityDTO> | CityDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.get(
+        "*/api/v1/cities/:cityId",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getCitiesGetCityResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getCitiesUpdateCityMockHandler = (
+    overrideResponse?:
+        | CityDTO
+        | ((
+              info: Parameters<Parameters<typeof http.patch>[1]>[0],
+          ) => Promise<CityDTO> | CityDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.patch(
+        "*/api/v1/cities/:cityId",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getCitiesUpdateCityResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getCitiesDeleteCityMockHandler = (
+    overrideResponse?:
+        | void
+        | ((
+              info: Parameters<Parameters<typeof http.delete>[1]>[0],
+          ) => Promise<void> | void),
+    options?: RequestHandlerOptions,
+) => {
+    return http.delete(
+        "*/api/v1/cities/:cityId",
+        async (info) => {
+            await delay(1000);
+            if (typeof overrideResponse === "function") {
+                await overrideResponse(info);
+            }
+            return new HttpResponse(null, { status: 204 });
+        },
+        options,
+    );
+};
+
+export const getProjectsGetProjectsMockHandler = (
+    overrideResponse?:
+        | ProjectDTO[]
+        | ((
+              info: Parameters<Parameters<typeof http.get>[1]>[0],
+          ) => Promise<ProjectDTO[]> | ProjectDTO[]),
+    options?: RequestHandlerOptions,
+) => {
+    return http.get(
+        "*/api/v1/projects/",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getProjectsGetProjectsResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getProjectsCreateProjectMockHandler = (
+    overrideResponse?:
+        | ProjectDTO
+        | ((
+              info: Parameters<Parameters<typeof http.post>[1]>[0],
+          ) => Promise<ProjectDTO> | ProjectDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.post(
+        "*/api/v1/projects/",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getProjectsCreateProjectResponseMock(),
+                ),
+                {
+                    status: 201,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getProjectsGetProjectMockHandler = (
+    overrideResponse?:
+        | ProjectDTO
+        | ((
+              info: Parameters<Parameters<typeof http.get>[1]>[0],
+          ) => Promise<ProjectDTO> | ProjectDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.get(
+        "*/api/v1/projects/:projectId",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getProjectsGetProjectResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getProjectsUpdateProjectMockHandler = (
+    overrideResponse?:
+        | ProjectDTO
+        | ((
+              info: Parameters<Parameters<typeof http.patch>[1]>[0],
+          ) => Promise<ProjectDTO> | ProjectDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.patch(
+        "*/api/v1/projects/:projectId",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getProjectsUpdateProjectResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getProjectsDeleteProjectMockHandler = (
+    overrideResponse?:
+        | void
+        | ((
+              info: Parameters<Parameters<typeof http.delete>[1]>[0],
+          ) => Promise<void> | void),
+    options?: RequestHandlerOptions,
+) => {
+    return http.delete(
+        "*/api/v1/projects/:projectId",
+        async (info) => {
+            await delay(1000);
+            if (typeof overrideResponse === "function") {
+                await overrideResponse(info);
+            }
+            return new HttpResponse(null, { status: 204 });
+        },
+        options,
+    );
+};
+
+export const getProjectsGetProjectVacanciesMockHandler = (
+    overrideResponse?:
+        | ProjectVacancyDTO[]
+        | ((
+              info: Parameters<Parameters<typeof http.get>[1]>[0],
+          ) => Promise<ProjectVacancyDTO[]> | ProjectVacancyDTO[]),
+    options?: RequestHandlerOptions,
+) => {
+    return http.get(
+        "*/api/v1/projects/:projectId/vacancies",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getProjectsGetProjectVacanciesResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getProjectsCreateProjectVacancyMockHandler = (
+    overrideResponse?:
+        | ProjectVacancyDTO
+        | ((
+              info: Parameters<Parameters<typeof http.post>[1]>[0],
+          ) => Promise<ProjectVacancyDTO> | ProjectVacancyDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.post(
+        "*/api/v1/projects/:projectId/vacancies",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getProjectsCreateProjectVacancyResponseMock(),
+                ),
+                {
+                    status: 201,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getProjectsGetProjectVacancyMockHandler = (
+    overrideResponse?:
+        | ProjectVacancyDTO
+        | ((
+              info: Parameters<Parameters<typeof http.get>[1]>[0],
+          ) => Promise<ProjectVacancyDTO> | ProjectVacancyDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.get(
+        "*/api/v1/projects/:projectId/vacancies/:vacancyId",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getProjectsGetProjectVacancyResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getProjectsUpdateProjectVacancyMockHandler = (
+    overrideResponse?:
+        | ProjectVacancyDTO
+        | ((
+              info: Parameters<Parameters<typeof http.patch>[1]>[0],
+          ) => Promise<ProjectVacancyDTO> | ProjectVacancyDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.patch(
+        "*/api/v1/projects/:projectId/vacancies/:vacancyId",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getProjectsUpdateProjectVacancyResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getProjectsDeleteProjectVacancyMockHandler = (
+    overrideResponse?:
+        | void
+        | ((
+              info: Parameters<Parameters<typeof http.delete>[1]>[0],
+          ) => Promise<void> | void),
+    options?: RequestHandlerOptions,
+) => {
+    return http.delete(
+        "*/api/v1/projects/:projectId/vacancies/:vacancyId",
+        async (info) => {
+            await delay(1000);
+            if (typeof overrideResponse === "function") {
+                await overrideResponse(info);
+            }
+            return new HttpResponse(null, { status: 204 });
+        },
+        options,
+    );
+};
+
+export const getUniversitiesGetUniversitiesMockHandler = (
+    overrideResponse?:
+        | UniversityDTO[]
+        | ((
+              info: Parameters<Parameters<typeof http.get>[1]>[0],
+          ) => Promise<UniversityDTO[]> | UniversityDTO[]),
+    options?: RequestHandlerOptions,
+) => {
+    return http.get(
+        "*/api/v1/universities/",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getUniversitiesGetUniversitiesResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getUniversitiesCreateUniversityMockHandler = (
+    overrideResponse?:
+        | UniversityDTO
+        | ((
+              info: Parameters<Parameters<typeof http.post>[1]>[0],
+          ) => Promise<UniversityDTO> | UniversityDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.post(
+        "*/api/v1/universities/",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getUniversitiesCreateUniversityResponseMock(),
+                ),
+                {
+                    status: 201,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getUniversitiesGetUniversityMockHandler = (
+    overrideResponse?:
+        | UniversityDTO
+        | ((
+              info: Parameters<Parameters<typeof http.get>[1]>[0],
+          ) => Promise<UniversityDTO> | UniversityDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.get(
+        "*/api/v1/universities/:universityId",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getUniversitiesGetUniversityResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getUniversitiesUpdateUniversityMockHandler = (
+    overrideResponse?:
+        | UniversityDTO
+        | ((
+              info: Parameters<Parameters<typeof http.patch>[1]>[0],
+          ) => Promise<UniversityDTO> | UniversityDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.patch(
+        "*/api/v1/universities/:universityId",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getUniversitiesUpdateUniversityResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getUniversitiesDeleteUniversityMockHandler = (
+    overrideResponse?:
+        | void
+        | ((
+              info: Parameters<Parameters<typeof http.delete>[1]>[0],
+          ) => Promise<void> | void),
+    options?: RequestHandlerOptions,
+) => {
+    return http.delete(
+        "*/api/v1/universities/:universityId",
+        async (info) => {
+            await delay(1000);
+            if (typeof overrideResponse === "function") {
+                await overrideResponse(info);
+            }
+            return new HttpResponse(null, { status: 204 });
+        },
+        options,
+    );
+};
+
+export const getUsersGetMyProfileMockHandler = (
+    overrideResponse?:
+        | UserProfileDTO
+        | ((
+              info: Parameters<Parameters<typeof http.get>[1]>[0],
+          ) => Promise<UserProfileDTO> | UserProfileDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.get(
+        "*/api/v1/users/profile",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getUsersGetMyProfileResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getUsersCreateMyProfileMockHandler = (
+    overrideResponse?:
+        | UserProfileDTO
+        | ((
+              info: Parameters<Parameters<typeof http.post>[1]>[0],
+          ) => Promise<UserProfileDTO> | UserProfileDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.post(
+        "*/api/v1/users/profile",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getUsersCreateMyProfileResponseMock(),
+                ),
+                {
+                    status: 201,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getUsersUpdateMyProfileMockHandler = (
+    overrideResponse?:
+        | UserProfileDTO
+        | ((
+              info: Parameters<Parameters<typeof http.patch>[1]>[0],
+          ) => Promise<UserProfileDTO> | UserProfileDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.patch(
+        "*/api/v1/users/profile",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getUsersUpdateMyProfileResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getUsersGetUserProfileMockHandler = (
+    overrideResponse?:
+        | UserProfileDTO
+        | ((
+              info: Parameters<Parameters<typeof http.get>[1]>[0],
+          ) => Promise<UserProfileDTO> | UserProfileDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.get(
+        "*/api/v1/users/:userId/profile",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getUsersGetUserProfileResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getUsersUpdateUserRolesMockHandler = (
     overrideResponse?:
         | UserDTO
         | ((
@@ -1513,7 +5750,7 @@ export const getUpdateUserRolesApiV1UsersUserIdRolesPutMockHandler = (
                         ? typeof overrideResponse === "function"
                             ? await overrideResponse(info)
                             : overrideResponse
-                        : getUpdateUserRolesApiV1UsersUserIdRolesPutResponseMock(),
+                        : getUsersUpdateUserRolesResponseMock(),
                 ),
                 {
                     status: 200,
@@ -1525,17 +5762,41 @@ export const getUpdateUserRolesApiV1UsersUserIdRolesPutMockHandler = (
     );
 };
 export const getCampusMock = () => [
-    getHealthCheckApiHealthGetMockHandler(),
-    getGetUserApiV1AuthMeGetMockHandler(),
-    getLoginApiV1AuthLoginPostMockHandler(),
-    getRegisterApiV1AuthRegisterPostMockHandler(),
-    getRefreshJwtApiV1AuthRefreshPostMockHandler(),
-    getLogoutApiV1AuthLogoutPostMockHandler(),
-    getChangePasswordApiV1AuthChangePasswordPostMockHandler(),
-    getQuitAllApiV1AuthQuitAllPostMockHandler(),
-    getVerifyAccountApiV1AuthVerifyGetMockHandler(),
-    getResendVerificationApiV1AuthResendVerificationPostMockHandler(),
-    getForgotPasswordApiV1AuthForgotPasswordPostMockHandler(),
-    getResetPasswordApiV1AuthResetPasswordPostMockHandler(),
-    getUpdateUserRolesApiV1UsersUserIdRolesPutMockHandler(),
+    getHealthHealthCheckMockHandler(),
+    getAuthGetUserMockHandler(),
+    getAuthLoginMockHandler(),
+    getAuthRegisterMockHandler(),
+    getAuthRefreshJwtMockHandler(),
+    getAuthLogoutMockHandler(),
+    getAuthChangePasswordMockHandler(),
+    getAuthQuitAllMockHandler(),
+    getAuthVerifyAccountMockHandler(),
+    getAuthResendVerificationMockHandler(),
+    getAuthForgotPasswordMockHandler(),
+    getAuthResetPasswordMockHandler(),
+    getCitiesGetCitiesMockHandler(),
+    getCitiesCreateCityMockHandler(),
+    getCitiesGetCityMockHandler(),
+    getCitiesUpdateCityMockHandler(),
+    getCitiesDeleteCityMockHandler(),
+    getProjectsGetProjectsMockHandler(),
+    getProjectsCreateProjectMockHandler(),
+    getProjectsGetProjectMockHandler(),
+    getProjectsUpdateProjectMockHandler(),
+    getProjectsDeleteProjectMockHandler(),
+    getProjectsGetProjectVacanciesMockHandler(),
+    getProjectsCreateProjectVacancyMockHandler(),
+    getProjectsGetProjectVacancyMockHandler(),
+    getProjectsUpdateProjectVacancyMockHandler(),
+    getProjectsDeleteProjectVacancyMockHandler(),
+    getUniversitiesGetUniversitiesMockHandler(),
+    getUniversitiesCreateUniversityMockHandler(),
+    getUniversitiesGetUniversityMockHandler(),
+    getUniversitiesUpdateUniversityMockHandler(),
+    getUniversitiesDeleteUniversityMockHandler(),
+    getUsersGetMyProfileMockHandler(),
+    getUsersCreateMyProfileMockHandler(),
+    getUsersUpdateMyProfileMockHandler(),
+    getUsersGetUserProfileMockHandler(),
+    getUsersUpdateUserRolesMockHandler(),
 ];

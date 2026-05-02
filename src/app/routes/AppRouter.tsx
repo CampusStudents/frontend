@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import { routeConfig } from "./routeConfig";
 import ProtectedRoute from "./ProtectedRoute";
+import GuestRoute from "./GuestRoute";
 
 import { routePaths } from "@shared/config";
 import { ErrorBoundary } from "@shared/ui/ErrorBoundary";
@@ -45,12 +46,14 @@ const renderRoute = ({
     element,
     path,
     isPrivate,
+    isGuestOnly,
 }: (typeof routeItems)[number]) => {
-    const content = isPrivate ? (
-        <ProtectedRoute>{element}</ProtectedRoute>
-    ) : (
-        element
-    );
+    let content = element;
+    if (isPrivate) {
+        content = <ProtectedRoute>{element}</ProtectedRoute>;
+    } else if (isGuestOnly) {
+        content = <GuestRoute>{element}</GuestRoute>;
+    }
 
     return (
         <Route

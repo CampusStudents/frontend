@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+    Alert,
     Button,
     IconButton,
     InputAdornment,
@@ -11,8 +12,9 @@ import {
     Typography,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { useForm } from "react-hook-form";
-import { Link as RouterLink } from "react-router-dom";
+import { useForm, useWatch } from "react-hook-form";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 import {
     registerDefaultValues,
@@ -20,6 +22,7 @@ import {
     type RegisterFormValues,
 } from "../model/registerForm";
 
+import { HttpStatuses, useAuthRegister } from "@shared/api";
 import { routePaths } from "@shared/config";
 import { fieldHelper } from "@shared/lib/form";
 import { FormWrapper } from "@shared/ui/FormWrapper";
@@ -27,26 +30,55 @@ import { FormWrapper } from "@shared/ui/FormWrapper";
 type Role = "participant" | "organizer";
 
 const RegisterPage = () => {
+    const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const {
         register,
         handleSubmit,
-        watch,
+        control,
         setValue,
-        formState: { errors, isSubmitting },
+        setError,
+        clearErrors,
+        formState: { errors },
     } = useForm<RegisterFormValues>({
         resolver: registerResolver,
         defaultValues: registerDefaultValues,
         mode: "onBlur",
     });
 
-    const role = watch("role");
+    const role = useWatch({ control, name: "role" });
+
+    const { mutate: registerUser, isPending } = useAuthRegister({
+        mutation: {
+            onSuccess: () => {
+                navigate(routePaths.login, {
+                    replace: true,
+                    state: { registered: true },
+                });
+            },
+            onError: (error) => {
+                const status = axios.isAxiosError(error)
+                    ? error.response?.status
+                    : undefined;
+
+                setError("root", {
+                    message:
+                        status === HttpStatuses.BAD_REQUEST ||
+                        status === HttpStatuses.CONFLICT
+                            ? "Пользователь с таким email уже существует"
+                            : "Не удалось создать аккаунт. Попробуйте позже.",
+                });
+            },
+        },
+    });
 
     const onSubmit = (data: RegisterFormValues) => {
-        void data;
-        // TODO: implement registration logic
+        clearErrors("root");
+        registerUser({
+            data: { email: data.email, password: data.password },
+        });
     };
 
     const renderPasswordIcon = (isVisible: boolean, toggle: () => void) => (
@@ -88,6 +120,12 @@ const RegisterPage = () => {
 
         return (
             <>
+                {errors.root && (
+                    <Alert severity="error" sx={{ mb: 1 }}>
+                        {errors.root.message}
+                    </Alert>
+                )}
+
                 <TextField
                     {...email}
                     inputRef={emailRef}
@@ -193,7 +231,7 @@ const RegisterPage = () => {
                     variant="contained"
                     fullWidth
                     sx={{ minHeight: 46 }}
-                    disabled={isSubmitting}
+                    disabled={isPending}
                 >
                     Зарегистрироваться
                 </Button>

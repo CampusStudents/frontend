@@ -4,10 +4,13 @@
  * campus
  * OpenAPI spec version: 0.1.0
  */
+import type { UserDTOUpdatedAt } from "./userDTOUpdatedAt";
 import type { UserDTOLastLoginAt } from "./userDTOLastLoginAt";
 
 export interface UserDTO {
     id: string;
+    created_at: string;
+    updated_at: UserDTOUpdatedAt;
     email: string;
     roles?: string[];
     scopes?: string[];

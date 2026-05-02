@@ -1,19 +1,19 @@
 import Axios, { type AxiosRequestConfig } from "axios";
 
-export const AXIOS_INSTANCE = Axios.create({
+const baseConfig = {
     baseURL: import.meta.env.VITE_API_URL,
     headers: {
         "Content-Type": "application/json",
     },
     withCredentials: true,
-});
+};
 
-// TODO: Add auth token to the request
-AXIOS_INSTANCE.interceptors.request.use();
+export const axiosInstance = Axios.create(baseConfig);
+export const authInstance = Axios.create(baseConfig);
 
-// TODO: Handle 401 response
-AXIOS_INSTANCE.interceptors.response.use();
-
-export const customInstance = <T>(config: AxiosRequestConfig): Promise<T> => {
-    return AXIOS_INSTANCE(config).then(({ data }) => data);
+export const customInstance = async <T>(
+    config: AxiosRequestConfig,
+): Promise<T> => {
+    const { data } = await axiosInstance(config);
+    return data;
 };
