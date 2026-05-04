@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import { routeConfig } from "./routeConfig";
+import RouteHead from "./RouteHead";
 import ProtectedRoute from "./ProtectedRoute";
 import GuestRoute from "./GuestRoute";
 
@@ -65,13 +66,19 @@ const renderRoute = ({
 };
 
 const AppRouter = () => (
-    <Routes>
-        <Route element={<MainLayout maxWidth={1280} />}>
-            {mainLayoutRoutes.map(renderRoute)}
-        </Route>
-        {plainRoutes.map(renderRoute)}
-        <Route path="*" element={<Navigate to={routePaths.home} replace />} />
-    </Routes>
+    <>
+        <RouteHead />
+        <Routes>
+            <Route element={<MainLayout maxWidth={1280} />}>
+                {mainLayoutRoutes.map(renderRoute)}
+            </Route>
+            {plainRoutes.map(renderRoute)}
+            <Route
+                path="*"
+                element={<Navigate to={routePaths.home} replace />}
+            />
+        </Routes>
+    </>
 );
 
 export default AppRouter;
