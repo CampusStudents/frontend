@@ -1,5 +1,5 @@
 import { Paper, Stack, Typography } from "@mui/material";
-import { generatePath } from "react-router-dom";
+import { useState } from "react";
 
 import { projectCards } from "../model/mockData";
 
@@ -8,6 +8,8 @@ import { routePaths } from "@shared/config";
 import { ProjectsToggleGroup } from "@widgets/ContentFilters";
 
 const ProjectsPage = () => {
+    const [selectedView, setSelectedView] = useState("participants");
+
     return (
         <Stack spacing={3}>
             <Paper
@@ -32,16 +34,17 @@ const ProjectsPage = () => {
                 </Stack>
             </Paper>
 
-            <ProjectsToggleGroup />
+            <ProjectsToggleGroup
+                selectedView={selectedView}
+                onViewChange={setSelectedView}
+            />
 
             <Stack spacing={3}>
                 {projectCards.map((card) => (
                     <MyProjectCard
                         key={card.id}
                         card={card}
-                        detailsTo={generatePath(routePaths.project, {
-                            id: String(card.id),
-                        })}
+                        candidatesTo={routePaths.candidates}
                     />
                 ))}
             </Stack>

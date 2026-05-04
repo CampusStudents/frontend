@@ -12,30 +12,49 @@ import {
     ToggleButtonGroup,
     Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type ContentFiltersProps = {
     selectedView?: string;
     projectCount?: number;
     eventCount?: number;
+    onViewChange?: (value: string) => void;
 };
 
 const ContentFilters = ({
     selectedView = "projects",
     projectCount = 124,
     eventCount = 38,
+    onViewChange,
 }: ContentFiltersProps) => {
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+    const [currentView, setCurrentView] = useState(selectedView);
     const [stackTags, setStackTags] = useState([
         "React",
         "TypeScript",
         "Next.js",
     ]);
 
+    useEffect(() => {
+        setCurrentView(selectedView);
+    }, [selectedView]);
+
     const handleDeleteStackTag = (tagToDelete: string) => {
         setStackTags((currentTags) =>
             currentTags.filter((tag) => tag !== tagToDelete),
         );
+    };
+
+    const handleViewChange = (
+        _event: React.MouseEvent<HTMLElement>,
+        value: string | null,
+    ) => {
+        if (!value) {
+            return;
+        }
+
+        setCurrentView(value);
+        onViewChange?.(value);
     };
 
     return (
@@ -230,8 +249,9 @@ const ContentFilters = ({
             </Collapse>
 
             <ToggleButtonGroup
-                value={selectedView}
+                value={currentView}
                 exclusive
+                onChange={handleViewChange}
                 sx={{
                     width: "fit-content",
                     alignSelf: "flex-start",

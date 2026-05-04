@@ -6,10 +6,10 @@ import type { MyProjectCardData } from "../model/types";
 
 type ProjectCardProps = {
     card: MyProjectCardData;
-    detailsTo?: string;
+    candidatesTo?: string;
 };
 
-const MyProjectCard = ({ card, detailsTo }: ProjectCardProps) => {
+const MyProjectCard = ({ card, candidatesTo }: ProjectCardProps) => {
     return (
         <Stack spacing={1}>
             <Typography
@@ -108,8 +108,8 @@ const MyProjectCard = ({ card, detailsTo }: ProjectCardProps) => {
                         >
                             <Button
                                 variant="outlined"
-                                component={detailsTo ? RouterLink : "button"}
-                                to={detailsTo}
+                                component={candidatesTo ? RouterLink : "button"}
+                                to={candidatesTo}
                                 sx={{
                                     minWidth: { sm: 240 },
                                     height: 44,

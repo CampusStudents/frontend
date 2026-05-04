@@ -1,4 +1,5 @@
 import { Paper, Stack, Typography } from "@mui/material";
+import { useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
 
 import { favoriteCards, favoriteCardTags } from "../model/mockData";
@@ -9,6 +10,7 @@ import { ContentFilters } from "@widgets/ContentFilters";
 
 const FavoritesPage = () => {
     const navigate = useNavigate();
+    const [selectedView, setSelectedView] = useState("projects");
 
     return (
         <Stack spacing={3}>
@@ -34,7 +36,10 @@ const FavoritesPage = () => {
                 </Stack>
             </Paper>
 
-            <ContentFilters />
+            <ContentFilters
+                selectedView={selectedView}
+                onViewChange={setSelectedView}
+            />
 
             <Stack spacing={3}>
                 {favoriteCards.map((card) => (

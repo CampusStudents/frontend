@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Stack, ToggleButton, ToggleButtonGroup } from "@mui/material";
 
 type ContentFiltersProps = {
@@ -5,14 +6,34 @@ type ContentFiltersProps = {
     participantCount?: number;
     creatorCount?: number;
     draftsCount?: number;
+    onViewChange?: (value: string) => void;
 };
 
 const ProjectsToggleGroup = ({
-    selectedView = "projects",
+    selectedView = "participants",
     participantCount = 124,
     creatorCount = 38,
     draftsCount = 45,
+    onViewChange,
 }: ContentFiltersProps) => {
+    const [currentView, setCurrentView] = useState(selectedView);
+
+    useEffect(() => {
+        setCurrentView(selectedView);
+    }, [selectedView]);
+
+    const handleViewChange = (
+        _event: React.MouseEvent<HTMLElement>,
+        value: string | null,
+    ) => {
+        if (!value) {
+            return;
+        }
+
+        setCurrentView(value);
+        onViewChange?.(value);
+    };
+
     return (
         <Stack spacing={3}>
             <Stack
@@ -22,8 +43,9 @@ const ProjectsToggleGroup = ({
             />
 
             <ToggleButtonGroup
-                value={selectedView}
+                value={currentView}
                 exclusive
+                onChange={handleViewChange}
                 sx={{
                     width: "fit-content",
                     alignSelf: "flex-start",

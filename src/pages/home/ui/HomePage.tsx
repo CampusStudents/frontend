@@ -1,4 +1,5 @@
 import { Stack } from "@mui/material";
+import { useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
 
 import { cards, cardTags } from "../model/mockData";
@@ -10,10 +11,14 @@ import { EmptyState } from "@shared/ui/EmptyState";
 
 const HomePage = () => {
     const navigate = useNavigate();
+    const [selectedView, setSelectedView] = useState("projects");
 
     return (
         <Stack spacing={3}>
-            <ContentFilters />
+            <ContentFilters
+                selectedView={selectedView}
+                onViewChange={setSelectedView}
+            />
 
             {cards.length > 0 ? (
                 <Stack spacing={3}>
