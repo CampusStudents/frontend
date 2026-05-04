@@ -1,38 +1,66 @@
 import {
+    CalendarMonthRounded,
+    CloseRounded,
     FavoriteBorderRounded,
     NotificationsNoneRounded,
     PersonOutlineRounded,
+    WorkOutlineRounded,
 } from "@mui/icons-material";
 import {
     Box,
     Button,
     ButtonBase,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    IconButton,
     Paper,
     Stack,
     Typography,
 } from "@mui/material";
+import { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
 import { routePaths } from "@shared/config";
-
-const navigationItems = [
-    {
-        icon: <NotificationsNoneRounded fontSize="small" />,
-        label: "Уведомления",
-    },
-    {
-        icon: <FavoriteBorderRounded fontSize="small" />,
-        label: "Избранное",
-        to: routePaths.favorites,
-    },
-    {
-        icon: <PersonOutlineRounded fontSize="small" />,
-        label: "Профиль",
-        to: routePaths.profile,
-    },
-];
+import { tokenStorage } from "@shared/lib/auth";
 
 const MainLayoutHeader = () => {
+    const isAuthenticated = Boolean(tokenStorage.get());
+    const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
+    const navigationItems = [
+        ...(isAuthenticated
+            ? [
+                  {
+                      icon: <NotificationsNoneRounded fontSize="small" />,
+                      label: "Уведомления",
+                      to: routePaths.notifications,
+                  },
+                  {
+                      icon: <FavoriteBorderRounded fontSize="small" />,
+                      label: "Избранное",
+                      to: routePaths.favorites,
+                  },
+              ]
+            : [
+                  {
+                      icon: <WorkOutlineRounded fontSize="small" />,
+                      label: "Проекты",
+                      to: routePaths.home,
+                  },
+                  {
+                      icon: <CalendarMonthRounded fontSize="small" />,
+                      label: "Мероприятия",
+                      to: routePaths.home,
+                  },
+              ]),
+        {
+            icon: <PersonOutlineRounded fontSize="small" />,
+            label: isAuthenticated ? "Профиль" : "Войти",
+            to: isAuthenticated ? routePaths.profile : routePaths.login,
+        },
+    ];
+
     return (
         <Paper
             elevation={0}
@@ -94,32 +122,49 @@ const MainLayoutHeader = () => {
                     useFlexGap
                     sx={{ width: { xs: "100%", md: "auto" } }}
                 >
-                    <Button
-                        component={RouterLink}
-                        to={routePaths.projects}
-                        variant="outlined"
-                        sx={{
-                            minWidth: 0,
-                            px: 2.25,
-                            borderRadius: 1.5,
-                            width: { xs: "100%", sm: "auto" },
-                        }}
-                    >
-                        Мои проекты
-                    </Button>
-                    <Button
-                        component={RouterLink}
-                        to={routePaths.register}
-                        variant="outlined"
-                        sx={{
-                            minWidth: 0,
-                            px: 2.25,
-                            borderRadius: 1.5,
-                            width: { xs: "100%", sm: "auto" },
-                        }}
-                    >
-                        + Создать проект
-                    </Button>
+                    {isAuthenticated ? (
+                        <Button
+                            component={RouterLink}
+                            to={routePaths.projects}
+                            variant="outlined"
+                            sx={{
+                                minWidth: 0,
+                                px: 2.25,
+                                borderRadius: 1.5,
+                                width: { xs: "100%", sm: "auto" },
+                            }}
+                        >
+                            Мои проекты
+                        </Button>
+                    ) : null}
+                    {isAuthenticated ? (
+                        <Button
+                            component={RouterLink}
+                            to={routePaths.createProject}
+                            variant="outlined"
+                            sx={{
+                                minWidth: 0,
+                                px: 2.25,
+                                borderRadius: 1.5,
+                                width: { xs: "100%", sm: "auto" },
+                            }}
+                        >
+                            + Создать проект
+                        </Button>
+                    ) : (
+                        <Button
+                            onClick={() => setIsLoginPromptOpen(true)}
+                            variant="outlined"
+                            sx={{
+                                minWidth: 0,
+                                px: 2.25,
+                                borderRadius: 1.5,
+                                width: { xs: "100%", sm: "auto" },
+                            }}
+                        >
+                            + Создать проект
+                        </Button>
+                    )}
                 </Stack>
             </Stack>
 
@@ -175,6 +220,56 @@ const MainLayoutHeader = () => {
                     </ButtonBase>
                 ))}
             </Stack>
+
+            <Dialog
+                open={isLoginPromptOpen}
+                onClose={() => setIsLoginPromptOpen(false)}
+                fullWidth
+                maxWidth="xs"
+                PaperProps={{
+                    sx: {
+                        borderRadius: 2,
+                    },
+                }}
+            >
+                <DialogTitle sx={{ pr: 6, pb: 1.5 }}>
+                    Нужно войти в аккаунт
+                    <IconButton
+                        aria-label="Закрыть"
+                        onClick={() => setIsLoginPromptOpen(false)}
+                        sx={{
+                            position: "absolute",
+                            right: 12,
+                            top: 12,
+                            color: "text.secondary",
+                        }}
+                    >
+                        <CloseRounded fontSize="small" />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent sx={{ pb: 1 }}>
+                    <Typography color="text.secondary" sx={{ lineHeight: 1.6 }}>
+                        Чтобы создать проект, нужно войти в аккаунт.
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{ px: 3, pb: 3 }}>
+                    <Button
+                        onClick={() => setIsLoginPromptOpen(false)}
+                        color="inherit"
+                    >
+                        Позже
+                    </Button>
+                    <Button
+                        component={RouterLink}
+                        to={routePaths.login}
+                        variant="contained"
+                        onClick={() => setIsLoginPromptOpen(false)}
+                        sx={{ boxShadow: "none" }}
+                    >
+                        Войти
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Paper>
     );
 };

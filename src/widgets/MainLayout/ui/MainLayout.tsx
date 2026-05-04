@@ -7,6 +7,7 @@ import MainLayoutHeader from "./MainLayoutHeader";
 import ScrollToTop from "./ScrollToTop";
 
 import { routePaths } from "@shared/config";
+import { tokenStorage } from "@shared/lib/auth";
 
 type MainLayoutProps = {
     children?: ReactNode;
@@ -14,13 +15,19 @@ type MainLayoutProps = {
     sx?: SxProps<Theme>;
 };
 
-const footerLinks = [
-    { label: "Проекты", path: routePaths.projects },
-    { label: "Избранное", path: routePaths.favorites },
-    { label: "Профиль", path: routePaths.profile },
-];
-
 const MainLayoutFooter = () => {
+    const isAuthenticated = Boolean(tokenStorage.get());
+    const footerLinks = [
+        ...(isAuthenticated
+            ? [
+                  { label: "Проекты", path: routePaths.projects },
+                  { label: "Уведомления", path: routePaths.notifications },
+                  { label: "Избранное", path: routePaths.favorites },
+                  { label: "Профиль", path: routePaths.profile },
+              ]
+            : []),
+    ];
+
     return (
         <Box
             component="footer"
