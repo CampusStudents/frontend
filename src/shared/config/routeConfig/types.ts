@@ -1,10 +1,12 @@
 import type { ReactNode } from "react";
 
 export const AppRoutes = {
+    CREATE_PROJECT: "createProject",
     EVENT: "event",
     FAVORITES: "favorites",
     HOME: "home",
     LOGIN: "login",
+    NOTIFICATIONS: "notifications",
     ORGANIZER: "organizer",
     PROFILE: "profile",
     PROJECTS: "projects",

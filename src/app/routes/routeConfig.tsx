@@ -1,4 +1,5 @@
 import { AppRoutes, routePaths, type RouteConfig } from "@shared/config";
+import { CreateProjectPage } from "@pages/create-project";
 import { EventPage } from "@pages/event";
 import { FavoritesPage } from "@pages/favorites";
 import { ProfilePage } from "@pages/profile";
@@ -7,12 +8,19 @@ import { ProjectsPage } from "@pages/projects";
 import { RegisterPage } from "@pages/register";
 import { HomePage } from "@pages/home";
 import { LoginPage } from "@pages/login";
+import { NotificationsPage } from "@pages/notifications";
 import { OrganizerPage } from "@pages/organizer";
 import { CandidatesPage } from "@pages/candidates";
 import { VerifyEmailPage } from "@pages/verify-email";
 import { VerifyEmailPendingPage } from "@pages/verify-email-pending";
 
 export const routeConfig: RouteConfig = {
+    [AppRoutes.CREATE_PROJECT]: {
+        element: <CreateProjectPage />,
+        layout: "main",
+        path: routePaths.createProject,
+        isPrivate: true,
+    },
     [AppRoutes.EVENT]: {
         element: <EventPage />,
         layout: "main",
@@ -29,6 +37,12 @@ export const routeConfig: RouteConfig = {
         layout: "main",
         path: routePaths.home,
     },
+    [AppRoutes.NOTIFICATIONS]: {
+        element: <NotificationsPage />,
+        layout: "main",
+        path: routePaths.notifications,
+        isPrivate: true,
+    },
     [AppRoutes.ORGANIZER]: {
         element: <OrganizerPage />,
         layout: "main",
@@ -43,6 +57,7 @@ export const routeConfig: RouteConfig = {
         element: <ProjectsPage />,
         layout: "main",
         path: routePaths.projects,
+        isPrivate: true,
     },
     [AppRoutes.PROFILE]: {
         element: <ProfilePage />,
