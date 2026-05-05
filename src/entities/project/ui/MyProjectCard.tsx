@@ -7,9 +7,10 @@ import type { MyProjectCardData } from "../model/types";
 type ProjectCardProps = {
     card: MyProjectCardData;
     candidatesTo?: string;
+    projectTo?: string;
 };
 
-const MyProjectCard = ({ card, candidatesTo }: ProjectCardProps) => {
+const MyProjectCard = ({ card, candidatesTo, projectTo }: ProjectCardProps) => {
     return (
         <Stack spacing={1}>
             <Typography
@@ -120,6 +121,8 @@ const MyProjectCard = ({ card, candidatesTo }: ProjectCardProps) => {
                             </Button>
                             <Button
                                 variant="contained"
+                                component={projectTo ? RouterLink : "button"}
+                                to={projectTo}
                                 sx={{
                                     minWidth: { sm: 240 },
                                     height: 44,
@@ -127,7 +130,7 @@ const MyProjectCard = ({ card, candidatesTo }: ProjectCardProps) => {
                                     boxShadow: "none",
                                 }}
                             >
-                                Перейти в чат
+                                Подробнее
                             </Button>
                         </Stack>
                     </Stack>

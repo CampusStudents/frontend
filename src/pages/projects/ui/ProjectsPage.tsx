@@ -1,5 +1,6 @@
 import { Paper, Stack, Typography } from "@mui/material";
 import { useState } from "react";
+import { generatePath } from "react-router-dom";
 
 import { projectCards } from "../model/mockData";
 
@@ -47,6 +48,9 @@ const ProjectsPage = () => {
                             key={card.id}
                             card={card}
                             candidatesTo={routePaths.candidates}
+                            projectTo={generatePath(routePaths.project, {
+                                id: String(card.id),
+                            })}
                         />
                     ))}
                 </Stack>
