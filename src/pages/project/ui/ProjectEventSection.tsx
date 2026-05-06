@@ -74,9 +74,7 @@ const ProjectEventSection = ({ details }: ProjectEventSectionProps) => {
                     <DetailsCarousel
                         items={details.gallery}
                         getKey={(image) => image}
-                        renderSlide={(image) => {
-                            const index = details.gallery.indexOf(image);
-
+                        renderSlide={(image, index) => {
                             return (
                                 <Box
                                     component="img"

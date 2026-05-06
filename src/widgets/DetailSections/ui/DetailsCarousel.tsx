@@ -9,7 +9,7 @@ import "swiper/css";
 type DetailsCarouselProps<T> = {
     items: T[];
     getKey: (item: T) => string | number;
-    renderSlide: (item: T) => ReactNode;
+    renderSlide: (item: T, index: number) => ReactNode;
     breakpoints?: Record<
         number,
         { slidesPerView: number; spaceBetween?: number }
@@ -103,9 +103,9 @@ const DetailsCarousel = <T,>({
             >
                 <CarouselArrow direction="prev" />
                 <CarouselArrow direction="next" />
-                {items.map((item) => (
+                {items.map((item, index) => (
                     <SwiperSlide key={getKey(item)}>
-                        {renderSlide(item)}
+                        {renderSlide(item, index)}
                     </SwiperSlide>
                 ))}
             </Swiper>

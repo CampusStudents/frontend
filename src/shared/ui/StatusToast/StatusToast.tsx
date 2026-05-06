@@ -1,36 +1,68 @@
 import { CheckRounded } from "@mui/icons-material";
-import { Box, Fade, Paper, Stack, Typography } from "@mui/material";
+import {
+    Paper,
+    Snackbar,
+    SnackbarContent,
+    Stack,
+    Typography,
+} from "@mui/material";
 
-import type { EventToastData } from "../model/uiTypes";
-import { eventDetails } from "../model/mockData";
-
-type EventToastProps = {
+type StatusToastProps = {
     open: boolean;
-    data: EventToastData;
+    title: string;
+    message: string;
+    onClose?: () => void;
+    anchorOrigin?: {
+        vertical: "top" | "bottom";
+        horizontal: "left" | "center" | "right";
+    };
 };
 
-const EventToast = ({ open, data }: EventToastProps) => {
+const StatusToast = ({
+    open,
+    title,
+    message,
+    onClose,
+    anchorOrigin = { vertical: "top", horizontal: "right" },
+}: StatusToastProps) => {
     return (
-        <Fade in={open} timeout={250} unmountOnExit>
-            <Box
+        <Snackbar
+            open={open}
+            onClose={onClose}
+            anchorOrigin={anchorOrigin}
+            sx={{
+                top: { xs: 16, sm: 24 },
+                right:
+                    anchorOrigin.horizontal === "right"
+                        ? { xs: 16, sm: 24 }
+                        : undefined,
+                left:
+                    anchorOrigin.horizontal === "left"
+                        ? { xs: 16, sm: 24 }
+                        : undefined,
+            }}
+            slotProps={{
+                transition: {
+                    timeout: 250,
+                },
+            }}
+        >
+            <SnackbarContent
                 sx={{
-                    position: "fixed",
-                    top: { xs: 16, sm: 24 },
-                    left: { xs: 16, sm: 24 },
-                    zIndex: 1400,
+                    minWidth: { xs: 280, sm: 380 },
+                    maxWidth: 420,
+                    px: 2,
+                    py: 1.75,
+                    borderRadius: 2.5,
+                    boxShadow: "0 16px 48px rgba(18, 24, 38, 0.12)",
+                    bgcolor: "background.paper",
+                    color: "text.primary",
+                    "& .MuiSnackbarContent-message": {
+                        p: 0,
+                        width: "100%",
+                    },
                 }}
-            >
-                <Paper
-                    elevation={0}
-                    sx={{
-                        minWidth: { xs: 280, sm: 380 },
-                        maxWidth: 420,
-                        px: 2,
-                        py: 1.75,
-                        borderRadius: 2.5,
-                        boxShadow: "0 16px 48px rgba(18, 24, 38, 0.12)",
-                    }}
-                >
+                message={
                     <Stack direction="row" spacing={1.75} alignItems="center">
                         <Paper
                             elevation={0}
@@ -48,21 +80,21 @@ const EventToast = ({ open, data }: EventToastProps) => {
                                 flexShrink: 0,
                             }}
                         >
-                            {eventDetails.locationName
+                            {title
                                 .split(" ")
                                 .map((word) => word[0])
                                 .join("")
                                 .slice(0, 3)}
                         </Paper>
 
-                        <Stack spacing={0.5}>
+                        <Stack spacing={0.5} sx={{ minWidth: 0 }}>
                             <Typography
                                 sx={{
                                     color: "text.secondary",
                                     fontSize: 15,
                                 }}
                             >
-                                {data.title}
+                                {title}
                             </Typography>
                             <Stack
                                 direction="row"
@@ -81,15 +113,15 @@ const EventToast = ({ open, data }: EventToastProps) => {
                                         fontWeight: 500,
                                     }}
                                 >
-                                    {data.message}
+                                    {message}
                                 </Typography>
                             </Stack>
                         </Stack>
                     </Stack>
-                </Paper>
-            </Box>
-        </Fade>
+                }
+            />
+        </Snackbar>
     );
 };
 
-export default EventToast;
+export default StatusToast;

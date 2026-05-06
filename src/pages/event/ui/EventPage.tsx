@@ -3,20 +3,17 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { eventDetails } from "../model/mockData";
-import type {
-    EventToastData,
-    LoginPromptContent,
-    LoginPromptVariant,
-} from "../model/uiTypes";
+import type { LoginPromptContent, LoginPromptVariant } from "../model/uiTypes";
 
 import EventContentSection from "./EventContentSection";
 import EventHeaderSection from "./EventHeaderSection";
-import EventLoginPrompt from "./EventLoginPrompt";
 import EventSidebar from "./EventSidebar";
-import EventToast from "./EventToast";
 
 import { tokenStorage } from "@shared/lib/auth";
 import { routePaths } from "@shared/config";
+import { AuthRequiredDialog } from "@shared/ui/AuthRequiredDialog";
+import { StatusToast } from "@shared/ui/StatusToast";
+import type { StatusToastData } from "@shared/ui/StatusToast";
 
 const EventPage = () => {
     const navigate = useNavigate();
@@ -25,7 +22,7 @@ const EventPage = () => {
     const [isSubscribed, setIsSubscribed] = useState(false);
     const [loginPromptVariant, setLoginPromptVariant] =
         useState<LoginPromptVariant>(null);
-    const [toastData, setToastData] = useState<EventToastData>({
+    const [toastData, setToastData] = useState<StatusToastData>({
         title: eventDetails.locationName,
         message: "Заявка отправлена успешно!",
     });
@@ -119,12 +116,18 @@ const EventPage = () => {
                 </Stack>
             </Paper>
 
-            <EventLoginPrompt
-                content={loginPromptContent}
+            <AuthRequiredDialog
                 open={loginPromptVariant !== null}
                 onClose={() => setLoginPromptVariant(null)}
+                title={loginPromptContent?.title ?? ""}
+                description={loginPromptContent?.description ?? ""}
             />
-            <EventToast open={isToastOpen} data={toastData} />
+            <StatusToast
+                open={isToastOpen}
+                title={toastData.title}
+                message={toastData.message}
+                onClose={() => setIsToastOpen(false)}
+            />
         </>
     );
 };

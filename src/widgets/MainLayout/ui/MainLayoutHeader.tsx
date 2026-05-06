@@ -1,12 +1,12 @@
 import { Paper } from "@mui/material";
 import { useState } from "react";
 
-import MainLayoutCreateProjectPrompt from "./MainLayoutCreateProjectPrompt";
 import MainLayoutHeaderBrand from "./MainLayoutHeaderBrand";
 import MainLayoutHeaderNav from "./MainLayoutHeaderNav";
 import { getHeaderNavigationItems } from "./headerNavigation";
 
 import { tokenStorage } from "@shared/lib/auth";
+import { AuthRequiredDialog } from "@shared/ui/AuthRequiredDialog";
 
 const MainLayoutHeader = () => {
     const isAuthenticated = Boolean(tokenStorage.get());
@@ -33,9 +33,11 @@ const MainLayoutHeader = () => {
                 onCreateProjectClick={() => setIsLoginPromptOpen(true)}
             />
             <MainLayoutHeaderNav items={navigationItems} />
-            <MainLayoutCreateProjectPrompt
+            <AuthRequiredDialog
                 open={isLoginPromptOpen}
                 onClose={() => setIsLoginPromptOpen(false)}
+                title="Нужно войти в аккаунт"
+                description="Чтобы создать проект, нужно войти в аккаунт."
             />
         </Paper>
     );

@@ -14,6 +14,8 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
+const DEFAULT_STACK_TAGS = ["React", "TypeScript", "Next.js"];
+
 type ContentFiltersProps = {
     selectedView?: string;
     projectCount?: number;
@@ -29,11 +31,7 @@ const ContentFilters = ({
 }: ContentFiltersProps) => {
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
     const [currentView, setCurrentView] = useState(selectedView);
-    const [stackTags, setStackTags] = useState([
-        "React",
-        "TypeScript",
-        "Next.js",
-    ]);
+    const [stackTags, setStackTags] = useState(DEFAULT_STACK_TAGS);
 
     useEffect(() => {
         setCurrentView(selectedView);
@@ -217,11 +215,7 @@ const ContentFilters = ({
                             <Button
                                 variant="outlined"
                                 onClick={() => {
-                                    setStackTags([
-                                        "React",
-                                        "TypeScript",
-                                        "Next.js",
-                                    ]);
+                                    setStackTags(DEFAULT_STACK_TAGS);
                                     setIsFiltersOpen(false);
                                 }}
                                 sx={{

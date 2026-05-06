@@ -12,29 +12,44 @@ import { Link as RouterLink } from "react-router-dom";
 
 import { routePaths } from "@shared/config";
 
-type MainLayoutCreateProjectPromptProps = {
+type AuthRequiredDialogProps = {
     open: boolean;
     onClose: () => void;
+    title: string;
+    description: string;
 };
 
-const MainLayoutCreateProjectPrompt = ({
+const AuthRequiredDialog = ({
     open,
     onClose,
-}: MainLayoutCreateProjectPromptProps) => {
+    title,
+    description,
+}: AuthRequiredDialogProps) => {
     return (
         <Dialog
             open={open}
             onClose={onClose}
             fullWidth
             maxWidth="xs"
-            PaperProps={{
-                sx: {
-                    borderRadius: 2,
+            slotProps={{
+                backdrop: {
+                    sx: {
+                        bgcolor: "rgba(15, 18, 23, 0.56)",
+                        backdropFilter: "blur(2px)",
+                    },
+                },
+                paper: {
+                    elevation: 0,
+                    sx: {
+                        width: "min(420px, calc(100vw - 32px))",
+                        borderRadius: 2,
+                        m: 2,
+                    },
                 },
             }}
         >
             <DialogTitle sx={{ pr: 6, pb: 1.5 }}>
-                Нужно войти в аккаунт
+                {title}
                 <IconButton
                     aria-label="Закрыть"
                     onClick={onClose}
@@ -50,7 +65,7 @@ const MainLayoutCreateProjectPrompt = ({
             </DialogTitle>
             <DialogContent sx={{ pb: 1 }}>
                 <Typography color="text.secondary" sx={{ lineHeight: 1.6 }}>
-                    Чтобы создать проект, нужно войти в аккаунт.
+                    {description}
                 </Typography>
             </DialogContent>
             <DialogActions sx={{ px: 3, pb: 3 }}>
@@ -71,4 +86,4 @@ const MainLayoutCreateProjectPrompt = ({
     );
 };
 
-export default MainLayoutCreateProjectPrompt;
+export default AuthRequiredDialog;

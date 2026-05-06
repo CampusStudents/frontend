@@ -5,16 +5,15 @@ import type { ProjectDetails } from "../model/types";
 import type {
     ProjectLoginPromptContent,
     ProjectLoginPromptVariant,
-    ProjectToastData,
-    ProjectToastState,
 } from "../model/uiTypes";
 
 import ProjectApplicationModal from "./ProjectApplicationModal";
 import ProjectInfoPanelCard from "./ProjectInfoPanelCard";
-import ProjectLoginPrompt from "./ProjectLoginPrompt";
-import ProjectToast from "./ProjectToast";
 
 import { tokenStorage } from "@shared/lib/auth";
+import { AuthRequiredDialog } from "@shared/ui/AuthRequiredDialog";
+import { StatusToast } from "@shared/ui/StatusToast";
+import type { StatusToastData } from "@shared/ui/StatusToast";
 
 type ProjectInfoPanelProps = {
     details: ProjectDetails;
@@ -24,45 +23,33 @@ const ProjectInfoPanel = ({ details }: ProjectInfoPanelProps) => {
     const isAuthenticated = Boolean(tokenStorage.get());
     const [isApplicationOpen, setIsApplicationOpen] = useState(false);
     const [applicationMessage, setApplicationMessage] = useState("");
-    const [toastState, setToastState] = useState<ProjectToastState>("closed");
+    const [isToastOpen, setIsToastOpen] = useState(false);
     const [isFavorite, setIsFavorite] = useState(false);
     const [loginPromptVariant, setLoginPromptVariant] =
         useState<ProjectLoginPromptVariant>(null);
-    const [toastData, setToastData] = useState<ProjectToastData>({
+    const [toastData, setToastData] = useState<StatusToastData>({
         title: details.venue,
         message: "Заявка отправлена успешно!",
     });
 
     useEffect(() => {
-        if (toastState !== "open") {
+        if (!isToastOpen) {
             return;
         }
 
         const timeoutId = window.setTimeout(() => {
-            setToastState("closing");
+            setIsToastOpen(false);
         }, 3000);
 
         return () => window.clearTimeout(timeoutId);
-    }, [toastState]);
-
-    useEffect(() => {
-        if (toastState !== "closing") {
-            return;
-        }
-
-        const timeoutId = window.setTimeout(() => {
-            setToastState("closed");
-        }, 240);
-
-        return () => window.clearTimeout(timeoutId);
-    }, [toastState]);
+    }, [isToastOpen]);
 
     const openToast = (title: string, message: string) => {
         setToastData({ title, message });
-        setToastState("closed");
+        setIsToastOpen(false);
 
         window.setTimeout(() => {
-            setToastState("open");
+            setIsToastOpen(true);
         }, 0);
     };
 
@@ -129,15 +116,19 @@ const ProjectInfoPanel = ({ details }: ProjectInfoPanelProps) => {
                               onMessageChange={setApplicationMessage}
                               onSubmit={handleSubmitApplication}
                           />
-                          <ProjectLoginPrompt
-                              content={loginPromptContent}
+                          <AuthRequiredDialog
                               open={loginPromptVariant !== null}
                               onClose={() => setLoginPromptVariant(null)}
+                              title={loginPromptContent?.title ?? ""}
+                              description={
+                                  loginPromptContent?.description ?? ""
+                              }
                           />
-                          <ProjectToast
-                              state={toastState}
-                              data={toastData}
-                              onClose={() => setToastState("closing")}
+                          <StatusToast
+                              open={isToastOpen}
+                              title={toastData.title}
+                              message={toastData.message}
+                              onClose={() => setIsToastOpen(false)}
                           />
                       </>,
                       document.body,

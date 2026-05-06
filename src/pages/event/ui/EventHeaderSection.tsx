@@ -24,9 +24,7 @@ const EventHeaderSection = ({ details }: EventHeaderSectionProps) => {
             <DetailsCarousel
                 items={details.gallery}
                 getKey={(image) => image}
-                renderSlide={(image) => {
-                    const index = details.gallery.indexOf(image);
-
+                renderSlide={(image, index) => {
                     return (
                         <Paper
                             component="img"
