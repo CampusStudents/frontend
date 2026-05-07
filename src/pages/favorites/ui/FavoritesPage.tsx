@@ -1,14 +1,17 @@
 import { Paper, Stack, Typography } from "@mui/material";
+import { useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
 
 import { favoriteCards, favoriteCardTags } from "../model/mockData";
 
 import { ProjectCard } from "@entities/project";
 import { routePaths } from "@shared/config";
+import { EmptyState } from "@shared/ui/EmptyState";
 import { ContentFilters } from "@widgets/ContentFilters";
 
 const FavoritesPage = () => {
     const navigate = useNavigate();
+    const [selectedView, setSelectedView] = useState("projects");
 
     return (
         <Stack spacing={3}>
@@ -34,24 +37,34 @@ const FavoritesPage = () => {
                 </Stack>
             </Paper>
 
-            <ContentFilters />
+            <ContentFilters
+                selectedView={selectedView}
+                onViewChange={setSelectedView}
+            />
 
-            <Stack spacing={3}>
-                {favoriteCards.map((card) => (
-                    <ProjectCard
-                        key={card.id}
-                        card={card}
-                        tags={favoriteCardTags}
-                        onClick={() =>
-                            navigate(
-                                generatePath(routePaths.project, {
-                                    id: String(card.id),
-                                }),
-                            )
-                        }
-                    />
-                ))}
-            </Stack>
+            {favoriteCards.length > 0 ? (
+                <Stack spacing={3}>
+                    {favoriteCards.map((card) => (
+                        <ProjectCard
+                            key={card.id}
+                            card={card}
+                            tags={favoriteCardTags}
+                            onClick={() =>
+                                navigate(
+                                    generatePath(routePaths.project, {
+                                        id: String(card.id),
+                                    }),
+                                )
+                            }
+                        />
+                    ))}
+                </Stack>
+            ) : (
+                <EmptyState
+                    title="В избранном пока ничего нет"
+                    description="Сохраняйте интересные проекты, чтобы быстро возвращаться к ним позже."
+                />
+            )}
         </Stack>
     );
 };

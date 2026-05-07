@@ -1,13 +1,17 @@
 import { Paper, Stack, Typography } from "@mui/material";
+import { useState } from "react";
 import { generatePath } from "react-router-dom";
 
 import { projectCards } from "../model/mockData";
 
 import { MyProjectCard } from "@entities/project";
 import { routePaths } from "@shared/config";
+import { EmptyState } from "@shared/ui/EmptyState";
 import { ProjectsToggleGroup } from "@widgets/ContentFilters";
 
 const ProjectsPage = () => {
+    const [selectedView, setSelectedView] = useState("participants");
+
     return (
         <Stack spacing={3}>
             <Paper
@@ -32,19 +36,30 @@ const ProjectsPage = () => {
                 </Stack>
             </Paper>
 
-            <ProjectsToggleGroup />
+            <ProjectsToggleGroup
+                selectedView={selectedView}
+                onViewChange={setSelectedView}
+            />
 
-            <Stack spacing={3}>
-                {projectCards.map((card) => (
-                    <MyProjectCard
-                        key={card.id}
-                        card={card}
-                        detailsTo={generatePath(routePaths.project, {
-                            id: String(card.id),
-                        })}
-                    />
-                ))}
-            </Stack>
+            {projectCards.length > 0 ? (
+                <Stack spacing={3}>
+                    {projectCards.map((card) => (
+                        <MyProjectCard
+                            key={card.id}
+                            card={card}
+                            candidatesTo={routePaths.candidates}
+                            projectTo={generatePath(routePaths.project, {
+                                id: String(card.id),
+                            })}
+                        />
+                    ))}
+                </Stack>
+            ) : (
+                <EmptyState
+                    title="У вас пока нет проектов"
+                    description="Создайте первый проект, чтобы собрать команду и начать работу над идеей."
+                />
+            )}
         </Stack>
     );
 };

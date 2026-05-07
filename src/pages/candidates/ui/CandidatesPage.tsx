@@ -2,7 +2,8 @@ import { Paper, Stack, Typography } from "@mui/material";
 
 import { candidateCards, candidatesCardTags } from "../model/mockData";
 
-import { CandidateCard } from "@entities/project"
+import { CandidateCard } from "@entities/project";
+import { EmptyState } from "@shared/ui/EmptyState";
 import { ContentFindFilters } from "@widgets/ContentFilters";
 
 const CandidatesPage = () => {
@@ -32,15 +33,22 @@ const CandidatesPage = () => {
 
             <ContentFindFilters />
 
-            <Stack spacing={3}>
-                {candidateCards.map((card) => (
-                    <CandidateCard
-                        key={card.id}
-                        card={card}
-                        tags={candidatesCardTags}
-                    />
-                ))}
-            </Stack>
+            {candidateCards.length > 0 ? (
+                <Stack spacing={3}>
+                    {candidateCards.map((card) => (
+                        <CandidateCard
+                            key={card.id}
+                            card={card}
+                            tags={candidatesCardTags}
+                        />
+                    ))}
+                </Stack>
+            ) : (
+                <EmptyState
+                    title="Пока нет кандидатов"
+                    description="Когда участники начнут откликаться на ваши проекты, они появятся здесь."
+                />
+            )}
         </Stack>
     );
 };

@@ -10,7 +10,7 @@ export const projectDetails: ProjectDetails = {
     organizer: "Понедельник, 11 ноября",
     venue: "Beloi Art Gallery",
     address: "Москва, Нижняя Сыромятническая",
-    actionLabel: "Пойду",
+    actionLabel: "Я пойду",
     aboutLabel: "О событии",
     description: [
         "Программа собрана для студентов и начинающих специалистов, которые хотят понять, как устроен отбор на стажировки и что на практике ждут от junior-кандидатов.",
