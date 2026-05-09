@@ -3,6 +3,7 @@ import { CreateProjectPage } from "@pages/create-project";
 import { EventPage } from "@pages/event";
 import { FavoritesPage } from "@pages/favorites";
 import { ProfilePage } from "@pages/profile";
+import { ProfileSetupPage } from "@pages/profile-setup";
 import { ProjectPage } from "@pages/project";
 import { ProjectsPage } from "@pages/projects";
 import { RegisterPage } from "@pages/register";
@@ -64,6 +65,10 @@ export const routeConfig: RouteConfig = {
         layout: "main",
         path: routePaths.profile,
         isPrivate: true,
+    },
+    [AppRoutes.PROFILE_SETUP]: {
+        element: <ProfileSetupPage />,
+        path: routePaths.profileSetup,
     },
     [AppRoutes.REGISTER]: {
         element: <RegisterPage />,

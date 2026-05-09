@@ -1,5 +1,6 @@
 export const HttpStatuses = {
     BAD_REQUEST: 400,
     UNAUTHORIZED: 401,
+    FORBIDDEN: 403,
     CONFLICT: 409,
 } as const;

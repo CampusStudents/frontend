@@ -48,32 +48,55 @@ const FormWrapper = ({
 }: FormWrapperProps) => {
     return (
         <Container
-            maxWidth="sm"
+            maxWidth={false}
             sx={{
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
                 minHeight: "100vh",
-                py: 4,
+                px: { xs: 2, sm: 3 },
+                py: { xs: 3, sm: 5 },
+                bgcolor: "background.default",
             }}
         >
             <Paper
                 elevation={0}
                 sx={{
                     width: "100%",
-                    maxWidth: 580,
-                    p: { xs: 3, sm: 5 },
-                    borderRadius: 4,
+                    maxWidth: 500,
+                    p: { xs: 3, sm: 4.5 },
+                    borderRadius: 2.5,
                     border: 1,
                     borderColor: "divider",
-                    boxShadow: "0 20px 60px rgba(19, 21, 23, 0.06)",
+                    boxShadow: "0 18px 50px rgba(19, 21, 23, 0.07)",
                 }}
             >
+                <Typography
+                    variant="overline"
+                    color="primary"
+                    sx={{
+                        display: "block",
+                        mb: 0.75,
+                        fontWeight: 800,
+                        lineHeight: 1,
+                        letterSpacing: 0,
+                        textTransform: "none",
+                    }}
+                >
+                    campus
+                </Typography>
+
                 {renderTitle && (
                     <Typography
-                        variant="h6"
+                        variant="h4"
                         component="h1"
-                        sx={{ fontWeight: 700, textAlign: "center", mb: 1 }}
+                        sx={{
+                            fontWeight: 800,
+                            mb: 1,
+                            fontSize: { xs: "2rem", sm: "2.25rem" },
+                            lineHeight: 1.12,
+                            letterSpacing: 0,
+                        }}
                     >
                         {renderTitle()}
                     </Typography>
@@ -82,16 +105,15 @@ const FormWrapper = ({
                 {renderDescription && (
                     <Box
                         sx={{
-                            mb: 2,
+                            mb: 3.25,
                         }}
                     >
                         <Typography
-                            variant="body2"
+                            variant="body1"
                             color="text.secondary"
                             sx={{
-                                textAlign: "center",
-                                maxWidth: 420,
-                                mx: "auto",
+                                maxWidth: 390,
+                                lineHeight: 1.5,
                             }}
                         >
                             {renderDescription()}
@@ -130,9 +152,12 @@ const FormWrapper = ({
                         sx={{
                             display: "flex",
                             flexDirection: "column",
-                            gap: 0.75,
+                            gap: 1.25,
                             "& .MuiFormControl-root": {
                                 width: "100%",
+                            },
+                            "& .MuiInputBase-root": {
+                                minHeight: 50,
                             },
                             "& .MuiFormHelperText-root": {
                                 mt: 0.5,
@@ -148,10 +173,13 @@ const FormWrapper = ({
                         <Box
                             sx={{
                                 width: "100%",
-                                mt: 2,
+                                mt: 2.25,
                                 "& .MuiButton-root": {
                                     textTransform: "none",
-                                    fontWeight: 600,
+                                    fontWeight: 700,
+                                    minHeight: 50,
+                                    borderRadius: 1.75,
+                                    fontSize: "1rem",
                                 },
                             }}
                         >
@@ -160,7 +188,13 @@ const FormWrapper = ({
                     )}
 
                     {renderFooter && (
-                        <Box sx={{ textAlign: "center", mt: 2 }}>
+                        <Box
+                            sx={{
+                                textAlign: "center",
+                                mt: 2.25,
+                                color: "text.secondary",
+                            }}
+                        >
                             {renderFooter()}
                         </Box>
                     )}

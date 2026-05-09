@@ -81,6 +81,13 @@ const routeMetaEntries: Array<{ path: string; meta: RouteMeta }> = [
         },
     },
     {
+        path: routePaths.profileSetup,
+        meta: {
+            title: `Заполнение профиля | ${titleSuffix}`,
+            description: "Заполнение данных профиля после подтверждения почты.",
+        },
+    },
+    {
         path: routePaths.organizer,
         meta: {
             title: `Организатор | ${titleSuffix}`,

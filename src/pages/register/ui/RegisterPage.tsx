@@ -1,33 +1,34 @@
 import { useState } from "react";
 import {
     Alert,
+    Box,
     Button,
     IconButton,
     InputAdornment,
     Link,
-    MenuItem,
+    Stack,
     TextField,
-    ToggleButton,
-    ToggleButtonGroup,
     Typography,
 } from "@mui/material";
+import MarkEmailUnreadOutlinedIcon from "@mui/icons-material/MarkEmailUnreadOutlined";
+import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { useForm, useWatch } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import {
-    registerDefaultValues,
-    registerResolver,
-    type RegisterFormValues,
+    registerAccountDefaultValues,
+    registerAccountResolver,
+    type RegisterAccountFormValues,
 } from "../model/registerForm";
 
-import { HttpStatuses, useAuthRegister } from "@shared/api";
+import { authLogin, authRegister, HttpStatuses } from "@shared/api";
 import { routePaths } from "@shared/config";
+import { tokenStorage } from "@shared/lib/auth";
 import { fieldHelper } from "@shared/lib/form";
 import { FormWrapper } from "@shared/ui/FormWrapper";
-
-type Role = "participant" | "organizer";
 
 const RegisterPage = () => {
     const navigate = useNavigate();
@@ -37,48 +38,54 @@ const RegisterPage = () => {
     const {
         register,
         handleSubmit,
-        control,
-        setValue,
         setError,
         clearErrors,
         formState: { errors },
-    } = useForm<RegisterFormValues>({
-        resolver: registerResolver,
-        defaultValues: registerDefaultValues,
+    } = useForm<RegisterAccountFormValues>({
+        resolver: registerAccountResolver,
+        defaultValues: registerAccountDefaultValues,
         mode: "onBlur",
     });
 
-    const role = useWatch({ control, name: "role" });
+    const registerAccountMutation = useMutation({
+        mutationFn: async (data: RegisterAccountFormValues) => {
+            await authRegister({
+                email: data.email,
+                password: data.password,
+            });
 
-    const { mutate: registerUser, isPending } = useAuthRegister({
-        mutation: {
-            onSuccess: () => {
-                navigate(routePaths.login, {
-                    replace: true,
-                    state: { registered: true },
-                });
-            },
-            onError: (error) => {
-                const status = axios.isAxiosError(error)
-                    ? error.response?.status
-                    : undefined;
+            const { access_token } = await authLogin({
+                email: data.email,
+                password: data.password,
+            });
 
-                setError("root", {
-                    message:
-                        status === HttpStatuses.BAD_REQUEST ||
-                        status === HttpStatuses.CONFLICT
-                            ? "Пользователь с таким email уже существует"
-                            : "Не удалось создать аккаунт. Попробуйте позже.",
-                });
-            },
+            tokenStorage.set(access_token);
+            return data.email;
+        },
+        onSuccess: (email) => {
+            navigate(routePaths.verifyEmailPending, {
+                replace: true,
+                state: { email },
+            });
+        },
+        onError: (error) => {
+            const status = axios.isAxiosError(error)
+                ? error.response?.status
+                : undefined;
+
+            setError("root", {
+                message:
+                    status === HttpStatuses.BAD_REQUEST ||
+                    status === HttpStatuses.CONFLICT
+                        ? "Пользователь с таким email уже существует"
+                        : "Не удалось создать аккаунт. Попробуйте позже.",
+            });
         },
     });
 
-    const onSubmit = (data: RegisterFormValues) => {
+    const onSubmit = (data: RegisterAccountFormValues) => {
         clearErrors("root");
-        registerUser({
-            data: { email: data.email, password: data.password },
-        });
+        registerAccountMutation.mutate(data);
     };
 
     const renderPasswordIcon = (isVisible: boolean, toggle: () => void) => (
@@ -89,31 +96,8 @@ const RegisterPage = () => {
         </InputAdornment>
     );
 
-    const renderActions = () => (
-        <ToggleButtonGroup
-            value={role}
-            exclusive
-            onChange={(_, newRole: Role | null) => {
-                if (newRole !== null) {
-                    setValue("role", newRole, {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                    });
-                }
-            }}
-            size="small"
-        >
-            <ToggleButton value="participant">Участник</ToggleButton>
-            <ToggleButton value="organizer">Организатор</ToggleButton>
-        </ToggleButtonGroup>
-    );
-
     const renderForm = () => {
         const { ref: emailRef, ...email } = register("email");
-        const { ref: fullNameRef, ...fullName } = register("fullName");
-        const { ref: genderRef, ...gender } = register("gender");
-        const { ref: ageRef, ...age } = register("age");
-        const { ref: cityRef, ...city } = register("city");
         const { ref: passwordRef, ...password } = register("password");
         const { ref: confirmPasswordRef, ...confirmPassword } =
             register("confirmPassword");
@@ -132,50 +116,9 @@ const RegisterPage = () => {
                     fullWidth
                     label="Email"
                     type="email"
+                    placeholder="name@university.edu"
                     error={Boolean(errors.email)}
                     helperText={fieldHelper(errors.email?.message)}
-                />
-
-                <TextField
-                    {...fullName}
-                    inputRef={fullNameRef}
-                    fullWidth
-                    label="ФИО"
-                    error={Boolean(errors.fullName)}
-                    helperText={fieldHelper(errors.fullName?.message)}
-                />
-
-                <TextField
-                    {...gender}
-                    inputRef={genderRef}
-                    fullWidth
-                    select
-                    label="Пол"
-                    error={Boolean(errors.gender)}
-                    helperText={fieldHelper(errors.gender?.message)}
-                >
-                    <MenuItem value="">Не выбран</MenuItem>
-                    <MenuItem value="male">Мужской</MenuItem>
-                    <MenuItem value="female">Женский</MenuItem>
-                </TextField>
-
-                <TextField
-                    {...age}
-                    inputRef={ageRef}
-                    fullWidth
-                    label="Возраст"
-                    type="number"
-                    error={Boolean(errors.age)}
-                    helperText={fieldHelper(errors.age?.message)}
-                />
-
-                <TextField
-                    {...city}
-                    inputRef={cityRef}
-                    fullWidth
-                    label="Город"
-                    error={Boolean(errors.city)}
-                    helperText={fieldHelper(errors.city?.message)}
                 />
 
                 <TextField
@@ -183,6 +126,7 @@ const RegisterPage = () => {
                     inputRef={passwordRef}
                     fullWidth
                     label="Пароль"
+                    placeholder="Минимум 8 символов"
                     type={showPassword ? "text" : "password"}
                     error={Boolean(errors.password)}
                     helperText={fieldHelper(errors.password?.message)}
@@ -200,6 +144,7 @@ const RegisterPage = () => {
                     inputRef={confirmPasswordRef}
                     fullWidth
                     label="Повторите пароль"
+                    placeholder="Повторите пароль"
                     type={showConfirmPassword ? "text" : "password"}
                     error={Boolean(errors.confirmPassword)}
                     helperText={fieldHelper(errors.confirmPassword?.message)}
@@ -223,26 +168,72 @@ const RegisterPage = () => {
         <FormWrapper
             onSubmit={handleSubmit(onSubmit)}
             renderTitle={() => "Регистрация"}
-            renderActions={renderActions}
+            renderDescription={() =>
+                "Создайте аккаунт. После подтверждения почты сразу перейдём к заполнению профиля."
+            }
+            renderActions={() => (
+                <Stack
+                    direction="row"
+                    spacing={1}
+                    sx={{
+                        width: "100%",
+                        "& > *": {
+                            flex: 1,
+                        },
+                    }}
+                >
+                    <Box
+                        sx={{
+                            p: 1.5,
+                            border: 1,
+                            borderColor: "primary.main",
+                            borderRadius: 1.5,
+                            bgcolor: "primary.50",
+                        }}
+                    >
+                        <PersonAddAltOutlinedIcon
+                            color="primary"
+                            fontSize="small"
+                        />
+                        <Typography fontWeight={700} fontSize="0.875rem">
+                            Аккаунт
+                        </Typography>
+                    </Box>
+                    <Box
+                        sx={{
+                            p: 1.5,
+                            border: 1,
+                            borderColor: "divider",
+                            borderRadius: 1.5,
+                            color: "text.secondary",
+                        }}
+                    >
+                        <MarkEmailUnreadOutlinedIcon fontSize="small" />
+                        <Typography fontWeight={700} fontSize="0.875rem">
+                            Почта
+                        </Typography>
+                    </Box>
+                </Stack>
+            )}
             renderFields={renderForm}
             renderSubmit={() => (
                 <Button
                     type="submit"
                     variant="contained"
                     fullWidth
-                    sx={{ minHeight: 46 }}
-                    disabled={isPending}
+                    disabled={registerAccountMutation.isPending}
                 >
-                    Зарегистрироваться
+                    Создать аккаунт
                 </Button>
             )}
             renderFooter={() => (
-                <Typography color="grey.500">
+                <Typography color="text.secondary">
                     Уже есть аккаунт?{" "}
                     <Link
                         component={RouterLink}
                         to={routePaths.login}
                         underline="hover"
+                        sx={{ fontWeight: 600 }}
                     >
                         Войти
                     </Link>

@@ -9,6 +9,7 @@ import {
     Stack,
     Typography,
 } from "@mui/material";
+import CheckCircleOutlineOutlinedIcon from "@mui/icons-material/CheckCircleOutlineOutlined";
 import {
     Link as RouterLink,
     useNavigate,
@@ -17,6 +18,7 @@ import {
 
 import { useAuthVerifyAccount } from "@shared/api";
 import { routePaths } from "@shared/config";
+import { tokenStorage } from "@shared/lib/auth";
 
 const REDIRECT_DELAY_MS = 2000;
 
@@ -33,7 +35,14 @@ const VerifyEmailPage = () => {
         if (!isSuccess) return;
 
         const timeoutId = setTimeout(() => {
-            navigate(routePaths.home);
+            const nextPath = tokenStorage.get()
+                ? routePaths.profileSetup
+                : routePaths.login;
+
+            navigate(nextPath, {
+                replace: true,
+                state: { emailVerified: true },
+            });
         }, REDIRECT_DELAY_MS);
 
         return () => clearTimeout(timeoutId);
@@ -70,9 +79,29 @@ const VerifyEmailPage = () => {
 
         if (isSuccess) {
             return (
-                <Alert severity="success" variant="outlined">
-                    Email успешно подтверждён. Перенаправляем на главную...
-                </Alert>
+                <Stack spacing={2} alignItems="center">
+                    <Box
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: 68,
+                            height: 68,
+                            borderRadius: "50%",
+                            bgcolor: "success.light",
+                            color: "success.contrastText",
+                        }}
+                    >
+                        <CheckCircleOutlineOutlinedIcon fontSize="large" />
+                    </Box>
+                    <Alert
+                        severity="success"
+                        variant="outlined"
+                        sx={{ width: "100%", textAlign: "left" }}
+                    >
+                        Email подтверждён. Открываем заполнение профиля...
+                    </Alert>
+                </Stack>
             );
         }
 
@@ -87,7 +116,9 @@ const VerifyEmailPage = () => {
                 justifyContent: "center",
                 alignItems: "center",
                 minHeight: "100vh",
+                px: { xs: 2, sm: 3 },
                 py: 4,
+                bgcolor: "background.default",
             }}
         >
             <Paper
@@ -96,32 +127,44 @@ const VerifyEmailPage = () => {
                     width: "100%",
                     maxWidth: 520,
                     p: { xs: 3, sm: 5 },
-                    borderRadius: 4,
+                    borderRadius: 2.5,
                     border: 1,
                     borderColor: "divider",
-                    boxShadow: "0 20px 60px rgba(19, 21, 23, 0.06)",
+                    boxShadow: "0 18px 50px rgba(19, 21, 23, 0.07)",
                     textAlign: "center",
                 }}
             >
                 <Stack spacing={2.5} alignItems="center">
                     <Typography
-                        variant="h6"
-                        component="h1"
-                        sx={{ fontWeight: 700 }}
+                        variant="overline"
+                        color="primary"
+                        sx={{
+                            fontWeight: 800,
+                            lineHeight: 1,
+                            letterSpacing: 0,
+                            textTransform: "none",
+                        }}
                     >
-                        Подтверждение email
+                        campus
+                    </Typography>
+                    <Typography
+                        variant="h4"
+                        component="h1"
+                        sx={{ fontWeight: 800, lineHeight: 1.12 }}
+                    >
+                        Подтверждение почты
                     </Typography>
 
                     <Box sx={{ width: "100%" }}>{renderContent()}</Box>
 
-                    {(isSuccess || isError || !token) && (
+                    {(isError || !token) && (
                         <Button
                             component={RouterLink}
-                            to={routePaths.home}
+                            to={routePaths.register}
                             variant="contained"
-                            sx={{ textTransform: "none", fontWeight: 600 }}
+                            sx={{ textTransform: "none", fontWeight: 700 }}
                         >
-                            На главную
+                            Вернуться к регистрации
                         </Button>
                     )}
                 </Stack>
