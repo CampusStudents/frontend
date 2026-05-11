@@ -1,17 +1,49 @@
-import type { FC, ReactNode } from "react";
-import { Navigate } from "react-router";
+import { type FC, type ReactNode } from "react";
+import { Navigate } from "react-router-dom";
+import type { AxiosError } from "axios";
 
-import { tokenStorage } from "@shared/lib/auth";
+import { useAuthGetUser, HttpStatuses } from "@shared/api";
 import { routePaths } from "@shared/config";
+import { Loader } from "@shared/ui/Loader";
+import { time } from "@shared/lib/time";
+import type { UserDTO } from "@shared/api/generated/model";
 
 const ProtectedRoute: FC<{ children: ReactNode }> = ({ children }) => {
-    const token = tokenStorage.get();
-    if (!token) {
-        return <Navigate to={routePaths.home} />;
+    const {
+        data: user,
+        isLoading,
+        error,
+    } = useAuthGetUser<UserDTO, AxiosError>({
+        query: { retry: false, staleTime: time.s(1) },
+    });
+
+    if (isLoading) {
+        return <Loader />;
     }
 
-    // TODO: handle by roles
-    return <div>{children}</div>;
+    if (error) {
+        const status = error.response?.status;
+
+        if (status === HttpStatuses.FORBIDDEN) {
+            return <Navigate to={routePaths.verifyEmailPending} replace />;
+        }
+
+        return <Navigate to={routePaths.login} replace />;
+    }
+
+    if (!user) {
+        return <Navigate to={routePaths.login} replace />;
+    }
+
+    if (!user.is_verified) {
+        return <Navigate to={routePaths.verifyEmailPending} replace />;
+    }
+
+    if (!user.is_profile_completed) {
+        return <Navigate to={routePaths.profileSetup} replace />;
+    }
+
+    return <>{children}</>;
 };
 
 export default ProtectedRoute;

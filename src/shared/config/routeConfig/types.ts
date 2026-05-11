@@ -9,6 +9,7 @@ export const AppRoutes = {
     NOTIFICATIONS: "notifications",
     ORGANIZER: "organizer",
     PROFILE: "profile",
+    PROFILE_SETUP: "profileSetup",
     PROJECTS: "projects",
     PROJECT: "project",
     REGISTER: "register",

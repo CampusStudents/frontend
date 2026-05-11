@@ -21,21 +21,33 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+    ApplicationDecisionSchema,
     AuthVerifyAccountParams,
     ChangePasswordSchema,
+    CitiesGetCitiesParams,
+    CreateApplicationSchema,
     CreateCitySchema,
     CreateProjectSchema,
     CreateProjectVacancySchema,
+    CreateSkillSchema,
+    CreateTeamRoleSchema,
     CreateUniversitySchema,
     CreateUserProfileSchema,
     ForgotPasswordSchema,
     HTTPValidationError,
     LoginSchema,
+    ProjectsGetProjectVacanciesParams,
+    ProjectsGetProjectsParams,
     RegisterSchema,
     ResetPasswordSchema,
+    SkillsGetSkillsParams,
+    TeamRolesGetTeamRolesParams,
+    UniversitiesGetUniversitiesParams,
     UpdateCitySchema,
     UpdateProjectSchema,
     UpdateProjectVacancySchema,
+    UpdateSkillSchema,
+    UpdateTeamRoleSchema,
     UpdateUniversitySchema,
     UpdateUserProfileSchema,
     UpdateUserRolesSchema,
@@ -46,12 +58,21 @@ import { faker } from "@faker-js/faker";
 import { HttpResponse, delay, http } from "msw";
 import type { RequestHandlerOptions } from "msw";
 
-import { ProjectFormat, ProjectStatus, ProjectType } from "./model";
+import {
+    ApplicationStatus,
+    ProjectFormat,
+    ProjectStatus,
+    ProjectType,
+} from "./model";
 import type {
     AccessToken,
+    ApplicationDTO,
     CityDTO,
     ProjectDTO,
     ProjectVacancyDTO,
+    SkillDTO,
+    TeamMemberDTO,
+    TeamRoleDTO,
     UniversityDTO,
     UserDTO,
     UserProfileDTO,
@@ -207,6 +228,235 @@ export function useHealthHealthCheck<
 
     return query;
 }
+
+/**
+ * @summary Get My Applications
+ */
+export const applicationsGetMyApplications = (signal?: AbortSignal) => {
+    return customInstance<ApplicationDTO[]>({
+        url: `/api/v1/applications/me`,
+        method: "GET",
+        signal,
+    });
+};
+
+export const getApplicationsGetMyApplicationsQueryKey = () => {
+    return [`/api/v1/applications/me`] as const;
+};
+
+export const getApplicationsGetMyApplicationsQueryOptions = <
+    TData = Awaited<ReturnType<typeof applicationsGetMyApplications>>,
+    TError = unknown,
+>(options?: {
+    query?: Partial<
+        UseQueryOptions<
+            Awaited<ReturnType<typeof applicationsGetMyApplications>>,
+            TError,
+            TData
+        >
+    >;
+}) => {
+    const { query: queryOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ?? getApplicationsGetMyApplicationsQueryKey();
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof applicationsGetMyApplications>>
+    > = ({ signal }) => applicationsGetMyApplications(signal);
+
+    return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+        Awaited<ReturnType<typeof applicationsGetMyApplications>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type ApplicationsGetMyApplicationsQueryResult = NonNullable<
+    Awaited<ReturnType<typeof applicationsGetMyApplications>>
+>;
+export type ApplicationsGetMyApplicationsQueryError = unknown;
+
+export function useApplicationsGetMyApplications<
+    TData = Awaited<ReturnType<typeof applicationsGetMyApplications>>,
+    TError = unknown,
+>(
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof applicationsGetMyApplications>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof applicationsGetMyApplications>>,
+                    TError,
+                    Awaited<ReturnType<typeof applicationsGetMyApplications>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useApplicationsGetMyApplications<
+    TData = Awaited<ReturnType<typeof applicationsGetMyApplications>>,
+    TError = unknown,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof applicationsGetMyApplications>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof applicationsGetMyApplications>>,
+                    TError,
+                    Awaited<ReturnType<typeof applicationsGetMyApplications>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useApplicationsGetMyApplications<
+    TData = Awaited<ReturnType<typeof applicationsGetMyApplications>>,
+    TError = unknown,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof applicationsGetMyApplications>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get My Applications
+ */
+
+export function useApplicationsGetMyApplications<
+    TData = Awaited<ReturnType<typeof applicationsGetMyApplications>>,
+    TError = unknown,
+>(
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof applicationsGetMyApplications>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getApplicationsGetMyApplicationsQueryOptions(options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * @summary Withdraw Application
+ */
+export const applicationsWithdrawApplication = (applicationId: string) => {
+    return customInstance<ApplicationDTO>({
+        url: `/api/v1/applications/${applicationId}/withdraw`,
+        method: "PATCH",
+    });
+};
+
+export const getApplicationsWithdrawApplicationMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof applicationsWithdrawApplication>>,
+        TError,
+        { applicationId: string },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof applicationsWithdrawApplication>>,
+    TError,
+    { applicationId: string },
+    TContext
+> => {
+    const mutationKey = ["applicationsWithdrawApplication"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof applicationsWithdrawApplication>>,
+        { applicationId: string }
+    > = (props) => {
+        const { applicationId } = props ?? {};
+
+        return applicationsWithdrawApplication(applicationId);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type ApplicationsWithdrawApplicationMutationResult = NonNullable<
+    Awaited<ReturnType<typeof applicationsWithdrawApplication>>
+>;
+
+export type ApplicationsWithdrawApplicationMutationError = HTTPValidationError;
+
+/**
+ * @summary Withdraw Application
+ */
+export const useApplicationsWithdrawApplication = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof applicationsWithdrawApplication>>,
+            TError,
+            { applicationId: string },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof applicationsWithdrawApplication>>,
+    TError,
+    { applicationId: string },
+    TContext
+> => {
+    const mutationOptions =
+        getApplicationsWithdrawApplicationMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
 
 /**
  * Получение текущего пользователя.
@@ -1260,37 +1510,45 @@ export const useAuthResetPassword = <
 /**
  * @summary Get Cities
  */
-export const citiesGetCities = (signal?: AbortSignal) => {
+export const citiesGetCities = (
+    params?: CitiesGetCitiesParams,
+    signal?: AbortSignal,
+) => {
     return customInstance<CityDTO[]>({
         url: `/api/v1/cities/`,
         method: "GET",
+        params,
         signal,
     });
 };
 
-export const getCitiesGetCitiesQueryKey = () => {
-    return [`/api/v1/cities/`] as const;
+export const getCitiesGetCitiesQueryKey = (params?: CitiesGetCitiesParams) => {
+    return [`/api/v1/cities/`, ...(params ? [params] : [])] as const;
 };
 
 export const getCitiesGetCitiesQueryOptions = <
     TData = Awaited<ReturnType<typeof citiesGetCities>>,
-    TError = unknown,
->(options?: {
-    query?: Partial<
-        UseQueryOptions<
-            Awaited<ReturnType<typeof citiesGetCities>>,
-            TError,
-            TData
-        >
-    >;
-}) => {
+    TError = HTTPValidationError,
+>(
+    params?: CitiesGetCitiesParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof citiesGetCities>>,
+                TError,
+                TData
+            >
+        >;
+    },
+) => {
     const { query: queryOptions } = options ?? {};
 
-    const queryKey = queryOptions?.queryKey ?? getCitiesGetCitiesQueryKey();
+    const queryKey =
+        queryOptions?.queryKey ?? getCitiesGetCitiesQueryKey(params);
 
     const queryFn: QueryFunction<
         Awaited<ReturnType<typeof citiesGetCities>>
-    > = ({ signal }) => citiesGetCities(signal);
+    > = ({ signal }) => citiesGetCities(params, signal);
 
     return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
         Awaited<ReturnType<typeof citiesGetCities>>,
@@ -1302,12 +1560,13 @@ export const getCitiesGetCitiesQueryOptions = <
 export type CitiesGetCitiesQueryResult = NonNullable<
     Awaited<ReturnType<typeof citiesGetCities>>
 >;
-export type CitiesGetCitiesQueryError = unknown;
+export type CitiesGetCitiesQueryError = HTTPValidationError;
 
 export function useCitiesGetCities<
     TData = Awaited<ReturnType<typeof citiesGetCities>>,
-    TError = unknown,
+    TError = HTTPValidationError,
 >(
+    params: undefined | CitiesGetCitiesParams,
     options: {
         query: Partial<
             UseQueryOptions<
@@ -1331,8 +1590,9 @@ export function useCitiesGetCities<
 };
 export function useCitiesGetCities<
     TData = Awaited<ReturnType<typeof citiesGetCities>>,
-    TError = unknown,
+    TError = HTTPValidationError,
 >(
+    params?: CitiesGetCitiesParams,
     options?: {
         query?: Partial<
             UseQueryOptions<
@@ -1356,8 +1616,9 @@ export function useCitiesGetCities<
 };
 export function useCitiesGetCities<
     TData = Awaited<ReturnType<typeof citiesGetCities>>,
-    TError = unknown,
+    TError = HTTPValidationError,
 >(
+    params?: CitiesGetCitiesParams,
     options?: {
         query?: Partial<
             UseQueryOptions<
@@ -1377,8 +1638,9 @@ export function useCitiesGetCities<
 
 export function useCitiesGetCities<
     TData = Awaited<ReturnType<typeof citiesGetCities>>,
-    TError = unknown,
+    TError = HTTPValidationError,
 >(
+    params?: CitiesGetCitiesParams,
     options?: {
         query?: Partial<
             UseQueryOptions<
@@ -1392,7 +1654,7 @@ export function useCitiesGetCities<
 ): UseQueryResult<TData, TError> & {
     queryKey: DataTag<QueryKey, TData, TError>;
 } {
-    const queryOptions = getCitiesGetCitiesQueryOptions(options);
+    const queryOptions = getCitiesGetCitiesQueryOptions(params, options);
 
     const query = useQuery(queryOptions, queryClient) as UseQueryResult<
         TData,
@@ -1817,37 +2079,47 @@ export const useCitiesDeleteCity = <
 /**
  * @summary Get Projects
  */
-export const projectsGetProjects = (signal?: AbortSignal) => {
+export const projectsGetProjects = (
+    params?: ProjectsGetProjectsParams,
+    signal?: AbortSignal,
+) => {
     return customInstance<ProjectDTO[]>({
         url: `/api/v1/projects/`,
         method: "GET",
+        params,
         signal,
     });
 };
 
-export const getProjectsGetProjectsQueryKey = () => {
-    return [`/api/v1/projects/`] as const;
+export const getProjectsGetProjectsQueryKey = (
+    params?: ProjectsGetProjectsParams,
+) => {
+    return [`/api/v1/projects/`, ...(params ? [params] : [])] as const;
 };
 
 export const getProjectsGetProjectsQueryOptions = <
     TData = Awaited<ReturnType<typeof projectsGetProjects>>,
-    TError = unknown,
->(options?: {
-    query?: Partial<
-        UseQueryOptions<
-            Awaited<ReturnType<typeof projectsGetProjects>>,
-            TError,
-            TData
-        >
-    >;
-}) => {
+    TError = HTTPValidationError,
+>(
+    params?: ProjectsGetProjectsParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProjects>>,
+                TError,
+                TData
+            >
+        >;
+    },
+) => {
     const { query: queryOptions } = options ?? {};
 
-    const queryKey = queryOptions?.queryKey ?? getProjectsGetProjectsQueryKey();
+    const queryKey =
+        queryOptions?.queryKey ?? getProjectsGetProjectsQueryKey(params);
 
     const queryFn: QueryFunction<
         Awaited<ReturnType<typeof projectsGetProjects>>
-    > = ({ signal }) => projectsGetProjects(signal);
+    > = ({ signal }) => projectsGetProjects(params, signal);
 
     return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
         Awaited<ReturnType<typeof projectsGetProjects>>,
@@ -1859,12 +2131,13 @@ export const getProjectsGetProjectsQueryOptions = <
 export type ProjectsGetProjectsQueryResult = NonNullable<
     Awaited<ReturnType<typeof projectsGetProjects>>
 >;
-export type ProjectsGetProjectsQueryError = unknown;
+export type ProjectsGetProjectsQueryError = HTTPValidationError;
 
 export function useProjectsGetProjects<
     TData = Awaited<ReturnType<typeof projectsGetProjects>>,
-    TError = unknown,
+    TError = HTTPValidationError,
 >(
+    params: undefined | ProjectsGetProjectsParams,
     options: {
         query: Partial<
             UseQueryOptions<
@@ -1888,8 +2161,9 @@ export function useProjectsGetProjects<
 };
 export function useProjectsGetProjects<
     TData = Awaited<ReturnType<typeof projectsGetProjects>>,
-    TError = unknown,
+    TError = HTTPValidationError,
 >(
+    params?: ProjectsGetProjectsParams,
     options?: {
         query?: Partial<
             UseQueryOptions<
@@ -1913,8 +2187,9 @@ export function useProjectsGetProjects<
 };
 export function useProjectsGetProjects<
     TData = Awaited<ReturnType<typeof projectsGetProjects>>,
-    TError = unknown,
+    TError = HTTPValidationError,
 >(
+    params?: ProjectsGetProjectsParams,
     options?: {
         query?: Partial<
             UseQueryOptions<
@@ -1934,8 +2209,9 @@ export function useProjectsGetProjects<
 
 export function useProjectsGetProjects<
     TData = Awaited<ReturnType<typeof projectsGetProjects>>,
-    TError = unknown,
+    TError = HTTPValidationError,
 >(
+    params?: ProjectsGetProjectsParams,
     options?: {
         query?: Partial<
             UseQueryOptions<
@@ -1949,7 +2225,7 @@ export function useProjectsGetProjects<
 ): UseQueryResult<TData, TError> & {
     queryKey: DataTag<QueryKey, TData, TError>;
 } {
-    const queryOptions = getProjectsGetProjectsQueryOptions(options);
+    const queryOptions = getProjectsGetProjectsQueryOptions(params, options);
 
     const query = useQuery(queryOptions, queryClient) as UseQueryResult<
         TData,
@@ -2373,21 +2649,195 @@ export const useProjectsDeleteProject = <
 };
 
 /**
- * @summary Get Project Vacancies
+ * @summary Get Project Team
  */
-export const projectsGetProjectVacancies = (
+export const projectsGetProjectTeam = (
     projectId: string,
     signal?: AbortSignal,
 ) => {
-    return customInstance<ProjectVacancyDTO[]>({
-        url: `/api/v1/projects/${projectId}/vacancies`,
+    return customInstance<TeamMemberDTO[]>({
+        url: `/api/v1/projects/${projectId}/team`,
         method: "GET",
         signal,
     });
 };
 
-export const getProjectsGetProjectVacanciesQueryKey = (projectId?: string) => {
-    return [`/api/v1/projects/${projectId}/vacancies`] as const;
+export const getProjectsGetProjectTeamQueryKey = (projectId?: string) => {
+    return [`/api/v1/projects/${projectId}/team`] as const;
+};
+
+export const getProjectsGetProjectTeamQueryOptions = <
+    TData = Awaited<ReturnType<typeof projectsGetProjectTeam>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProjectTeam>>,
+                TError,
+                TData
+            >
+        >;
+    },
+) => {
+    const { query: queryOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ?? getProjectsGetProjectTeamQueryKey(projectId);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof projectsGetProjectTeam>>
+    > = ({ signal }) => projectsGetProjectTeam(projectId, signal);
+
+    return {
+        queryKey,
+        queryFn,
+        enabled: !!projectId,
+        ...queryOptions,
+    } as UseQueryOptions<
+        Awaited<ReturnType<typeof projectsGetProjectTeam>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type ProjectsGetProjectTeamQueryResult = NonNullable<
+    Awaited<ReturnType<typeof projectsGetProjectTeam>>
+>;
+export type ProjectsGetProjectTeamQueryError = HTTPValidationError;
+
+export function useProjectsGetProjectTeam<
+    TData = Awaited<ReturnType<typeof projectsGetProjectTeam>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProjectTeam>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof projectsGetProjectTeam>>,
+                    TError,
+                    Awaited<ReturnType<typeof projectsGetProjectTeam>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useProjectsGetProjectTeam<
+    TData = Awaited<ReturnType<typeof projectsGetProjectTeam>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProjectTeam>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof projectsGetProjectTeam>>,
+                    TError,
+                    Awaited<ReturnType<typeof projectsGetProjectTeam>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useProjectsGetProjectTeam<
+    TData = Awaited<ReturnType<typeof projectsGetProjectTeam>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProjectTeam>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get Project Team
+ */
+
+export function useProjectsGetProjectTeam<
+    TData = Awaited<ReturnType<typeof projectsGetProjectTeam>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof projectsGetProjectTeam>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getProjectsGetProjectTeamQueryOptions(
+        projectId,
+        options,
+    );
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * @summary Get Project Vacancies
+ */
+export const projectsGetProjectVacancies = (
+    projectId: string,
+    params?: ProjectsGetProjectVacanciesParams,
+    signal?: AbortSignal,
+) => {
+    return customInstance<ProjectVacancyDTO[]>({
+        url: `/api/v1/projects/${projectId}/vacancies`,
+        method: "GET",
+        params,
+        signal,
+    });
+};
+
+export const getProjectsGetProjectVacanciesQueryKey = (
+    projectId?: string,
+    params?: ProjectsGetProjectVacanciesParams,
+) => {
+    return [
+        `/api/v1/projects/${projectId}/vacancies`,
+        ...(params ? [params] : []),
+    ] as const;
 };
 
 export const getProjectsGetProjectVacanciesQueryOptions = <
@@ -2395,6 +2845,7 @@ export const getProjectsGetProjectVacanciesQueryOptions = <
     TError = HTTPValidationError,
 >(
     projectId: string,
+    params?: ProjectsGetProjectVacanciesParams,
     options?: {
         query?: Partial<
             UseQueryOptions<
@@ -2409,11 +2860,11 @@ export const getProjectsGetProjectVacanciesQueryOptions = <
 
     const queryKey =
         queryOptions?.queryKey ??
-        getProjectsGetProjectVacanciesQueryKey(projectId);
+        getProjectsGetProjectVacanciesQueryKey(projectId, params);
 
     const queryFn: QueryFunction<
         Awaited<ReturnType<typeof projectsGetProjectVacancies>>
-    > = ({ signal }) => projectsGetProjectVacancies(projectId, signal);
+    > = ({ signal }) => projectsGetProjectVacancies(projectId, params, signal);
 
     return {
         queryKey,
@@ -2437,6 +2888,7 @@ export function useProjectsGetProjectVacancies<
     TError = HTTPValidationError,
 >(
     projectId: string,
+    params: undefined | ProjectsGetProjectVacanciesParams,
     options: {
         query: Partial<
             UseQueryOptions<
@@ -2463,6 +2915,7 @@ export function useProjectsGetProjectVacancies<
     TError = HTTPValidationError,
 >(
     projectId: string,
+    params?: ProjectsGetProjectVacanciesParams,
     options?: {
         query?: Partial<
             UseQueryOptions<
@@ -2489,6 +2942,7 @@ export function useProjectsGetProjectVacancies<
     TError = HTTPValidationError,
 >(
     projectId: string,
+    params?: ProjectsGetProjectVacanciesParams,
     options?: {
         query?: Partial<
             UseQueryOptions<
@@ -2511,6 +2965,7 @@ export function useProjectsGetProjectVacancies<
     TError = HTTPValidationError,
 >(
     projectId: string,
+    params?: ProjectsGetProjectVacanciesParams,
     options?: {
         query?: Partial<
             UseQueryOptions<
@@ -2526,6 +2981,7 @@ export function useProjectsGetProjectVacancies<
 } {
     const queryOptions = getProjectsGetProjectVacanciesQueryOptions(
         projectId,
+        params,
         options,
     );
 
@@ -2990,40 +3446,1608 @@ export const useProjectsDeleteProjectVacancy = <
 };
 
 /**
- * @summary Get Universities
+ * @summary Create Application
  */
-export const universitiesGetUniversities = (signal?: AbortSignal) => {
-    return customInstance<UniversityDTO[]>({
-        url: `/api/v1/universities/`,
+export const projectsCreateApplication = (
+    projectId: string,
+    vacancyId: string,
+    createApplicationSchema: CreateApplicationSchema,
+    signal?: AbortSignal,
+) => {
+    return customInstance<ApplicationDTO>({
+        url: `/api/v1/projects/${projectId}/vacancies/${vacancyId}/applications`,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        data: createApplicationSchema,
+        signal,
+    });
+};
+
+export const getProjectsCreateApplicationMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof projectsCreateApplication>>,
+        TError,
+        { projectId: string; vacancyId: string; data: CreateApplicationSchema },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof projectsCreateApplication>>,
+    TError,
+    { projectId: string; vacancyId: string; data: CreateApplicationSchema },
+    TContext
+> => {
+    const mutationKey = ["projectsCreateApplication"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof projectsCreateApplication>>,
+        { projectId: string; vacancyId: string; data: CreateApplicationSchema }
+    > = (props) => {
+        const { projectId, vacancyId, data } = props ?? {};
+
+        return projectsCreateApplication(projectId, vacancyId, data);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type ProjectsCreateApplicationMutationResult = NonNullable<
+    Awaited<ReturnType<typeof projectsCreateApplication>>
+>;
+export type ProjectsCreateApplicationMutationBody = CreateApplicationSchema;
+export type ProjectsCreateApplicationMutationError = HTTPValidationError;
+
+/**
+ * @summary Create Application
+ */
+export const useProjectsCreateApplication = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof projectsCreateApplication>>,
+            TError,
+            {
+                projectId: string;
+                vacancyId: string;
+                data: CreateApplicationSchema;
+            },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof projectsCreateApplication>>,
+    TError,
+    { projectId: string; vacancyId: string; data: CreateApplicationSchema },
+    TContext
+> => {
+    const mutationOptions =
+        getProjectsCreateApplicationMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Get Project Vacancy Applications
+ */
+export const projectsGetProjectVacancyApplications = (
+    projectId: string,
+    vacancyId: string,
+    signal?: AbortSignal,
+) => {
+    return customInstance<ApplicationDTO[]>({
+        url: `/api/v1/projects/${projectId}/vacancies/${vacancyId}/applications`,
         method: "GET",
         signal,
     });
 };
 
-export const getUniversitiesGetUniversitiesQueryKey = () => {
-    return [`/api/v1/universities/`] as const;
+export const getProjectsGetProjectVacancyApplicationsQueryKey = (
+    projectId?: string,
+    vacancyId?: string,
+) => {
+    return [
+        `/api/v1/projects/${projectId}/vacancies/${vacancyId}/applications`,
+    ] as const;
+};
+
+export const getProjectsGetProjectVacancyApplicationsQueryOptions = <
+    TData = Awaited<ReturnType<typeof projectsGetProjectVacancyApplications>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    vacancyId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<
+                    ReturnType<typeof projectsGetProjectVacancyApplications>
+                >,
+                TError,
+                TData
+            >
+        >;
+    },
+) => {
+    const { query: queryOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ??
+        getProjectsGetProjectVacancyApplicationsQueryKey(projectId, vacancyId);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof projectsGetProjectVacancyApplications>>
+    > = ({ signal }) =>
+        projectsGetProjectVacancyApplications(projectId, vacancyId, signal);
+
+    return {
+        queryKey,
+        queryFn,
+        enabled: !!(projectId && vacancyId),
+        ...queryOptions,
+    } as UseQueryOptions<
+        Awaited<ReturnType<typeof projectsGetProjectVacancyApplications>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type ProjectsGetProjectVacancyApplicationsQueryResult = NonNullable<
+    Awaited<ReturnType<typeof projectsGetProjectVacancyApplications>>
+>;
+export type ProjectsGetProjectVacancyApplicationsQueryError =
+    HTTPValidationError;
+
+export function useProjectsGetProjectVacancyApplications<
+    TData = Awaited<ReturnType<typeof projectsGetProjectVacancyApplications>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    vacancyId: string,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<
+                    ReturnType<typeof projectsGetProjectVacancyApplications>
+                >,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<
+                        ReturnType<typeof projectsGetProjectVacancyApplications>
+                    >,
+                    TError,
+                    Awaited<
+                        ReturnType<typeof projectsGetProjectVacancyApplications>
+                    >
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useProjectsGetProjectVacancyApplications<
+    TData = Awaited<ReturnType<typeof projectsGetProjectVacancyApplications>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    vacancyId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<
+                    ReturnType<typeof projectsGetProjectVacancyApplications>
+                >,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<
+                        ReturnType<typeof projectsGetProjectVacancyApplications>
+                    >,
+                    TError,
+                    Awaited<
+                        ReturnType<typeof projectsGetProjectVacancyApplications>
+                    >
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useProjectsGetProjectVacancyApplications<
+    TData = Awaited<ReturnType<typeof projectsGetProjectVacancyApplications>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    vacancyId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<
+                    ReturnType<typeof projectsGetProjectVacancyApplications>
+                >,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get Project Vacancy Applications
+ */
+
+export function useProjectsGetProjectVacancyApplications<
+    TData = Awaited<ReturnType<typeof projectsGetProjectVacancyApplications>>,
+    TError = HTTPValidationError,
+>(
+    projectId: string,
+    vacancyId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<
+                    ReturnType<typeof projectsGetProjectVacancyApplications>
+                >,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getProjectsGetProjectVacancyApplicationsQueryOptions(
+        projectId,
+        vacancyId,
+        options,
+    );
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * @summary Decide Application
+ */
+export const projectsDecideApplication = (
+    projectId: string,
+    vacancyId: string,
+    applicationId: string,
+    applicationDecisionSchema: ApplicationDecisionSchema,
+) => {
+    return customInstance<ApplicationDTO>({
+        url: `/api/v1/projects/${projectId}/vacancies/${vacancyId}/applications/${applicationId}`,
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        data: applicationDecisionSchema,
+    });
+};
+
+export const getProjectsDecideApplicationMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof projectsDecideApplication>>,
+        TError,
+        {
+            projectId: string;
+            vacancyId: string;
+            applicationId: string;
+            data: ApplicationDecisionSchema;
+        },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof projectsDecideApplication>>,
+    TError,
+    {
+        projectId: string;
+        vacancyId: string;
+        applicationId: string;
+        data: ApplicationDecisionSchema;
+    },
+    TContext
+> => {
+    const mutationKey = ["projectsDecideApplication"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof projectsDecideApplication>>,
+        {
+            projectId: string;
+            vacancyId: string;
+            applicationId: string;
+            data: ApplicationDecisionSchema;
+        }
+    > = (props) => {
+        const { projectId, vacancyId, applicationId, data } = props ?? {};
+
+        return projectsDecideApplication(
+            projectId,
+            vacancyId,
+            applicationId,
+            data,
+        );
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type ProjectsDecideApplicationMutationResult = NonNullable<
+    Awaited<ReturnType<typeof projectsDecideApplication>>
+>;
+export type ProjectsDecideApplicationMutationBody = ApplicationDecisionSchema;
+export type ProjectsDecideApplicationMutationError = HTTPValidationError;
+
+/**
+ * @summary Decide Application
+ */
+export const useProjectsDecideApplication = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof projectsDecideApplication>>,
+            TError,
+            {
+                projectId: string;
+                vacancyId: string;
+                applicationId: string;
+                data: ApplicationDecisionSchema;
+            },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof projectsDecideApplication>>,
+    TError,
+    {
+        projectId: string;
+        vacancyId: string;
+        applicationId: string;
+        data: ApplicationDecisionSchema;
+    },
+    TContext
+> => {
+    const mutationOptions =
+        getProjectsDecideApplicationMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Get Skills
+ */
+export const skillsGetSkills = (
+    params?: SkillsGetSkillsParams,
+    signal?: AbortSignal,
+) => {
+    return customInstance<SkillDTO[]>({
+        url: `/api/v1/skills/`,
+        method: "GET",
+        params,
+        signal,
+    });
+};
+
+export const getSkillsGetSkillsQueryKey = (params?: SkillsGetSkillsParams) => {
+    return [`/api/v1/skills/`, ...(params ? [params] : [])] as const;
+};
+
+export const getSkillsGetSkillsQueryOptions = <
+    TData = Awaited<ReturnType<typeof skillsGetSkills>>,
+    TError = HTTPValidationError,
+>(
+    params?: SkillsGetSkillsParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof skillsGetSkills>>,
+                TError,
+                TData
+            >
+        >;
+    },
+) => {
+    const { query: queryOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ?? getSkillsGetSkillsQueryKey(params);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof skillsGetSkills>>
+    > = ({ signal }) => skillsGetSkills(params, signal);
+
+    return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+        Awaited<ReturnType<typeof skillsGetSkills>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type SkillsGetSkillsQueryResult = NonNullable<
+    Awaited<ReturnType<typeof skillsGetSkills>>
+>;
+export type SkillsGetSkillsQueryError = HTTPValidationError;
+
+export function useSkillsGetSkills<
+    TData = Awaited<ReturnType<typeof skillsGetSkills>>,
+    TError = HTTPValidationError,
+>(
+    params: undefined | SkillsGetSkillsParams,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof skillsGetSkills>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof skillsGetSkills>>,
+                    TError,
+                    Awaited<ReturnType<typeof skillsGetSkills>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useSkillsGetSkills<
+    TData = Awaited<ReturnType<typeof skillsGetSkills>>,
+    TError = HTTPValidationError,
+>(
+    params?: SkillsGetSkillsParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof skillsGetSkills>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof skillsGetSkills>>,
+                    TError,
+                    Awaited<ReturnType<typeof skillsGetSkills>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useSkillsGetSkills<
+    TData = Awaited<ReturnType<typeof skillsGetSkills>>,
+    TError = HTTPValidationError,
+>(
+    params?: SkillsGetSkillsParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof skillsGetSkills>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get Skills
+ */
+
+export function useSkillsGetSkills<
+    TData = Awaited<ReturnType<typeof skillsGetSkills>>,
+    TError = HTTPValidationError,
+>(
+    params?: SkillsGetSkillsParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof skillsGetSkills>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getSkillsGetSkillsQueryOptions(params, options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * @summary Create Skill
+ */
+export const skillsCreateSkill = (
+    createSkillSchema: CreateSkillSchema,
+    signal?: AbortSignal,
+) => {
+    return customInstance<SkillDTO>({
+        url: `/api/v1/skills/`,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        data: createSkillSchema,
+        signal,
+    });
+};
+
+export const getSkillsCreateSkillMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof skillsCreateSkill>>,
+        TError,
+        { data: CreateSkillSchema },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof skillsCreateSkill>>,
+    TError,
+    { data: CreateSkillSchema },
+    TContext
+> => {
+    const mutationKey = ["skillsCreateSkill"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof skillsCreateSkill>>,
+        { data: CreateSkillSchema }
+    > = (props) => {
+        const { data } = props ?? {};
+
+        return skillsCreateSkill(data);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type SkillsCreateSkillMutationResult = NonNullable<
+    Awaited<ReturnType<typeof skillsCreateSkill>>
+>;
+export type SkillsCreateSkillMutationBody = CreateSkillSchema;
+export type SkillsCreateSkillMutationError = HTTPValidationError;
+
+/**
+ * @summary Create Skill
+ */
+export const useSkillsCreateSkill = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof skillsCreateSkill>>,
+            TError,
+            { data: CreateSkillSchema },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof skillsCreateSkill>>,
+    TError,
+    { data: CreateSkillSchema },
+    TContext
+> => {
+    const mutationOptions = getSkillsCreateSkillMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Get Skill
+ */
+export const skillsGetSkill = (skillId: string, signal?: AbortSignal) => {
+    return customInstance<SkillDTO>({
+        url: `/api/v1/skills/${skillId}`,
+        method: "GET",
+        signal,
+    });
+};
+
+export const getSkillsGetSkillQueryKey = (skillId?: string) => {
+    return [`/api/v1/skills/${skillId}`] as const;
+};
+
+export const getSkillsGetSkillQueryOptions = <
+    TData = Awaited<ReturnType<typeof skillsGetSkill>>,
+    TError = HTTPValidationError,
+>(
+    skillId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof skillsGetSkill>>,
+                TError,
+                TData
+            >
+        >;
+    },
+) => {
+    const { query: queryOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ?? getSkillsGetSkillQueryKey(skillId);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof skillsGetSkill>>
+    > = ({ signal }) => skillsGetSkill(skillId, signal);
+
+    return {
+        queryKey,
+        queryFn,
+        enabled: !!skillId,
+        ...queryOptions,
+    } as UseQueryOptions<
+        Awaited<ReturnType<typeof skillsGetSkill>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type SkillsGetSkillQueryResult = NonNullable<
+    Awaited<ReturnType<typeof skillsGetSkill>>
+>;
+export type SkillsGetSkillQueryError = HTTPValidationError;
+
+export function useSkillsGetSkill<
+    TData = Awaited<ReturnType<typeof skillsGetSkill>>,
+    TError = HTTPValidationError,
+>(
+    skillId: string,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof skillsGetSkill>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof skillsGetSkill>>,
+                    TError,
+                    Awaited<ReturnType<typeof skillsGetSkill>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useSkillsGetSkill<
+    TData = Awaited<ReturnType<typeof skillsGetSkill>>,
+    TError = HTTPValidationError,
+>(
+    skillId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof skillsGetSkill>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof skillsGetSkill>>,
+                    TError,
+                    Awaited<ReturnType<typeof skillsGetSkill>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useSkillsGetSkill<
+    TData = Awaited<ReturnType<typeof skillsGetSkill>>,
+    TError = HTTPValidationError,
+>(
+    skillId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof skillsGetSkill>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get Skill
+ */
+
+export function useSkillsGetSkill<
+    TData = Awaited<ReturnType<typeof skillsGetSkill>>,
+    TError = HTTPValidationError,
+>(
+    skillId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof skillsGetSkill>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getSkillsGetSkillQueryOptions(skillId, options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * @summary Update Skill
+ */
+export const skillsUpdateSkill = (
+    skillId: string,
+    updateSkillSchema: UpdateSkillSchema,
+) => {
+    return customInstance<SkillDTO>({
+        url: `/api/v1/skills/${skillId}`,
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        data: updateSkillSchema,
+    });
+};
+
+export const getSkillsUpdateSkillMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof skillsUpdateSkill>>,
+        TError,
+        { skillId: string; data: UpdateSkillSchema },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof skillsUpdateSkill>>,
+    TError,
+    { skillId: string; data: UpdateSkillSchema },
+    TContext
+> => {
+    const mutationKey = ["skillsUpdateSkill"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof skillsUpdateSkill>>,
+        { skillId: string; data: UpdateSkillSchema }
+    > = (props) => {
+        const { skillId, data } = props ?? {};
+
+        return skillsUpdateSkill(skillId, data);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type SkillsUpdateSkillMutationResult = NonNullable<
+    Awaited<ReturnType<typeof skillsUpdateSkill>>
+>;
+export type SkillsUpdateSkillMutationBody = UpdateSkillSchema;
+export type SkillsUpdateSkillMutationError = HTTPValidationError;
+
+/**
+ * @summary Update Skill
+ */
+export const useSkillsUpdateSkill = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof skillsUpdateSkill>>,
+            TError,
+            { skillId: string; data: UpdateSkillSchema },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof skillsUpdateSkill>>,
+    TError,
+    { skillId: string; data: UpdateSkillSchema },
+    TContext
+> => {
+    const mutationOptions = getSkillsUpdateSkillMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Delete Skill
+ */
+export const skillsDeleteSkill = (skillId: string) => {
+    return customInstance<void>({
+        url: `/api/v1/skills/${skillId}`,
+        method: "DELETE",
+    });
+};
+
+export const getSkillsDeleteSkillMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof skillsDeleteSkill>>,
+        TError,
+        { skillId: string },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof skillsDeleteSkill>>,
+    TError,
+    { skillId: string },
+    TContext
+> => {
+    const mutationKey = ["skillsDeleteSkill"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof skillsDeleteSkill>>,
+        { skillId: string }
+    > = (props) => {
+        const { skillId } = props ?? {};
+
+        return skillsDeleteSkill(skillId);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type SkillsDeleteSkillMutationResult = NonNullable<
+    Awaited<ReturnType<typeof skillsDeleteSkill>>
+>;
+
+export type SkillsDeleteSkillMutationError = HTTPValidationError;
+
+/**
+ * @summary Delete Skill
+ */
+export const useSkillsDeleteSkill = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof skillsDeleteSkill>>,
+            TError,
+            { skillId: string },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof skillsDeleteSkill>>,
+    TError,
+    { skillId: string },
+    TContext
+> => {
+    const mutationOptions = getSkillsDeleteSkillMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Get Team Roles
+ */
+export const teamRolesGetTeamRoles = (
+    params?: TeamRolesGetTeamRolesParams,
+    signal?: AbortSignal,
+) => {
+    return customInstance<TeamRoleDTO[]>({
+        url: `/api/v1/team-roles/`,
+        method: "GET",
+        params,
+        signal,
+    });
+};
+
+export const getTeamRolesGetTeamRolesQueryKey = (
+    params?: TeamRolesGetTeamRolesParams,
+) => {
+    return [`/api/v1/team-roles/`, ...(params ? [params] : [])] as const;
+};
+
+export const getTeamRolesGetTeamRolesQueryOptions = <
+    TData = Awaited<ReturnType<typeof teamRolesGetTeamRoles>>,
+    TError = HTTPValidationError,
+>(
+    params?: TeamRolesGetTeamRolesParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof teamRolesGetTeamRoles>>,
+                TError,
+                TData
+            >
+        >;
+    },
+) => {
+    const { query: queryOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ?? getTeamRolesGetTeamRolesQueryKey(params);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof teamRolesGetTeamRoles>>
+    > = ({ signal }) => teamRolesGetTeamRoles(params, signal);
+
+    return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+        Awaited<ReturnType<typeof teamRolesGetTeamRoles>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type TeamRolesGetTeamRolesQueryResult = NonNullable<
+    Awaited<ReturnType<typeof teamRolesGetTeamRoles>>
+>;
+export type TeamRolesGetTeamRolesQueryError = HTTPValidationError;
+
+export function useTeamRolesGetTeamRoles<
+    TData = Awaited<ReturnType<typeof teamRolesGetTeamRoles>>,
+    TError = HTTPValidationError,
+>(
+    params: undefined | TeamRolesGetTeamRolesParams,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof teamRolesGetTeamRoles>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof teamRolesGetTeamRoles>>,
+                    TError,
+                    Awaited<ReturnType<typeof teamRolesGetTeamRoles>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useTeamRolesGetTeamRoles<
+    TData = Awaited<ReturnType<typeof teamRolesGetTeamRoles>>,
+    TError = HTTPValidationError,
+>(
+    params?: TeamRolesGetTeamRolesParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof teamRolesGetTeamRoles>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof teamRolesGetTeamRoles>>,
+                    TError,
+                    Awaited<ReturnType<typeof teamRolesGetTeamRoles>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useTeamRolesGetTeamRoles<
+    TData = Awaited<ReturnType<typeof teamRolesGetTeamRoles>>,
+    TError = HTTPValidationError,
+>(
+    params?: TeamRolesGetTeamRolesParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof teamRolesGetTeamRoles>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get Team Roles
+ */
+
+export function useTeamRolesGetTeamRoles<
+    TData = Awaited<ReturnType<typeof teamRolesGetTeamRoles>>,
+    TError = HTTPValidationError,
+>(
+    params?: TeamRolesGetTeamRolesParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof teamRolesGetTeamRoles>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getTeamRolesGetTeamRolesQueryOptions(params, options);
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * @summary Create Team Role
+ */
+export const teamRolesCreateTeamRole = (
+    createTeamRoleSchema: CreateTeamRoleSchema,
+    signal?: AbortSignal,
+) => {
+    return customInstance<TeamRoleDTO>({
+        url: `/api/v1/team-roles/`,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        data: createTeamRoleSchema,
+        signal,
+    });
+};
+
+export const getTeamRolesCreateTeamRoleMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof teamRolesCreateTeamRole>>,
+        TError,
+        { data: CreateTeamRoleSchema },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof teamRolesCreateTeamRole>>,
+    TError,
+    { data: CreateTeamRoleSchema },
+    TContext
+> => {
+    const mutationKey = ["teamRolesCreateTeamRole"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof teamRolesCreateTeamRole>>,
+        { data: CreateTeamRoleSchema }
+    > = (props) => {
+        const { data } = props ?? {};
+
+        return teamRolesCreateTeamRole(data);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type TeamRolesCreateTeamRoleMutationResult = NonNullable<
+    Awaited<ReturnType<typeof teamRolesCreateTeamRole>>
+>;
+export type TeamRolesCreateTeamRoleMutationBody = CreateTeamRoleSchema;
+export type TeamRolesCreateTeamRoleMutationError = HTTPValidationError;
+
+/**
+ * @summary Create Team Role
+ */
+export const useTeamRolesCreateTeamRole = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof teamRolesCreateTeamRole>>,
+            TError,
+            { data: CreateTeamRoleSchema },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof teamRolesCreateTeamRole>>,
+    TError,
+    { data: CreateTeamRoleSchema },
+    TContext
+> => {
+    const mutationOptions = getTeamRolesCreateTeamRoleMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Get Team Role
+ */
+export const teamRolesGetTeamRole = (
+    teamRoleId: string,
+    signal?: AbortSignal,
+) => {
+    return customInstance<TeamRoleDTO>({
+        url: `/api/v1/team-roles/${teamRoleId}`,
+        method: "GET",
+        signal,
+    });
+};
+
+export const getTeamRolesGetTeamRoleQueryKey = (teamRoleId?: string) => {
+    return [`/api/v1/team-roles/${teamRoleId}`] as const;
+};
+
+export const getTeamRolesGetTeamRoleQueryOptions = <
+    TData = Awaited<ReturnType<typeof teamRolesGetTeamRole>>,
+    TError = HTTPValidationError,
+>(
+    teamRoleId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof teamRolesGetTeamRole>>,
+                TError,
+                TData
+            >
+        >;
+    },
+) => {
+    const { query: queryOptions } = options ?? {};
+
+    const queryKey =
+        queryOptions?.queryKey ?? getTeamRolesGetTeamRoleQueryKey(teamRoleId);
+
+    const queryFn: QueryFunction<
+        Awaited<ReturnType<typeof teamRolesGetTeamRole>>
+    > = ({ signal }) => teamRolesGetTeamRole(teamRoleId, signal);
+
+    return {
+        queryKey,
+        queryFn,
+        enabled: !!teamRoleId,
+        ...queryOptions,
+    } as UseQueryOptions<
+        Awaited<ReturnType<typeof teamRolesGetTeamRole>>,
+        TError,
+        TData
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+};
+
+export type TeamRolesGetTeamRoleQueryResult = NonNullable<
+    Awaited<ReturnType<typeof teamRolesGetTeamRole>>
+>;
+export type TeamRolesGetTeamRoleQueryError = HTTPValidationError;
+
+export function useTeamRolesGetTeamRole<
+    TData = Awaited<ReturnType<typeof teamRolesGetTeamRole>>,
+    TError = HTTPValidationError,
+>(
+    teamRoleId: string,
+    options: {
+        query: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof teamRolesGetTeamRole>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                DefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof teamRolesGetTeamRole>>,
+                    TError,
+                    Awaited<ReturnType<typeof teamRolesGetTeamRole>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useTeamRolesGetTeamRole<
+    TData = Awaited<ReturnType<typeof teamRolesGetTeamRole>>,
+    TError = HTTPValidationError,
+>(
+    teamRoleId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof teamRolesGetTeamRole>>,
+                TError,
+                TData
+            >
+        > &
+            Pick<
+                UndefinedInitialDataOptions<
+                    Awaited<ReturnType<typeof teamRolesGetTeamRole>>,
+                    TError,
+                    Awaited<ReturnType<typeof teamRolesGetTeamRole>>
+                >,
+                "initialData"
+            >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useTeamRolesGetTeamRole<
+    TData = Awaited<ReturnType<typeof teamRolesGetTeamRole>>,
+    TError = HTTPValidationError,
+>(
+    teamRoleId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof teamRolesGetTeamRole>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+};
+/**
+ * @summary Get Team Role
+ */
+
+export function useTeamRolesGetTeamRole<
+    TData = Awaited<ReturnType<typeof teamRolesGetTeamRole>>,
+    TError = HTTPValidationError,
+>(
+    teamRoleId: string,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof teamRolesGetTeamRole>>,
+                TError,
+                TData
+            >
+        >;
+    },
+    queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>;
+} {
+    const queryOptions = getTeamRolesGetTeamRoleQueryOptions(
+        teamRoleId,
+        options,
+    );
+
+    const query = useQuery(queryOptions, queryClient) as UseQueryResult<
+        TData,
+        TError
+    > & { queryKey: DataTag<QueryKey, TData, TError> };
+
+    query.queryKey = queryOptions.queryKey;
+
+    return query;
+}
+
+/**
+ * @summary Update Team Role
+ */
+export const teamRolesUpdateTeamRole = (
+    teamRoleId: string,
+    updateTeamRoleSchema: UpdateTeamRoleSchema,
+) => {
+    return customInstance<TeamRoleDTO>({
+        url: `/api/v1/team-roles/${teamRoleId}`,
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        data: updateTeamRoleSchema,
+    });
+};
+
+export const getTeamRolesUpdateTeamRoleMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof teamRolesUpdateTeamRole>>,
+        TError,
+        { teamRoleId: string; data: UpdateTeamRoleSchema },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof teamRolesUpdateTeamRole>>,
+    TError,
+    { teamRoleId: string; data: UpdateTeamRoleSchema },
+    TContext
+> => {
+    const mutationKey = ["teamRolesUpdateTeamRole"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof teamRolesUpdateTeamRole>>,
+        { teamRoleId: string; data: UpdateTeamRoleSchema }
+    > = (props) => {
+        const { teamRoleId, data } = props ?? {};
+
+        return teamRolesUpdateTeamRole(teamRoleId, data);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type TeamRolesUpdateTeamRoleMutationResult = NonNullable<
+    Awaited<ReturnType<typeof teamRolesUpdateTeamRole>>
+>;
+export type TeamRolesUpdateTeamRoleMutationBody = UpdateTeamRoleSchema;
+export type TeamRolesUpdateTeamRoleMutationError = HTTPValidationError;
+
+/**
+ * @summary Update Team Role
+ */
+export const useTeamRolesUpdateTeamRole = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof teamRolesUpdateTeamRole>>,
+            TError,
+            { teamRoleId: string; data: UpdateTeamRoleSchema },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof teamRolesUpdateTeamRole>>,
+    TError,
+    { teamRoleId: string; data: UpdateTeamRoleSchema },
+    TContext
+> => {
+    const mutationOptions = getTeamRolesUpdateTeamRoleMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Delete Team Role
+ */
+export const teamRolesDeleteTeamRole = (teamRoleId: string) => {
+    return customInstance<void>({
+        url: `/api/v1/team-roles/${teamRoleId}`,
+        method: "DELETE",
+    });
+};
+
+export const getTeamRolesDeleteTeamRoleMutationOptions = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(options?: {
+    mutation?: UseMutationOptions<
+        Awaited<ReturnType<typeof teamRolesDeleteTeamRole>>,
+        TError,
+        { teamRoleId: string },
+        TContext
+    >;
+}): UseMutationOptions<
+    Awaited<ReturnType<typeof teamRolesDeleteTeamRole>>,
+    TError,
+    { teamRoleId: string },
+    TContext
+> => {
+    const mutationKey = ["teamRolesDeleteTeamRole"];
+    const { mutation: mutationOptions } = options
+        ? options.mutation &&
+          "mutationKey" in options.mutation &&
+          options.mutation.mutationKey
+            ? options
+            : { ...options, mutation: { ...options.mutation, mutationKey } }
+        : { mutation: { mutationKey } };
+
+    const mutationFn: MutationFunction<
+        Awaited<ReturnType<typeof teamRolesDeleteTeamRole>>,
+        { teamRoleId: string }
+    > = (props) => {
+        const { teamRoleId } = props ?? {};
+
+        return teamRolesDeleteTeamRole(teamRoleId);
+    };
+
+    return { mutationFn, ...mutationOptions };
+};
+
+export type TeamRolesDeleteTeamRoleMutationResult = NonNullable<
+    Awaited<ReturnType<typeof teamRolesDeleteTeamRole>>
+>;
+
+export type TeamRolesDeleteTeamRoleMutationError = HTTPValidationError;
+
+/**
+ * @summary Delete Team Role
+ */
+export const useTeamRolesDeleteTeamRole = <
+    TError = HTTPValidationError,
+    TContext = unknown,
+>(
+    options?: {
+        mutation?: UseMutationOptions<
+            Awaited<ReturnType<typeof teamRolesDeleteTeamRole>>,
+            TError,
+            { teamRoleId: string },
+            TContext
+        >;
+    },
+    queryClient?: QueryClient,
+): UseMutationResult<
+    Awaited<ReturnType<typeof teamRolesDeleteTeamRole>>,
+    TError,
+    { teamRoleId: string },
+    TContext
+> => {
+    const mutationOptions = getTeamRolesDeleteTeamRoleMutationOptions(options);
+
+    return useMutation(mutationOptions, queryClient);
+};
+
+/**
+ * @summary Get Universities
+ */
+export const universitiesGetUniversities = (
+    params?: UniversitiesGetUniversitiesParams,
+    signal?: AbortSignal,
+) => {
+    return customInstance<UniversityDTO[]>({
+        url: `/api/v1/universities/`,
+        method: "GET",
+        params,
+        signal,
+    });
+};
+
+export const getUniversitiesGetUniversitiesQueryKey = (
+    params?: UniversitiesGetUniversitiesParams,
+) => {
+    return [`/api/v1/universities/`, ...(params ? [params] : [])] as const;
 };
 
 export const getUniversitiesGetUniversitiesQueryOptions = <
     TData = Awaited<ReturnType<typeof universitiesGetUniversities>>,
-    TError = unknown,
->(options?: {
-    query?: Partial<
-        UseQueryOptions<
-            Awaited<ReturnType<typeof universitiesGetUniversities>>,
-            TError,
-            TData
-        >
-    >;
-}) => {
+    TError = HTTPValidationError,
+>(
+    params?: UniversitiesGetUniversitiesParams,
+    options?: {
+        query?: Partial<
+            UseQueryOptions<
+                Awaited<ReturnType<typeof universitiesGetUniversities>>,
+                TError,
+                TData
+            >
+        >;
+    },
+) => {
     const { query: queryOptions } = options ?? {};
 
     const queryKey =
-        queryOptions?.queryKey ?? getUniversitiesGetUniversitiesQueryKey();
+        queryOptions?.queryKey ??
+        getUniversitiesGetUniversitiesQueryKey(params);
 
     const queryFn: QueryFunction<
         Awaited<ReturnType<typeof universitiesGetUniversities>>
-    > = ({ signal }) => universitiesGetUniversities(signal);
+    > = ({ signal }) => universitiesGetUniversities(params, signal);
 
     return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
         Awaited<ReturnType<typeof universitiesGetUniversities>>,
@@ -3035,12 +5059,13 @@ export const getUniversitiesGetUniversitiesQueryOptions = <
 export type UniversitiesGetUniversitiesQueryResult = NonNullable<
     Awaited<ReturnType<typeof universitiesGetUniversities>>
 >;
-export type UniversitiesGetUniversitiesQueryError = unknown;
+export type UniversitiesGetUniversitiesQueryError = HTTPValidationError;
 
 export function useUniversitiesGetUniversities<
     TData = Awaited<ReturnType<typeof universitiesGetUniversities>>,
-    TError = unknown,
+    TError = HTTPValidationError,
 >(
+    params: undefined | UniversitiesGetUniversitiesParams,
     options: {
         query: Partial<
             UseQueryOptions<
@@ -3064,8 +5089,9 @@ export function useUniversitiesGetUniversities<
 };
 export function useUniversitiesGetUniversities<
     TData = Awaited<ReturnType<typeof universitiesGetUniversities>>,
-    TError = unknown,
+    TError = HTTPValidationError,
 >(
+    params?: UniversitiesGetUniversitiesParams,
     options?: {
         query?: Partial<
             UseQueryOptions<
@@ -3089,8 +5115,9 @@ export function useUniversitiesGetUniversities<
 };
 export function useUniversitiesGetUniversities<
     TData = Awaited<ReturnType<typeof universitiesGetUniversities>>,
-    TError = unknown,
+    TError = HTTPValidationError,
 >(
+    params?: UniversitiesGetUniversitiesParams,
     options?: {
         query?: Partial<
             UseQueryOptions<
@@ -3110,8 +5137,9 @@ export function useUniversitiesGetUniversities<
 
 export function useUniversitiesGetUniversities<
     TData = Awaited<ReturnType<typeof universitiesGetUniversities>>,
-    TError = unknown,
+    TError = HTTPValidationError,
 >(
+    params?: UniversitiesGetUniversitiesParams,
     options?: {
         query?: Partial<
             UseQueryOptions<
@@ -3125,7 +5153,10 @@ export function useUniversitiesGetUniversities<
 ): UseQueryResult<TData, TError> & {
     queryKey: DataTag<QueryKey, TData, TError>;
 } {
-    const queryOptions = getUniversitiesGetUniversitiesQueryOptions(options);
+    const queryOptions = getUniversitiesGetUniversitiesQueryOptions(
+        params,
+        options,
+    );
 
     const query = useQuery(queryOptions, queryClient) as UseQueryResult<
         TData,
@@ -4121,6 +6152,158 @@ export const useUsersUpdateUserRoles = <
     return useMutation(mutationOptions, queryClient);
 };
 
+export const getApplicationsGetMyApplicationsResponseMock =
+    (): ApplicationDTO[] =>
+        Array.from(
+            { length: faker.number.int({ min: 1, max: 10 }) },
+            (_, i) => i + 1,
+        ).map(() => ({
+            id: faker.string.uuid(),
+            created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+            updated_at: faker.helpers.arrayElement([
+                `${faker.date.past().toISOString().split(".")[0]}Z`,
+                null,
+            ]),
+            vacancy_id: faker.string.uuid(),
+            applicant_id: faker.string.uuid(),
+            cover_letter: faker.helpers.arrayElement([
+                faker.helpers.arrayElement([
+                    faker.string.alpha({ length: { min: 1, max: 20 } }),
+                    null,
+                ]),
+                undefined,
+            ]),
+            status: faker.helpers.arrayElement(
+                Object.values(ApplicationStatus),
+            ),
+            decided_at: faker.helpers.arrayElement([
+                faker.helpers.arrayElement([
+                    `${faker.date.past().toISOString().split(".")[0]}Z`,
+                    null,
+                ]),
+                undefined,
+            ]),
+            applicant: {
+                id: faker.string.uuid(),
+                email: faker.internet.email(),
+                profile: faker.helpers.arrayElement([
+                    faker.helpers.arrayElement([
+                        {
+                            first_name: faker.string.alpha({
+                                length: { min: 10, max: 20 },
+                            }),
+                            last_name: faker.string.alpha({
+                                length: { min: 10, max: 20 },
+                            }),
+                        },
+                        null,
+                    ]),
+                    undefined,
+                ]),
+            },
+            vacancy: {
+                id: faker.string.uuid(),
+                project_id: faker.string.uuid(),
+                team_role_id: faker.string.uuid(),
+                required_count: faker.number.int({
+                    min: undefined,
+                    max: undefined,
+                }),
+                description: faker.helpers.arrayElement([
+                    faker.helpers.arrayElement([
+                        faker.string.alpha({ length: { min: 10, max: 20 } }),
+                        null,
+                    ]),
+                    undefined,
+                ]),
+                team_role: {
+                    id: faker.string.uuid(),
+                    name: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                },
+                project: {
+                    id: faker.string.uuid(),
+                    title: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                    status: faker.helpers.arrayElement(
+                        Object.values(ProjectStatus),
+                    ),
+                    owner_id: faker.helpers.arrayElement([
+                        faker.string.uuid(),
+                        null,
+                    ]),
+                },
+            },
+        }));
+
+export const getApplicationsWithdrawApplicationResponseMock = (
+    overrideResponse: Partial<ApplicationDTO> = {},
+): ApplicationDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    vacancy_id: faker.string.uuid(),
+    applicant_id: faker.string.uuid(),
+    cover_letter: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            faker.string.alpha({ length: { min: 1, max: 20 } }),
+            null,
+        ]),
+        undefined,
+    ]),
+    status: faker.helpers.arrayElement(Object.values(ApplicationStatus)),
+    decided_at: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            `${faker.date.past().toISOString().split(".")[0]}Z`,
+            null,
+        ]),
+        undefined,
+    ]),
+    applicant: {
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        profile: faker.helpers.arrayElement([
+            faker.helpers.arrayElement([
+                {
+                    first_name: faker.string.alpha({
+                        length: { min: 10, max: 20 },
+                    }),
+                    last_name: faker.string.alpha({
+                        length: { min: 10, max: 20 },
+                    }),
+                },
+                null,
+            ]),
+            undefined,
+        ]),
+    },
+    vacancy: {
+        id: faker.string.uuid(),
+        project_id: faker.string.uuid(),
+        team_role_id: faker.string.uuid(),
+        required_count: faker.number.int({ min: undefined, max: undefined }),
+        description: faker.helpers.arrayElement([
+            faker.helpers.arrayElement([
+                faker.string.alpha({ length: { min: 10, max: 20 } }),
+                null,
+            ]),
+            undefined,
+        ]),
+        team_role: {
+            id: faker.string.uuid(),
+            name: faker.string.alpha({ length: { min: 10, max: 20 } }),
+        },
+        project: {
+            id: faker.string.uuid(),
+            title: faker.string.alpha({ length: { min: 10, max: 20 } }),
+            status: faker.helpers.arrayElement(Object.values(ProjectStatus)),
+            owner_id: faker.helpers.arrayElement([faker.string.uuid(), null]),
+        },
+    },
+    ...overrideResponse,
+});
+
 export const getAuthLoginResponseMock = (
     overrideResponse: Partial<AccessToken> = {},
 ): AccessToken => ({
@@ -4402,6 +6585,51 @@ export const getProjectsUpdateProjectResponseMock = (
     ...overrideResponse,
 });
 
+export const getProjectsGetProjectTeamResponseMock = (): TeamMemberDTO[] =>
+    Array.from(
+        { length: faker.number.int({ min: 1, max: 10 }) },
+        (_, i) => i + 1,
+    ).map(() => ({
+        id: faker.string.uuid(),
+        created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+        updated_at: faker.helpers.arrayElement([
+            `${faker.date.past().toISOString().split(".")[0]}Z`,
+            null,
+        ]),
+        project_id: faker.string.uuid(),
+        user_id: faker.string.uuid(),
+        team_role_id: faker.helpers.arrayElement([faker.string.uuid(), null]),
+        joined_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+        user: {
+            id: faker.string.uuid(),
+            email: faker.internet.email(),
+            profile: faker.helpers.arrayElement([
+                faker.helpers.arrayElement([
+                    {
+                        first_name: faker.string.alpha({
+                            length: { min: 10, max: 20 },
+                        }),
+                        last_name: faker.string.alpha({
+                            length: { min: 10, max: 20 },
+                        }),
+                    },
+                    null,
+                ]),
+                undefined,
+            ]),
+        },
+        team_role: faker.helpers.arrayElement([
+            faker.helpers.arrayElement([
+                {
+                    id: faker.string.uuid(),
+                    name: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                },
+                null,
+            ]),
+            undefined,
+        ]),
+    }));
+
 export const getProjectsGetProjectVacanciesResponseMock =
     (): ProjectVacancyDTO[] =>
         Array.from(
@@ -4548,6 +6776,362 @@ export const getProjectsUpdateProjectVacancyResponseMock = (
         id: faker.string.uuid(),
         name: faker.string.alpha({ length: { min: 10, max: 20 } }),
     })),
+    ...overrideResponse,
+});
+
+export const getProjectsCreateApplicationResponseMock = (
+    overrideResponse: Partial<ApplicationDTO> = {},
+): ApplicationDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    vacancy_id: faker.string.uuid(),
+    applicant_id: faker.string.uuid(),
+    cover_letter: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            faker.string.alpha({ length: { min: 1, max: 20 } }),
+            null,
+        ]),
+        undefined,
+    ]),
+    status: faker.helpers.arrayElement(Object.values(ApplicationStatus)),
+    decided_at: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            `${faker.date.past().toISOString().split(".")[0]}Z`,
+            null,
+        ]),
+        undefined,
+    ]),
+    applicant: {
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        profile: faker.helpers.arrayElement([
+            faker.helpers.arrayElement([
+                {
+                    first_name: faker.string.alpha({
+                        length: { min: 10, max: 20 },
+                    }),
+                    last_name: faker.string.alpha({
+                        length: { min: 10, max: 20 },
+                    }),
+                },
+                null,
+            ]),
+            undefined,
+        ]),
+    },
+    vacancy: {
+        id: faker.string.uuid(),
+        project_id: faker.string.uuid(),
+        team_role_id: faker.string.uuid(),
+        required_count: faker.number.int({ min: undefined, max: undefined }),
+        description: faker.helpers.arrayElement([
+            faker.helpers.arrayElement([
+                faker.string.alpha({ length: { min: 10, max: 20 } }),
+                null,
+            ]),
+            undefined,
+        ]),
+        team_role: {
+            id: faker.string.uuid(),
+            name: faker.string.alpha({ length: { min: 10, max: 20 } }),
+        },
+        project: {
+            id: faker.string.uuid(),
+            title: faker.string.alpha({ length: { min: 10, max: 20 } }),
+            status: faker.helpers.arrayElement(Object.values(ProjectStatus)),
+            owner_id: faker.helpers.arrayElement([faker.string.uuid(), null]),
+        },
+    },
+    ...overrideResponse,
+});
+
+export const getProjectsGetProjectVacancyApplicationsResponseMock =
+    (): ApplicationDTO[] =>
+        Array.from(
+            { length: faker.number.int({ min: 1, max: 10 }) },
+            (_, i) => i + 1,
+        ).map(() => ({
+            id: faker.string.uuid(),
+            created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+            updated_at: faker.helpers.arrayElement([
+                `${faker.date.past().toISOString().split(".")[0]}Z`,
+                null,
+            ]),
+            vacancy_id: faker.string.uuid(),
+            applicant_id: faker.string.uuid(),
+            cover_letter: faker.helpers.arrayElement([
+                faker.helpers.arrayElement([
+                    faker.string.alpha({ length: { min: 1, max: 20 } }),
+                    null,
+                ]),
+                undefined,
+            ]),
+            status: faker.helpers.arrayElement(
+                Object.values(ApplicationStatus),
+            ),
+            decided_at: faker.helpers.arrayElement([
+                faker.helpers.arrayElement([
+                    `${faker.date.past().toISOString().split(".")[0]}Z`,
+                    null,
+                ]),
+                undefined,
+            ]),
+            applicant: {
+                id: faker.string.uuid(),
+                email: faker.internet.email(),
+                profile: faker.helpers.arrayElement([
+                    faker.helpers.arrayElement([
+                        {
+                            first_name: faker.string.alpha({
+                                length: { min: 10, max: 20 },
+                            }),
+                            last_name: faker.string.alpha({
+                                length: { min: 10, max: 20 },
+                            }),
+                        },
+                        null,
+                    ]),
+                    undefined,
+                ]),
+            },
+            vacancy: {
+                id: faker.string.uuid(),
+                project_id: faker.string.uuid(),
+                team_role_id: faker.string.uuid(),
+                required_count: faker.number.int({
+                    min: undefined,
+                    max: undefined,
+                }),
+                description: faker.helpers.arrayElement([
+                    faker.helpers.arrayElement([
+                        faker.string.alpha({ length: { min: 10, max: 20 } }),
+                        null,
+                    ]),
+                    undefined,
+                ]),
+                team_role: {
+                    id: faker.string.uuid(),
+                    name: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                },
+                project: {
+                    id: faker.string.uuid(),
+                    title: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                    status: faker.helpers.arrayElement(
+                        Object.values(ProjectStatus),
+                    ),
+                    owner_id: faker.helpers.arrayElement([
+                        faker.string.uuid(),
+                        null,
+                    ]),
+                },
+            },
+        }));
+
+export const getProjectsDecideApplicationResponseMock = (
+    overrideResponse: Partial<ApplicationDTO> = {},
+): ApplicationDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    vacancy_id: faker.string.uuid(),
+    applicant_id: faker.string.uuid(),
+    cover_letter: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            faker.string.alpha({ length: { min: 1, max: 20 } }),
+            null,
+        ]),
+        undefined,
+    ]),
+    status: faker.helpers.arrayElement(Object.values(ApplicationStatus)),
+    decided_at: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            `${faker.date.past().toISOString().split(".")[0]}Z`,
+            null,
+        ]),
+        undefined,
+    ]),
+    applicant: {
+        id: faker.string.uuid(),
+        email: faker.internet.email(),
+        profile: faker.helpers.arrayElement([
+            faker.helpers.arrayElement([
+                {
+                    first_name: faker.string.alpha({
+                        length: { min: 10, max: 20 },
+                    }),
+                    last_name: faker.string.alpha({
+                        length: { min: 10, max: 20 },
+                    }),
+                },
+                null,
+            ]),
+            undefined,
+        ]),
+    },
+    vacancy: {
+        id: faker.string.uuid(),
+        project_id: faker.string.uuid(),
+        team_role_id: faker.string.uuid(),
+        required_count: faker.number.int({ min: undefined, max: undefined }),
+        description: faker.helpers.arrayElement([
+            faker.helpers.arrayElement([
+                faker.string.alpha({ length: { min: 10, max: 20 } }),
+                null,
+            ]),
+            undefined,
+        ]),
+        team_role: {
+            id: faker.string.uuid(),
+            name: faker.string.alpha({ length: { min: 10, max: 20 } }),
+        },
+        project: {
+            id: faker.string.uuid(),
+            title: faker.string.alpha({ length: { min: 10, max: 20 } }),
+            status: faker.helpers.arrayElement(Object.values(ProjectStatus)),
+            owner_id: faker.helpers.arrayElement([faker.string.uuid(), null]),
+        },
+    },
+    ...overrideResponse,
+});
+
+export const getSkillsGetSkillsResponseMock = (): SkillDTO[] =>
+    Array.from(
+        { length: faker.number.int({ min: 1, max: 10 }) },
+        (_, i) => i + 1,
+    ).map(() => ({
+        id: faker.string.uuid(),
+        created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+        updated_at: faker.helpers.arrayElement([
+            `${faker.date.past().toISOString().split(".")[0]}Z`,
+            null,
+        ]),
+        name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    }));
+
+export const getSkillsCreateSkillResponseMock = (
+    overrideResponse: Partial<SkillDTO> = {},
+): SkillDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    ...overrideResponse,
+});
+
+export const getSkillsGetSkillResponseMock = (
+    overrideResponse: Partial<SkillDTO> = {},
+): SkillDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    ...overrideResponse,
+});
+
+export const getSkillsUpdateSkillResponseMock = (
+    overrideResponse: Partial<SkillDTO> = {},
+): SkillDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    ...overrideResponse,
+});
+
+export const getTeamRolesGetTeamRolesResponseMock = (): TeamRoleDTO[] =>
+    Array.from(
+        { length: faker.number.int({ min: 1, max: 10 }) },
+        (_, i) => i + 1,
+    ).map(() => ({
+        id: faker.string.uuid(),
+        created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+        updated_at: faker.helpers.arrayElement([
+            `${faker.date.past().toISOString().split(".")[0]}Z`,
+            null,
+        ]),
+        name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+        description: faker.helpers.arrayElement([
+            faker.helpers.arrayElement([
+                faker.string.alpha({ length: { min: 1, max: 20 } }),
+                null,
+            ]),
+            undefined,
+        ]),
+    }));
+
+export const getTeamRolesCreateTeamRoleResponseMock = (
+    overrideResponse: Partial<TeamRoleDTO> = {},
+): TeamRoleDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    description: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            faker.string.alpha({ length: { min: 1, max: 20 } }),
+            null,
+        ]),
+        undefined,
+    ]),
+    ...overrideResponse,
+});
+
+export const getTeamRolesGetTeamRoleResponseMock = (
+    overrideResponse: Partial<TeamRoleDTO> = {},
+): TeamRoleDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    description: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            faker.string.alpha({ length: { min: 1, max: 20 } }),
+            null,
+        ]),
+        undefined,
+    ]),
+    ...overrideResponse,
+});
+
+export const getTeamRolesUpdateTeamRoleResponseMock = (
+    overrideResponse: Partial<TeamRoleDTO> = {},
+): TeamRoleDTO => ({
+    id: faker.string.uuid(),
+    created_at: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    updated_at: faker.helpers.arrayElement([
+        `${faker.date.past().toISOString().split(".")[0]}Z`,
+        null,
+    ]),
+    name: faker.string.alpha({ length: { min: 1, max: 20 } }),
+    description: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+            faker.string.alpha({ length: { min: 1, max: 20 } }),
+            null,
+        ]),
+        undefined,
+    ]),
     ...overrideResponse,
 });
 
@@ -4761,6 +7345,68 @@ export const getHealthHealthCheckMockHandler = (
                 await overrideResponse(info);
             }
             return new HttpResponse(null, { status: 200 });
+        },
+        options,
+    );
+};
+
+export const getApplicationsGetMyApplicationsMockHandler = (
+    overrideResponse?:
+        | ApplicationDTO[]
+        | ((
+              info: Parameters<Parameters<typeof http.get>[1]>[0],
+          ) => Promise<ApplicationDTO[]> | ApplicationDTO[]),
+    options?: RequestHandlerOptions,
+) => {
+    return http.get(
+        "*/api/v1/applications/me",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getApplicationsGetMyApplicationsResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getApplicationsWithdrawApplicationMockHandler = (
+    overrideResponse?:
+        | ApplicationDTO
+        | ((
+              info: Parameters<Parameters<typeof http.patch>[1]>[0],
+          ) => Promise<ApplicationDTO> | ApplicationDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.patch(
+        "*/api/v1/applications/:applicationId/withdraw",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getApplicationsWithdrawApplicationResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
         },
         options,
     );
@@ -5317,6 +7963,37 @@ export const getProjectsDeleteProjectMockHandler = (
     );
 };
 
+export const getProjectsGetProjectTeamMockHandler = (
+    overrideResponse?:
+        | TeamMemberDTO[]
+        | ((
+              info: Parameters<Parameters<typeof http.get>[1]>[0],
+          ) => Promise<TeamMemberDTO[]> | TeamMemberDTO[]),
+    options?: RequestHandlerOptions,
+) => {
+    return http.get(
+        "*/api/v1/projects/:projectId/team",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getProjectsGetProjectTeamResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
 export const getProjectsGetProjectVacanciesMockHandler = (
     overrideResponse?:
         | ProjectVacancyDTO[]
@@ -5451,6 +8128,389 @@ export const getProjectsDeleteProjectVacancyMockHandler = (
 ) => {
     return http.delete(
         "*/api/v1/projects/:projectId/vacancies/:vacancyId",
+        async (info) => {
+            await delay(1000);
+            if (typeof overrideResponse === "function") {
+                await overrideResponse(info);
+            }
+            return new HttpResponse(null, { status: 204 });
+        },
+        options,
+    );
+};
+
+export const getProjectsCreateApplicationMockHandler = (
+    overrideResponse?:
+        | ApplicationDTO
+        | ((
+              info: Parameters<Parameters<typeof http.post>[1]>[0],
+          ) => Promise<ApplicationDTO> | ApplicationDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.post(
+        "*/api/v1/projects/:projectId/vacancies/:vacancyId/applications",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getProjectsCreateApplicationResponseMock(),
+                ),
+                {
+                    status: 201,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getProjectsGetProjectVacancyApplicationsMockHandler = (
+    overrideResponse?:
+        | ApplicationDTO[]
+        | ((
+              info: Parameters<Parameters<typeof http.get>[1]>[0],
+          ) => Promise<ApplicationDTO[]> | ApplicationDTO[]),
+    options?: RequestHandlerOptions,
+) => {
+    return http.get(
+        "*/api/v1/projects/:projectId/vacancies/:vacancyId/applications",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getProjectsGetProjectVacancyApplicationsResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getProjectsDecideApplicationMockHandler = (
+    overrideResponse?:
+        | ApplicationDTO
+        | ((
+              info: Parameters<Parameters<typeof http.patch>[1]>[0],
+          ) => Promise<ApplicationDTO> | ApplicationDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.patch(
+        "*/api/v1/projects/:projectId/vacancies/:vacancyId/applications/:applicationId",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getProjectsDecideApplicationResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getSkillsGetSkillsMockHandler = (
+    overrideResponse?:
+        | SkillDTO[]
+        | ((
+              info: Parameters<Parameters<typeof http.get>[1]>[0],
+          ) => Promise<SkillDTO[]> | SkillDTO[]),
+    options?: RequestHandlerOptions,
+) => {
+    return http.get(
+        "*/api/v1/skills/",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getSkillsGetSkillsResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getSkillsCreateSkillMockHandler = (
+    overrideResponse?:
+        | SkillDTO
+        | ((
+              info: Parameters<Parameters<typeof http.post>[1]>[0],
+          ) => Promise<SkillDTO> | SkillDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.post(
+        "*/api/v1/skills/",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getSkillsCreateSkillResponseMock(),
+                ),
+                {
+                    status: 201,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getSkillsGetSkillMockHandler = (
+    overrideResponse?:
+        | SkillDTO
+        | ((
+              info: Parameters<Parameters<typeof http.get>[1]>[0],
+          ) => Promise<SkillDTO> | SkillDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.get(
+        "*/api/v1/skills/:skillId",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getSkillsGetSkillResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getSkillsUpdateSkillMockHandler = (
+    overrideResponse?:
+        | SkillDTO
+        | ((
+              info: Parameters<Parameters<typeof http.patch>[1]>[0],
+          ) => Promise<SkillDTO> | SkillDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.patch(
+        "*/api/v1/skills/:skillId",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getSkillsUpdateSkillResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getSkillsDeleteSkillMockHandler = (
+    overrideResponse?:
+        | void
+        | ((
+              info: Parameters<Parameters<typeof http.delete>[1]>[0],
+          ) => Promise<void> | void),
+    options?: RequestHandlerOptions,
+) => {
+    return http.delete(
+        "*/api/v1/skills/:skillId",
+        async (info) => {
+            await delay(1000);
+            if (typeof overrideResponse === "function") {
+                await overrideResponse(info);
+            }
+            return new HttpResponse(null, { status: 204 });
+        },
+        options,
+    );
+};
+
+export const getTeamRolesGetTeamRolesMockHandler = (
+    overrideResponse?:
+        | TeamRoleDTO[]
+        | ((
+              info: Parameters<Parameters<typeof http.get>[1]>[0],
+          ) => Promise<TeamRoleDTO[]> | TeamRoleDTO[]),
+    options?: RequestHandlerOptions,
+) => {
+    return http.get(
+        "*/api/v1/team-roles/",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getTeamRolesGetTeamRolesResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getTeamRolesCreateTeamRoleMockHandler = (
+    overrideResponse?:
+        | TeamRoleDTO
+        | ((
+              info: Parameters<Parameters<typeof http.post>[1]>[0],
+          ) => Promise<TeamRoleDTO> | TeamRoleDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.post(
+        "*/api/v1/team-roles/",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getTeamRolesCreateTeamRoleResponseMock(),
+                ),
+                {
+                    status: 201,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getTeamRolesGetTeamRoleMockHandler = (
+    overrideResponse?:
+        | TeamRoleDTO
+        | ((
+              info: Parameters<Parameters<typeof http.get>[1]>[0],
+          ) => Promise<TeamRoleDTO> | TeamRoleDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.get(
+        "*/api/v1/team-roles/:teamRoleId",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getTeamRolesGetTeamRoleResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getTeamRolesUpdateTeamRoleMockHandler = (
+    overrideResponse?:
+        | TeamRoleDTO
+        | ((
+              info: Parameters<Parameters<typeof http.patch>[1]>[0],
+          ) => Promise<TeamRoleDTO> | TeamRoleDTO),
+    options?: RequestHandlerOptions,
+) => {
+    return http.patch(
+        "*/api/v1/team-roles/:teamRoleId",
+        async (info) => {
+            await delay(1000);
+
+            return new HttpResponse(
+                JSON.stringify(
+                    overrideResponse !== undefined
+                        ? typeof overrideResponse === "function"
+                            ? await overrideResponse(info)
+                            : overrideResponse
+                        : getTeamRolesUpdateTeamRoleResponseMock(),
+                ),
+                {
+                    status: 200,
+                    headers: { "Content-Type": "application/json" },
+                },
+            );
+        },
+        options,
+    );
+};
+
+export const getTeamRolesDeleteTeamRoleMockHandler = (
+    overrideResponse?:
+        | void
+        | ((
+              info: Parameters<Parameters<typeof http.delete>[1]>[0],
+          ) => Promise<void> | void),
+    options?: RequestHandlerOptions,
+) => {
+    return http.delete(
+        "*/api/v1/team-roles/:teamRoleId",
         async (info) => {
             await delay(1000);
             if (typeof overrideResponse === "function") {
@@ -5763,6 +8823,8 @@ export const getUsersUpdateUserRolesMockHandler = (
 };
 export const getCampusMock = () => [
     getHealthHealthCheckMockHandler(),
+    getApplicationsGetMyApplicationsMockHandler(),
+    getApplicationsWithdrawApplicationMockHandler(),
     getAuthGetUserMockHandler(),
     getAuthLoginMockHandler(),
     getAuthRegisterMockHandler(),
@@ -5784,11 +8846,25 @@ export const getCampusMock = () => [
     getProjectsGetProjectMockHandler(),
     getProjectsUpdateProjectMockHandler(),
     getProjectsDeleteProjectMockHandler(),
+    getProjectsGetProjectTeamMockHandler(),
     getProjectsGetProjectVacanciesMockHandler(),
     getProjectsCreateProjectVacancyMockHandler(),
     getProjectsGetProjectVacancyMockHandler(),
     getProjectsUpdateProjectVacancyMockHandler(),
     getProjectsDeleteProjectVacancyMockHandler(),
+    getProjectsCreateApplicationMockHandler(),
+    getProjectsGetProjectVacancyApplicationsMockHandler(),
+    getProjectsDecideApplicationMockHandler(),
+    getSkillsGetSkillsMockHandler(),
+    getSkillsCreateSkillMockHandler(),
+    getSkillsGetSkillMockHandler(),
+    getSkillsUpdateSkillMockHandler(),
+    getSkillsDeleteSkillMockHandler(),
+    getTeamRolesGetTeamRolesMockHandler(),
+    getTeamRolesCreateTeamRoleMockHandler(),
+    getTeamRolesGetTeamRoleMockHandler(),
+    getTeamRolesUpdateTeamRoleMockHandler(),
+    getTeamRolesDeleteTeamRoleMockHandler(),
     getUniversitiesGetUniversitiesMockHandler(),
     getUniversitiesCreateUniversityMockHandler(),
     getUniversitiesGetUniversityMockHandler(),

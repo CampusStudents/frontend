@@ -29,7 +29,10 @@ import { tokenStorage } from "@shared/lib/auth";
 import { fieldHelper } from "@shared/lib/form";
 import { FormWrapper } from "@shared/ui/FormWrapper";
 
-type LoginLocationState = { registered?: boolean } | null;
+type LoginLocationState = {
+    registered?: boolean;
+    emailVerified?: boolean;
+} | null;
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -60,7 +63,13 @@ const LoginPage = () => {
         mutation: {
             onSuccess: ({ access_token }) => {
                 tokenStorage.set(access_token);
-                navigate(routePaths.verifyEmailPending, { replace: true });
+                const state = location.state as LoginLocationState;
+                navigate(
+                    state?.emailVerified
+                        ? routePaths.profileSetup
+                        : routePaths.home,
+                    { replace: true },
+                );
             },
             onError: (error) => {
                 const status = axios.isAxiosError(error)
@@ -143,8 +152,9 @@ const LoginPage = () => {
                     control={<Checkbox size="small" />}
                     label="Запомнить меня"
                     sx={{
-                        mt: -0.25,
+                        mt: -0.5,
                         color: "text.secondary",
+                        alignSelf: "flex-start",
                         "& .MuiTypography-root": {
                             fontSize: "0.875rem",
                         },
@@ -160,7 +170,7 @@ const LoginPage = () => {
                 onSubmit={handleSubmit(onSubmit)}
                 renderTitle={() => "Вход"}
                 renderDescription={() =>
-                    "Войдите, чтобы управлять заявками, проектами и своим участием в campus."
+                    "Войдите, чтобы управлять заявками, проектами и своим участием."
                 }
                 renderFields={renderForm}
                 renderSubmit={() => (
@@ -169,7 +179,6 @@ const LoginPage = () => {
                         variant="contained"
                         fullWidth
                         size="large"
-                        sx={{ minHeight: 48 }}
                         disabled={isPending}
                     >
                         Войти
@@ -182,12 +191,12 @@ const LoginPage = () => {
                             to={routePaths.home}
                             underline="hover"
                             color="text.secondary"
-                            sx={{ fontSize: "0.875rem" }}
+                            sx={{ fontSize: "0.875rem", fontWeight: 500 }}
                         >
                             Забыли пароль?
                         </Link>
 
-                        <Typography color="grey.500" sx={{ mt: 1.5 }}>
+                        <Typography color="text.secondary" sx={{ mt: 1.5 }}>
                             Нет аккаунта?{" "}
                             <Link
                                 component={RouterLink}

@@ -11,6 +11,7 @@ export const routePaths: Record<AppRoutes, string> = {
     [AppRoutes.PROJECTS]: "/projects",
     [AppRoutes.PROJECT]: "/projects/:id",
     [AppRoutes.PROFILE]: "/profile",
+    [AppRoutes.PROFILE_SETUP]: "/profile/setup",
     [AppRoutes.REGISTER]: "/register",
     [AppRoutes.CANDIDATES]: "/candidates",
     [AppRoutes.VERIFY_EMAIL]: "/verify-email",
