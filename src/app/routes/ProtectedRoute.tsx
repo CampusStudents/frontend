@@ -13,7 +13,7 @@ const ProtectedRoute: FC<{ children: ReactNode }> = ({ children }) => {
         data: user,
         isLoading,
         error,
-    } = useAuthGetUser<UserDTO>({
+    } = useAuthGetUser<UserDTO, AxiosError>({
         query: { retry: false, staleTime: time.s(1) },
     });
 
@@ -22,7 +22,7 @@ const ProtectedRoute: FC<{ children: ReactNode }> = ({ children }) => {
     }
 
     if (error) {
-        const status = (error as AxiosError)?.response?.status;
+        const status = error.response?.status;
 
         if (status === HttpStatuses.FORBIDDEN) {
             return <Navigate to={routePaths.verifyEmailPending} replace />;
