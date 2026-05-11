@@ -3,17 +3,22 @@ import { Navigate } from "react-router-dom";
 import type { AxiosError } from "axios";
 
 import { useAuthGetUser, HttpStatuses } from "@shared/api";
-import type { UserDTO } from "@shared/api/generated/model";
 import { routePaths } from "@shared/config";
+import { Loader } from "@shared/ui/Loader";
+import { time } from "@shared/lib/time";
+import type { UserDTO } from "@shared/api/generated/model";
 
 const ProtectedRoute: FC<{ children: ReactNode }> = ({ children }) => {
-    const { data, isLoading, error } = useAuthGetUser({
-        query: { retry: false },
+    const {
+        data: user,
+        isLoading,
+        error,
+    } = useAuthGetUser<UserDTO>({
+        query: { retry: false, staleTime: time.s(1) },
     });
-    const user = data as UserDTO | undefined;
 
     if (isLoading) {
-        return null;
+        return <Loader />;
     }
 
     if (error) {
