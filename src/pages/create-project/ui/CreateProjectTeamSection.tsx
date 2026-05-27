@@ -1,12 +1,17 @@
 import { AddRounded } from "@mui/icons-material";
 import { Button, Stack, Typography } from "@mui/material";
 
-import type { TeamRole } from "../model/types";
+import type { TeamRole, TeamRoleErrors } from "../model/types";
 
 import CreateProjectTeamRoleCard from "./CreateProjectTeamRoleCard";
 
+import type { TeamRoleDTO } from "@shared/api/generated/model";
+
 type CreateProjectTeamSectionProps = {
     teamRoles: TeamRole[];
+    availableRoles: TeamRoleDTO[];
+    roleErrors?: Record<number, TeamRoleErrors>;
+    disabled?: boolean;
     onAddRole: () => void;
     onRemoveRole: (roleId: number) => void;
     onRoleChange: (
@@ -14,14 +19,19 @@ type CreateProjectTeamSectionProps = {
         field: "role" | "description",
         value: string,
     ) => void;
+    onAddTag: (roleId: number, tag: string) => void;
     onDeleteTag: (roleId: number, tagToDelete: string) => void;
 };
 
 const CreateProjectTeamSection = ({
     teamRoles,
+    availableRoles,
+    roleErrors = {},
+    disabled = false,
     onAddRole,
     onRemoveRole,
     onRoleChange,
+    onAddTag,
     onDeleteTag,
 }: CreateProjectTeamSectionProps) => {
     return (
@@ -42,9 +52,13 @@ const CreateProjectTeamSection = ({
                         key={teamRole.id}
                         index={index}
                         teamRole={teamRole}
+                        availableRoles={availableRoles}
+                        errors={roleErrors[teamRole.id]}
                         isRemoveDisabled={teamRoles.length === 1}
+                        disabled={disabled}
                         onRemove={onRemoveRole}
                         onRoleChange={onRoleChange}
+                        onAddTag={onAddTag}
                         onDeleteTag={onDeleteTag}
                     />
                 ))}
@@ -54,6 +68,7 @@ const CreateProjectTeamSection = ({
                 variant="contained"
                 startIcon={<AddRounded />}
                 onClick={onAddRole}
+                disabled={disabled}
                 sx={{
                     alignSelf: "flex-start",
                     borderRadius: 2,

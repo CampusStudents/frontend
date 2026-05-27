@@ -6,6 +6,8 @@ import type {
 
 export const projectDetails: ProjectDetails = {
     eventId: 1,
+    dateDay: "11",
+    dateMonth: "ноя",
     title: "Воркшоп Т-Банк - как попасть на стажировку",
     organizer: "Понедельник, 11 ноября",
     venue: "Beloi Art Gallery",

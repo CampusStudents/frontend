@@ -38,7 +38,10 @@ const ProjectInfoPanelCard = ({
                     spacing={1.25}
                     alignItems={{ xs: "flex-start", sm: "center" }}
                 >
-                    <DetailsDateBadge day="11" month="ноя" />
+                    <DetailsDateBadge
+                        day={details.dateDay}
+                        month={details.dateMonth}
+                    />
 
                     <Stack spacing={0.2}>
                         <Typography

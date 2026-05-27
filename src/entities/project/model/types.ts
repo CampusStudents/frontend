@@ -1,5 +1,5 @@
 export type ProjectCardData = {
-    id: number;
+    id: string | number;
     date: string;
     title: string;
     destination: string;
@@ -10,7 +10,7 @@ export type ProjectCardData = {
 };
 
 export type MyProjectCardData = {
-    id: number;
+    id: string | number;
     date: string;
     weekday: string;
     title: string;
@@ -22,9 +22,9 @@ export type MyProjectCardData = {
 };
 
 export type CandidatesCardData = {
-        id: number,
-        name: string,
-        age: number,
-        about:string, 
-        city: string,    
-}
+    id: number;
+    name: string;
+    age: number;
+    about: string;
+    city: string;
+};

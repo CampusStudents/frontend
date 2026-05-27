@@ -4,3 +4,7 @@ export type TeamRole = {
     description: string;
     tags: string[];
 };
+
+export type TeamRoleErrors = {
+    role?: string;
+};

@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { CloseRounded, DeleteOutlineRounded } from "@mui/icons-material";
 import {
     Chip,
     IconButton,
+    MenuItem,
     Paper,
     Stack,
     TextField,
@@ -10,27 +12,55 @@ import {
 
 import type { TeamRole } from "../model/types";
 
+import type { TeamRoleDTO } from "@shared/api/generated/model";
+import { fieldHelper } from "@shared/lib/form";
+
+type TeamRoleCardErrors = {
+    role?: string;
+};
+
 type CreateProjectTeamRoleCardProps = {
     index: number;
     teamRole: TeamRole;
+    availableRoles: TeamRoleDTO[];
+    errors?: TeamRoleCardErrors;
     isRemoveDisabled: boolean;
+    disabled?: boolean;
     onRemove: (roleId: number) => void;
     onRoleChange: (
         roleId: number,
         field: "role" | "description",
         value: string,
     ) => void;
+    onAddTag: (roleId: number, tag: string) => void;
     onDeleteTag: (roleId: number, tagToDelete: string) => void;
 };
 
 const CreateProjectTeamRoleCard = ({
     index,
     teamRole,
+    availableRoles,
+    errors,
     isRemoveDisabled,
+    disabled = false,
     onRemove,
     onRoleChange,
+    onAddTag,
     onDeleteTag,
 }: CreateProjectTeamRoleCardProps) => {
+    const [tagValue, setTagValue] = useState("");
+
+    const submitTag = () => {
+        const trimmedTag = tagValue.trim();
+
+        if (!trimmedTag) {
+            return;
+        }
+
+        onAddTag(teamRole.id, trimmedTag);
+        setTagValue("");
+    };
+
     return (
         <Paper
             elevation={0}
@@ -58,7 +88,7 @@ const CreateProjectTeamRoleCard = ({
                     </Typography>
                     <IconButton
                         onClick={() => onRemove(teamRole.id)}
-                        disabled={isRemoveDisabled}
+                        disabled={disabled || isRemoveDisabled}
                         size="small"
                     >
                         <DeleteOutlineRounded />
@@ -67,14 +97,24 @@ const CreateProjectTeamRoleCard = ({
 
                 <TextField
                     label="Специализация"
-                    placeholder="Frontend"
+                    select
                     value={teamRole.role}
                     onChange={(event) =>
                         onRoleChange(teamRole.id, "role", event.target.value)
                     }
                     fullWidth
                     size="small"
-                />
+                    disabled={disabled}
+                    error={Boolean(errors?.role)}
+                    helperText={fieldHelper(errors?.role)}
+                >
+                    <MenuItem value="">Выберите роль</MenuItem>
+                    {availableRoles.map((roleOption) => (
+                        <MenuItem key={roleOption.id} value={roleOption.id}>
+                            {roleOption.name}
+                        </MenuItem>
+                    ))}
+                </TextField>
                 <TextField
                     label="Описание"
                     placeholder="Опишите, кого вы ищете и какие задачи будут у участника."
@@ -90,6 +130,7 @@ const CreateProjectTeamRoleCard = ({
                     multiline
                     minRows={4}
                     size="small"
+                    disabled={disabled}
                 />
 
                 <Stack spacing={1}>
@@ -112,7 +153,11 @@ const CreateProjectTeamRoleCard = ({
                                 key={`${teamRole.id}-${tag}`}
                                 label={tag}
                                 size="small"
-                                onDelete={() => onDeleteTag(teamRole.id, tag)}
+                                onDelete={
+                                    disabled
+                                        ? undefined
+                                        : () => onDeleteTag(teamRole.id, tag)
+                                }
                                 deleteIcon={
                                     <CloseRounded
                                         sx={{
@@ -124,9 +169,19 @@ const CreateProjectTeamRoleCard = ({
                         ))}
                     </Stack>
                     <TextField
+                        value={tagValue}
+                        onChange={(event) => setTagValue(event.target.value)}
+                        onBlur={submitTag}
+                        onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === ",") {
+                                event.preventDefault();
+                                submitTag();
+                            }
+                        }}
                         placeholder="Например: React, Next.js, UI/UX"
                         fullWidth
                         size="small"
+                        disabled={disabled}
                     />
                 </Stack>
             </Stack>
