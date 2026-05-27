@@ -5,34 +5,34 @@ import type { TeamRole, TeamRoleErrors } from "../model/types";
 
 import CreateProjectTeamRoleCard from "./CreateProjectTeamRoleCard";
 
-import type { TeamRoleDTO } from "@shared/api/generated/model";
+import type { SkillDTO, TeamRoleDTO } from "@shared/api/generated/model";
 
 type CreateProjectTeamSectionProps = {
     teamRoles: TeamRole[];
     availableRoles: TeamRoleDTO[];
+    availableSkills: SkillDTO[];
     roleErrors?: Record<number, TeamRoleErrors>;
     disabled?: boolean;
     onAddRole: () => void;
     onRemoveRole: (roleId: number) => void;
     onRoleChange: (
         roleId: number,
-        field: "role" | "description",
-        value: string,
+        field: "role" | "description" | "requiredCount",
+        value: string | number,
     ) => void;
-    onAddTag: (roleId: number, tag: string) => void;
-    onDeleteTag: (roleId: number, tagToDelete: string) => void;
+    onSkillsChange: (roleId: number, skillIds: string[]) => void;
 };
 
 const CreateProjectTeamSection = ({
     teamRoles,
     availableRoles,
+    availableSkills,
     roleErrors = {},
     disabled = false,
     onAddRole,
     onRemoveRole,
     onRoleChange,
-    onAddTag,
-    onDeleteTag,
+    onSkillsChange,
 }: CreateProjectTeamSectionProps) => {
     return (
         <Stack spacing={2.5}>
@@ -53,13 +53,13 @@ const CreateProjectTeamSection = ({
                         index={index}
                         teamRole={teamRole}
                         availableRoles={availableRoles}
+                        availableSkills={availableSkills}
                         errors={roleErrors[teamRole.id]}
                         isRemoveDisabled={teamRoles.length === 1}
                         disabled={disabled}
                         onRemove={onRemoveRole}
                         onRoleChange={onRoleChange}
-                        onAddTag={onAddTag}
-                        onDeleteTag={onDeleteTag}
+                        onSkillsChange={onSkillsChange}
                     />
                 ))}
             </Stack>

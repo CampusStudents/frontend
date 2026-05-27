@@ -1,7 +1,6 @@
-import { useState } from "react";
-import { CloseRounded, DeleteOutlineRounded } from "@mui/icons-material";
+import { DeleteOutlineRounded } from "@mui/icons-material";
 import {
-    Chip,
+    Autocomplete,
     IconButton,
     MenuItem,
     Paper,
@@ -12,54 +11,46 @@ import {
 
 import type { TeamRole } from "../model/types";
 
-import type { TeamRoleDTO } from "@shared/api/generated/model";
+import type { SkillDTO, TeamRoleDTO } from "@shared/api/generated/model";
 import { fieldHelper } from "@shared/lib/form";
 
 type TeamRoleCardErrors = {
     role?: string;
+    requiredCount?: string;
 };
 
 type CreateProjectTeamRoleCardProps = {
     index: number;
     teamRole: TeamRole;
     availableRoles: TeamRoleDTO[];
+    availableSkills: SkillDTO[];
     errors?: TeamRoleCardErrors;
     isRemoveDisabled: boolean;
     disabled?: boolean;
     onRemove: (roleId: number) => void;
     onRoleChange: (
         roleId: number,
-        field: "role" | "description",
-        value: string,
+        field: "role" | "description" | "requiredCount",
+        value: string | number,
     ) => void;
-    onAddTag: (roleId: number, tag: string) => void;
-    onDeleteTag: (roleId: number, tagToDelete: string) => void;
+    onSkillsChange: (roleId: number, skillIds: string[]) => void;
 };
 
 const CreateProjectTeamRoleCard = ({
     index,
     teamRole,
     availableRoles,
+    availableSkills,
     errors,
     isRemoveDisabled,
     disabled = false,
     onRemove,
     onRoleChange,
-    onAddTag,
-    onDeleteTag,
+    onSkillsChange,
 }: CreateProjectTeamRoleCardProps) => {
-    const [tagValue, setTagValue] = useState("");
-
-    const submitTag = () => {
-        const trimmedTag = tagValue.trim();
-
-        if (!trimmedTag) {
-            return;
-        }
-
-        onAddTag(teamRole.id, trimmedTag);
-        setTagValue("");
-    };
+    const selectedSkills = availableSkills.filter((skill) =>
+        teamRole.skillIds.includes(skill.id),
+    );
 
     return (
         <Paper
@@ -115,6 +106,31 @@ const CreateProjectTeamRoleCard = ({
                         </MenuItem>
                     ))}
                 </TextField>
+
+                <TextField
+                    label="Количество мест"
+                    type="number"
+                    value={teamRole.requiredCount}
+                    onChange={(event) =>
+                        onRoleChange(
+                            teamRole.id,
+                            "requiredCount",
+                            Number(event.target.value),
+                        )
+                    }
+                    fullWidth
+                    size="small"
+                    disabled={disabled}
+                    error={Boolean(errors?.requiredCount)}
+                    helperText={fieldHelper(errors?.requiredCount)}
+                    slotProps={{
+                        htmlInput: {
+                            min: 1,
+                            step: 1,
+                        },
+                    }}
+                />
+
                 <TextField
                     label="Описание"
                     placeholder="Опишите, кого вы ищете и какие задачи будут у участника."
@@ -140,49 +156,39 @@ const CreateProjectTeamRoleCard = ({
                             color: "text.secondary",
                         }}
                     >
-                        Теги
+                        Навыки
                     </Typography>
-                    <Stack
-                        direction="row"
-                        spacing={1}
-                        useFlexGap
-                        sx={{ flexWrap: "wrap" }}
-                    >
-                        {teamRole.tags.map((tag) => (
-                            <Chip
-                                key={`${teamRole.id}-${tag}`}
-                                label={tag}
-                                size="small"
-                                onDelete={
-                                    disabled
-                                        ? undefined
-                                        : () => onDeleteTag(teamRole.id, tag)
-                                }
-                                deleteIcon={
-                                    <CloseRounded
-                                        sx={{
-                                            fontSize: 16,
-                                        }}
-                                    />
-                                }
-                            />
-                        ))}
-                    </Stack>
-                    <TextField
-                        value={tagValue}
-                        onChange={(event) => setTagValue(event.target.value)}
-                        onBlur={submitTag}
-                        onKeyDown={(event) => {
-                            if (event.key === "Enter" || event.key === ",") {
-                                event.preventDefault();
-                                submitTag();
-                            }
-                        }}
-                        placeholder="Например: React, Next.js, UI/UX"
-                        fullWidth
-                        size="small"
+                    <Autocomplete
+                        multiple
+                        options={availableSkills}
+                        getOptionLabel={(option) => option.name}
+                        value={selectedSkills}
                         disabled={disabled}
+                        onChange={(_, nextSkills) =>
+                            onSkillsChange(
+                                teamRole.id,
+                                nextSkills.map((skill) => skill.id),
+                            )
+                        }
+                        isOptionEqualToValue={(option, value) =>
+                            option.id === value.id
+                        }
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                placeholder="Выберите навыки"
+                                size="small"
+                            />
+                        )}
                     />
+                    <Typography
+                        sx={{
+                            fontSize: 12,
+                            color: "text.secondary",
+                        }}
+                    >
+                        Выберите навыки из справочника для этой роли.
+                    </Typography>
                 </Stack>
             </Stack>
         </Paper>

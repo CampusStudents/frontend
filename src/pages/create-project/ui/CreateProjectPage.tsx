@@ -28,7 +28,6 @@ import {
 import type {
     CreateProjectSchema,
     CreateProjectVacancySchema,
-    SkillDTO,
 } from "@shared/api/generated/model";
 import { routePaths } from "@shared/config";
 import { time } from "@shared/lib/time";
@@ -105,8 +104,8 @@ const CreateProjectPage = () => {
 
     const handleRoleChange = (
         roleId: number,
-        field: "role" | "description",
-        value: string,
+        field: "role" | "description" | "requiredCount",
+        value: string | number,
     ) => {
         setTeamRoles((currentRoles) =>
             currentRoles.map((item) =>
@@ -114,53 +113,30 @@ const CreateProjectPage = () => {
             ),
         );
 
-        if (field !== "role") {
-            return;
-        }
-
         setRoleErrors((currentErrors) => {
-            if (!currentErrors[roleId]?.role) {
+            const currentRoleErrors = currentErrors[roleId];
+
+            if (!currentRoleErrors) {
                 return currentErrors;
             }
 
             return {
                 ...currentErrors,
                 [roleId]: {
-                    ...currentErrors[roleId],
-                    role: undefined,
+                    ...currentRoleErrors,
+                    ...(field === "role" ? { role: undefined } : {}),
+                    ...(field === "requiredCount"
+                        ? { requiredCount: undefined }
+                        : {}),
                 },
             };
         });
     };
 
-    const handleAddTag = (roleId: number, tag: string) => {
+    const handleSkillsChange = (roleId: number, skillIds: string[]) => {
         setTeamRoles((currentRoles) =>
             currentRoles.map((item) =>
-                item.id === roleId
-                    ? {
-                          ...item,
-                          tags: item.tags.some(
-                              (currentTag) =>
-                                  currentTag.toLowerCase() ===
-                                  tag.trim().toLowerCase(),
-                          )
-                              ? item.tags
-                              : [...item.tags, tag.trim()],
-                      }
-                    : item,
-            ),
-        );
-    };
-
-    const handleDeleteTag = (roleId: number, tagToDelete: string) => {
-        setTeamRoles((currentRoles) =>
-            currentRoles.map((item) =>
-                item.id === roleId
-                    ? {
-                          ...item,
-                          tags: item.tags.filter((tag) => tag !== tagToDelete),
-                      }
-                    : item,
+                item.id === roleId ? { ...item, skillIds } : item,
             ),
         );
     };
@@ -188,7 +164,16 @@ const CreateProjectPage = () => {
             (acc, role) => {
                 if (!role.role.trim()) {
                     acc[role.id] = {
-                        role: "Введите специализацию",
+                        role: "Выберите специализацию",
+                    };
+                }
+                if (
+                    !Number.isInteger(role.requiredCount) ||
+                    role.requiredCount < 1
+                ) {
+                    acc[role.id] = {
+                        ...acc[role.id],
+                        requiredCount: "Укажите минимум 1 место",
                     };
                 }
 
@@ -200,25 +185,6 @@ const CreateProjectPage = () => {
         setRoleErrors(nextErrors);
 
         return Object.keys(nextErrors).length === 0;
-    };
-
-    const resolveSkillIds = (tags: string[], availableSkills: SkillDTO[]) => {
-        const skillMap = new Map(
-            availableSkills.map((skill) => [
-                skill.name.trim().toLowerCase(),
-                skill.id,
-            ]),
-        );
-
-        return tags.reduce<string[]>((acc, tag) => {
-            const skillId = skillMap.get(tag.trim().toLowerCase());
-
-            if (skillId && !acc.includes(skillId)) {
-                acc.push(skillId);
-            }
-
-            return acc;
-        }, []);
     };
 
     const buildProjectPayload = (
@@ -245,25 +211,29 @@ const CreateProjectPage = () => {
             const project = await createProject({
                 data: buildProjectPayload(values),
             });
+            let failedVacanciesCount = 0;
 
             for (const teamRole of teamRoles) {
                 const vacancyPayload: CreateProjectVacancySchema = {
                     team_role_id: teamRole.role,
-                    required_count: 1,
+                    required_count: teamRole.requiredCount,
                     ...(teamRole.description.trim()
                         ? { description: teamRole.description.trim() }
                         : {}),
                 };
-                const skillIds = resolveSkillIds(teamRole.tags, skills);
 
-                if (skillIds.length > 0) {
-                    vacancyPayload.skill_ids = skillIds;
+                if (teamRole.skillIds.length > 0) {
+                    vacancyPayload.skill_ids = teamRole.skillIds;
                 }
 
-                await createProjectVacancy({
-                    projectId: project.id,
-                    data: vacancyPayload,
-                });
+                try {
+                    await createProjectVacancy({
+                        projectId: project.id,
+                        data: vacancyPayload,
+                    });
+                } catch {
+                    failedVacanciesCount += 1;
+                }
             }
 
             await queryClient.invalidateQueries({
@@ -274,7 +244,22 @@ const CreateProjectPage = () => {
                 generatePath(routePaths.project, {
                     id: project.id,
                 }),
-                { replace: true },
+                {
+                    replace: true,
+                    state: {
+                        creationFeedback:
+                            failedVacanciesCount > 0
+                                ? {
+                                      kind: "partial",
+                                      failedVacanciesCount,
+                                      totalVacancies: teamRoles.length,
+                                  }
+                                : {
+                                      kind: "success",
+                                      totalVacancies: teamRoles.length,
+                                  },
+                    },
+                },
             );
         } catch (error) {
             const status = axios.isAxiosError(error)
@@ -340,13 +325,13 @@ const CreateProjectPage = () => {
                     <CreateProjectTeamSection
                         teamRoles={teamRoles}
                         availableRoles={teamRoleOptions}
+                        availableSkills={skills}
                         roleErrors={roleErrors}
                         disabled={isSubmitting}
                         onAddRole={handleAddRole}
                         onRemoveRole={handleRemoveRole}
                         onRoleChange={handleRoleChange}
-                        onAddTag={handleAddTag}
-                        onDeleteTag={handleDeleteTag}
+                        onSkillsChange={handleSkillsChange}
                     />
 
                     <Stack

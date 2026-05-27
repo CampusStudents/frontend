@@ -1,10 +1,12 @@
 export type TeamRole = {
     id: number;
     role: string;
+    requiredCount: number;
     description: string;
-    tags: string[];
+    skillIds: string[];
 };
 
 export type TeamRoleErrors = {
     role?: string;
+    requiredCount?: string;
 };
