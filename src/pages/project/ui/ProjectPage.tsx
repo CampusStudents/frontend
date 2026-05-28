@@ -9,23 +9,38 @@ import {
 
 import ProjectEventSection from "./ProjectEventSection";
 import ProjectHeroSection from "./ProjectHeroSection";
+import ProjectOwnerActions from "./ProjectOwnerActions";
 import ProjectRequirementsSection from "./ProjectRequirementsSection";
 
 import {
     normalizeListResponse,
+    useAuthGetUser,
     useCitiesGetCities,
     useProjectsGetProject,
     useProjectsGetProjectTeam,
     useProjectsGetProjectVacancies,
     useTeamRolesGetTeamRoles,
 } from "@shared/api";
+import type { UserDTO } from "@shared/api/generated/model";
 import { time } from "@shared/lib/time";
+import { tokenStorage } from "@shared/lib/auth";
 import { EmptyState } from "@shared/ui/EmptyState";
 import { ErrorFallback } from "@shared/ui/ErrorFallback";
 import { Loader } from "@shared/ui/Loader";
 
 const ProjectPage = () => {
     const { id: projectId } = useParams<{ id: string }>();
+    const isAuthenticated = Boolean(tokenStorage.get());
+    const {
+        data: currentUser,
+        isLoading: isUserLoading,
+        refetch: refetchUser,
+    } = useAuthGetUser<UserDTO, AxiosError>({
+        query: {
+            enabled: isAuthenticated,
+            staleTime: time.m(5),
+        },
+    });
     const {
         data: project,
         isLoading: isProjectLoading,
@@ -99,6 +114,7 @@ const ProjectPage = () => {
 
     if (
         isProjectLoading ||
+        (isAuthenticated && isUserLoading) ||
         isVacanciesLoading ||
         isTeamLoading ||
         isCitiesLoading ||
@@ -127,6 +143,9 @@ const ProjectPage = () => {
                 }
                 onRetry={() => {
                     void refetchProject();
+                    if (isAuthenticated) {
+                        void refetchUser();
+                    }
                     void refetchVacancies();
                     void refetchTeam();
                     void refetchCities();
@@ -150,9 +169,13 @@ const ProjectPage = () => {
         vacancies,
         teamRoles,
     );
+    const isProjectOwner = currentUser?.id === project.owner_id;
 
     return (
         <Stack spacing={3}>
+            {isProjectOwner ? (
+                <ProjectOwnerActions project={project} cities={cities} />
+            ) : null}
             <ProjectHeroSection
                 details={projectDetails}
                 projectId={project.id}
