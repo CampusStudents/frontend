@@ -6,6 +6,7 @@ import {
 import { Box, Chip, Paper, Stack, Typography } from "@mui/material";
 
 import type { ProjectCardData } from "@entities/project";
+import { ProjectCardEventRow, resolveCardEvent } from "@entities/project";
 
 type SwipeableProjectCardProps = {
     card: ProjectCardData;
@@ -34,6 +35,7 @@ const SwipeableProjectCard = ({
     stackIndex,
     dragHandlers,
 }: SwipeableProjectCardProps) => {
+    const { eventId, eventTitle } = resolveCardEvent(card);
     const isTop = stackIndex === 0;
     const scale = 1 - stackIndex * 0.04;
     const stackOffset = stackIndex * 10;
@@ -149,15 +151,10 @@ const SwipeableProjectCard = ({
                     {card.title}
                 </Typography>
 
-                <Typography
-                    sx={{
-                        fontSize: { xs: 16, sm: 18 },
-                        color: "text.secondary",
-                        lineHeight: 1.3,
-                    }}
-                >
-                    {card.destination}
-                </Typography>
+                <ProjectCardEventRow
+                    eventId={eventId}
+                    eventTitle={eventTitle}
+                />
 
                 <Typography
                     sx={{

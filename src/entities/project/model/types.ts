@@ -3,6 +3,8 @@ export type ProjectCardData = {
     date: string;
     title: string;
     destination: string;
+    eventId: string | null;
+    eventTitle: string;
     subtitle: string;
     description: string;
     meta: string;
@@ -15,6 +17,8 @@ export type MyProjectCardData = {
     weekday: string;
     title: string;
     destination: string;
+    eventId: string | null;
+    eventTitle: string;
     subtitle: string;
     description: string;
     meta: string;

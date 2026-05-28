@@ -1,5 +1,10 @@
 import type { MyProjectCardData, ProjectCardData } from "../model/types";
 
+import {
+    getProjectEventId,
+    getProjectEventTitle,
+} from "./getProjectEventTitle";
+
 import type {
     CityDTO,
     ProjectDTO,
@@ -79,16 +84,21 @@ const getProjectSubtitle = (project: ProjectDTO) =>
 export const mapProjectDtoToProjectCard = (
     project: ProjectDTO,
     cities: CityDTO[],
+    eventsById?: Record<string, string>,
 ): ProjectCardViewModel => {
     const { date } = formatDateParts(project.created_at);
     const cityName = getProjectCityName(project, cities);
+    const eventId = getProjectEventId(project);
+    const eventTitle = getProjectEventTitle(project, eventsById);
 
     return {
         card: {
             id: project.id,
             date,
             title: project.title,
-            destination: projectTypeLabels[project.type],
+            destination: eventTitle,
+            eventId,
+            eventTitle,
             subtitle: getProjectSubtitle(project),
             description: getProjectDescription(project),
             meta: cityName
@@ -103,16 +113,21 @@ export const mapProjectDtoToProjectCard = (
 export const mapProjectDtoToMyProjectCard = (
     project: ProjectDTO,
     cities: CityDTO[],
+    eventsById?: Record<string, string>,
 ): MyProjectCardData => {
     const { date, weekday } = formatDateParts(project.created_at);
     const cityName = getProjectCityName(project, cities);
+    const eventId = getProjectEventId(project);
+    const eventTitle = getProjectEventTitle(project, eventsById);
 
     return {
         id: project.id,
         date,
         weekday: capitalize(weekday),
         title: project.title,
-        destination: projectTypeLabels[project.type],
+        destination: eventTitle,
+        eventId,
+        eventTitle,
         subtitle: getProjectSubtitle(project),
         description: getProjectDescription(project),
         meta: cityName

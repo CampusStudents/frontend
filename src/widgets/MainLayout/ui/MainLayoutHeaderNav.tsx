@@ -1,21 +1,83 @@
-import { ButtonBase, Stack, Typography } from "@mui/material";
+import {
+    ButtonBase,
+    Divider,
+    List,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    Stack,
+    Typography,
+} from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 
 import type { HeaderNavigationItem } from "./headerNavigation";
 
 type MainLayoutHeaderNavProps = {
     items: HeaderNavigationItem[];
+    orientation?: "horizontal" | "vertical";
+    onNavigate?: () => void;
 };
 
-const MainLayoutHeaderNav = ({ items }: MainLayoutHeaderNavProps) => {
+const MainLayoutHeaderNav = ({
+    items,
+    orientation = "horizontal",
+    onNavigate,
+}: MainLayoutHeaderNavProps) => {
+    if (orientation === "vertical") {
+        return (
+            <List
+                disablePadding
+                sx={{
+                    width: "100%",
+                }}
+            >
+                {items.map((item, index) => (
+                    <ListItemButton
+                        key={item.label}
+                        component={RouterLink}
+                        to={item.to}
+                        onClick={onNavigate}
+                        sx={{
+                            px: 1.5,
+                            py: 1.25,
+                            borderRadius: 1.5,
+                            mb: index < items.length - 1 ? 0.5 : 0,
+                        }}
+                    >
+                        {item.icon ? (
+                            <ListItemIcon
+                                sx={{
+                                    minWidth: 40,
+                                    color: "text.secondary",
+                                }}
+                            >
+                                {item.icon}
+                            </ListItemIcon>
+                        ) : null}
+                        <ListItemText
+                            primary={item.label}
+                            slotProps={{
+                                primary: {
+                                    sx: {
+                                        fontWeight: 500,
+                                    },
+                                },
+                            }}
+                        />
+                    </ListItemButton>
+                ))}
+            </List>
+        );
+    }
+
     return (
         <Stack
             direction="row"
-            spacing={{ xs: 1, sm: 1.5, md: 3 }}
+            spacing={{ sm: 1.5, md: 3 }}
             useFlexGap
             flexWrap="wrap"
-            justifyContent={{ xs: "flex-start", md: "flex-end" }}
-            sx={{ width: { xs: "100%", md: "auto" } }}
+            justifyContent="flex-end"
+            sx={{ width: "auto" }}
         >
             {items.map((item) => (
                 <ButtonBase
@@ -23,16 +85,18 @@ const MainLayoutHeaderNav = ({ items }: MainLayoutHeaderNavProps) => {
                     component={RouterLink}
                     to={item.to}
                     sx={{
-                        px: { xs: 1.25, sm: 1.5 },
+                        px: 1.5,
                         py: 1,
                         borderRadius: 1.5,
                         color: "text.secondary",
-                        minWidth: { xs: 84, sm: 92 },
+                        minWidth: 92,
                         transition:
                             "background-color 150ms ease, color 150ms ease, transform 150ms ease",
-                        "&:hover": {
-                            bgcolor: "rgba(47, 89, 213, 0.08)",
-                            color: "primary.main",
+                        "@media (hover: hover)": {
+                            "&:hover": {
+                                bgcolor: "rgba(47, 89, 213, 0.08)",
+                                color: "primary.main",
+                            },
                         },
                         "&:focus-visible": {
                             outline: "2px solid",
@@ -61,3 +125,5 @@ const MainLayoutHeaderNav = ({ items }: MainLayoutHeaderNavProps) => {
 };
 
 export default MainLayoutHeaderNav;
+
+export const MainLayoutHeaderNavDivider = () => <Divider sx={{ my: 1.5 }} />;
