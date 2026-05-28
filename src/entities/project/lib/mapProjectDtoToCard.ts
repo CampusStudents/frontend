@@ -21,8 +21,15 @@ const projectTypeLabels: Record<ProjectType, string> = {
 
 const projectFormatLabels: Record<ProjectFormat, string> = {
     hybrid: "Гибрид",
-    offline: "Оффлайн",
+    offline: "Офлайн",
     online: "Онлайн",
+};
+
+const projectStatusLabels: Record<string, string> = {
+    active: "Активен",
+    archived: "В архиве",
+    completed: "Завершен",
+    draft: "Не опубликован",
 };
 
 const formatDateParts = (isoDate: string) => {
@@ -66,7 +73,7 @@ const getProjectCityName = (project: ProjectDTO, cities: CityDTO[]) =>
 
 const getProjectSubtitle = (project: ProjectDTO) =>
     project.status
-        ? `Статус: ${project.status}`
+        ? `Статус: ${projectStatusLabels[project.status] ?? project.status}`
         : `Тип: ${projectTypeLabels[project.type]}`;
 
 export const mapProjectDtoToProjectCard = (

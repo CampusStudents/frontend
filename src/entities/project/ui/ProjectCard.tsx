@@ -80,9 +80,7 @@ const ProjectCard = ({ card, tags, onClick }: ProjectCardProps) => {
                         textTransform: "uppercase",
                         letterSpacing: 1,
                     }}
-                >
-                    Photo
-                </Box>
+                />
 
                 <Stack spacing={1.25} sx={{ minWidth: 0, flex: 1 }}>
                     <Typography

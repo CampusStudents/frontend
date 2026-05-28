@@ -56,7 +56,7 @@ const MyProjectCard = ({
                             height: 96,
                             flexShrink: 0,
                             borderRadius: 2,
-                            bgcolor: "photo",
+                            bgcolor: "#EEF2F7",
                             border: (theme) =>
                                 `1px solid ${theme.palette.border}`,
                             color: "text.secondary",
@@ -65,9 +65,7 @@ const MyProjectCard = ({
                             textTransform: "uppercase",
                             letterSpacing: 1,
                         }}
-                    >
-                        Photo
-                    </Box>
+                    />
 
                     <Stack spacing={1.25} sx={{ minWidth: 0, flex: 1 }}>
                         <Stack

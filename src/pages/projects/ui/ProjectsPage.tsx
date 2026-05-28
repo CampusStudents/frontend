@@ -198,7 +198,6 @@ const ProjectsPage = () => {
                 selectedView={selectedView}
                 participantCount={participantProjectItems.length}
                 creatorCount={creatorProjectItems.length}
-                draftsCount={0}
                 onViewChange={setSelectedView}
             />
 
@@ -248,7 +247,7 @@ const ProjectsPage = () => {
                             ? "Вы еще не откликались на проекты."
                             : selectedView === "creators"
                               ? "Создайте первый проект, чтобы собрать команду."
-                              : "Черновики проектов пока не поддерживаются backend API."
+                              : "Здесь пока нет проектов."
                     }
                 />
             )}

@@ -11,6 +11,7 @@ import ProjectEventSection from "./ProjectEventSection";
 import ProjectHeroSection from "./ProjectHeroSection";
 import ProjectOwnerActions from "./ProjectOwnerActions";
 import ProjectRequirementsSection from "./ProjectRequirementsSection";
+import ProjectVacanciesManager from "./ProjectVacanciesManager";
 
 import {
     normalizeListResponse,
@@ -19,6 +20,7 @@ import {
     useProjectsGetProject,
     useProjectsGetProjectTeam,
     useProjectsGetProjectVacancies,
+    useSkillsGetSkills,
     useTeamRolesGetTeamRoles,
 } from "@shared/api";
 import type { UserDTO } from "@shared/api/generated/model";
@@ -97,11 +99,26 @@ const ProjectPage = () => {
             },
         },
     );
+    const {
+        data: skillsResponse,
+        isLoading: isSkillsLoading,
+        error: skillsError,
+        refetch: refetchSkills,
+    } = useSkillsGetSkills(
+        { limit: 200 },
+        {
+            query: {
+                enabled: isAuthenticated,
+                staleTime: time.h(1),
+            },
+        },
+    );
 
     const vacancies = normalizeListResponse(vacanciesResponse);
     const teamMembers = normalizeListResponse(teamMembersResponse);
     const cities = normalizeListResponse(citiesResponse);
     const teamRoles = normalizeListResponse(teamRolesResponse);
+    const skills = normalizeListResponse(skillsResponse);
 
     if (!projectId) {
         return (
@@ -118,7 +135,8 @@ const ProjectPage = () => {
         isVacanciesLoading ||
         isTeamLoading ||
         isCitiesLoading ||
-        isTeamRolesLoading
+        isTeamRolesLoading ||
+        (isAuthenticated && isSkillsLoading)
     ) {
         return <Loader />;
     }
@@ -128,7 +146,8 @@ const ProjectPage = () => {
         vacanciesError ||
         teamError ||
         citiesError ||
-        teamRolesError
+        teamRolesError ||
+        (isAuthenticated && skillsError)
     ) {
         return (
             <ErrorFallback
@@ -139,7 +158,8 @@ const ProjectPage = () => {
                         vacanciesError ??
                         teamError ??
                         citiesError ??
-                        teamRolesError) as AxiosError
+                        teamRolesError ??
+                        skillsError) as AxiosError
                 }
                 onRetry={() => {
                     void refetchProject();
@@ -150,6 +170,9 @@ const ProjectPage = () => {
                     void refetchTeam();
                     void refetchCities();
                     void refetchTeamRoles();
+                    if (isAuthenticated) {
+                        void refetchSkills();
+                    }
                 }}
             />
         );
@@ -193,6 +216,14 @@ const ProjectPage = () => {
                     description="Для этого проекта еще не опубликованы вакансии."
                 />
             )}
+            {isProjectOwner ? (
+                <ProjectVacanciesManager
+                    projectId={project.id}
+                    vacancies={vacancies}
+                    teamRoles={teamRoles}
+                    skills={skills}
+                />
+            ) : null}
             {projectDetails.eventId ? (
                 <ProjectEventSection details={projectDetails} />
             ) : null}
