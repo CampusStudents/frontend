@@ -2,9 +2,8 @@ import { Paper, Stack, Typography } from "@mui/material";
 import { useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
 
-import { favoriteCards, favoriteCardTags } from "../model/mockData";
-
 import { ProjectCard } from "@entities/project";
+import { useFavorites } from "@features/favorites";
 import { routePaths } from "@shared/config";
 import { EmptyState } from "@shared/ui/EmptyState";
 import { ContentFilters } from "@widgets/ContentFilters";
@@ -12,6 +11,7 @@ import { ContentFilters } from "@widgets/ContentFilters";
 const FavoritesPage = () => {
     const navigate = useNavigate();
     const [selectedView, setSelectedView] = useState("projects");
+    const { favorites } = useFavorites();
 
     return (
         <Stack spacing={3}>
@@ -42,13 +42,13 @@ const FavoritesPage = () => {
                 onViewChange={setSelectedView}
             />
 
-            {favoriteCards.length > 0 ? (
+            {favorites.length > 0 ? (
                 <Stack spacing={3}>
-                    {favoriteCards.map((card) => (
+                    {favorites.map(({ card, tags }) => (
                         <ProjectCard
                             key={card.id}
                             card={card}
-                            tags={favoriteCardTags}
+                            tags={tags}
                             onClick={() =>
                                 navigate(
                                     generatePath(routePaths.project, {
@@ -62,7 +62,7 @@ const FavoritesPage = () => {
             ) : (
                 <EmptyState
                     title="В избранном пока ничего нет"
-                    description="Сохраняйте интересные проекты, чтобы быстро возвращаться к ним позже."
+                    description="Сохраняйте интересные проекты через быстрый просмотр на главной — свайп вправо добавит проект в избранное."
                 />
             )}
         </Stack>

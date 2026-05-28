@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
 
+import ProjectSwipeDeck from "./project-swipe-deck/ProjectSwipeDeck";
+
 import { ProjectCard, mapProjectDtoToProjectCard } from "@entities/project";
 import {
     normalizeListResponse,
@@ -87,42 +89,46 @@ const HomePage = () => {
     }
 
     return (
-        <Stack spacing={3}>
-            <ContentFilters
-                selectedView={selectedView}
-                projectCount={projects.length}
-                searchValue={searchValue}
-                onViewChange={setSelectedView}
-                onSearchChange={setSearchValue}
-                onSearchSubmit={() => {
-                    setSubmittedSearchValue(searchValue.trim());
-                }}
-            />
-
-            {projectCards.length > 0 ? (
-                <Stack spacing={3}>
-                    {projectCards.map(({ card, tags }) => (
-                        <ProjectCard
-                            key={card.id}
-                            card={card}
-                            tags={tags}
-                            onClick={() =>
-                                navigate(
-                                    generatePath(routePaths.project, {
-                                        id: card.id,
-                                    }),
-                                )
-                            }
-                        />
-                    ))}
-                </Stack>
-            ) : (
-                <EmptyState
-                    title="Здесь пока пусто, но это отличный шанс стать первым!"
-                    description="Сейчас здесь тихо, но это временно. Видимо, команды пока собираются с мыслями и дедлайнами."
+        <>
+            <Stack spacing={3}>
+                <ContentFilters
+                    selectedView={selectedView}
+                    projectCount={projects.length}
+                    searchValue={searchValue}
+                    onViewChange={setSelectedView}
+                    onSearchChange={setSearchValue}
+                    onSearchSubmit={() => {
+                        setSubmittedSearchValue(searchValue.trim());
+                    }}
                 />
-            )}
-        </Stack>
+
+                {projectCards.length > 0 ? (
+                    <Stack spacing={3}>
+                        {projectCards.map(({ card, tags }) => (
+                            <ProjectCard
+                                key={card.id}
+                                card={card}
+                                tags={tags}
+                                onClick={() =>
+                                    navigate(
+                                        generatePath(routePaths.project, {
+                                            id: card.id,
+                                        }),
+                                    )
+                                }
+                            />
+                        ))}
+                    </Stack>
+                ) : (
+                    <EmptyState
+                        title="Здесь пока пусто, но это отличный шанс стать первым!"
+                        description="Сейчас здесь тихо, но это временно. Видимо, команды пока собираются с мыслями и дедлайнами."
+                    />
+                )}
+            </Stack>
+
+            <ProjectSwipeDeck items={projectCards} />
+        </>
     );
 };
 
