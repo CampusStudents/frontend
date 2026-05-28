@@ -109,6 +109,7 @@ export const mapProjectVacanciesToRequirements = (
             .filter(Boolean);
 
         return {
+            vacancyId: vacancy.id,
             title: role?.name ?? "Роль не указана",
             description:
                 vacancy.description?.trim() ||

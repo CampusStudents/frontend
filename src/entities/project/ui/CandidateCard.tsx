@@ -1,23 +1,23 @@
-import {    
-    LocationOnOutlined,
-} from "@mui/icons-material";
-import {
-    Box,
-    Button,
-    Chip,
-    Paper,
-    Stack,
-    Typography, 
-} from "@mui/material";
+import { LocationOnOutlined } from "@mui/icons-material";
+import { Box, Button, Chip, Paper, Stack, Typography } from "@mui/material";
 
 import type { CandidatesCardData } from "@entities/project";
 
-type ProjectCardProps = {
+type CandidateCardProps = {
     card: CandidatesCardData;
     tags: string[];
+    isPending?: boolean;
+    onAccept?: () => void;
+    onReject?: () => void;
 };
 
-const CandidateCard = ({ card, tags }: ProjectCardProps) => {
+const CandidateCard = ({
+    card,
+    tags,
+    isPending = false,
+    onAccept,
+    onReject,
+}: CandidateCardProps) => {
     return (
         <Paper
             elevation={0}
@@ -38,7 +38,8 @@ const CandidateCard = ({ card, tags }: ProjectCardProps) => {
                         flexShrink: 0,
                         borderRadius: 2,
                         bgcolor: "photo",
-                        border: "1px solid border",
+                        border: "1px solid",
+                        borderColor: "border",
                         color: "text.secondary",
                         fontSize: 12,
                         fontWeight: 600,
@@ -50,11 +51,7 @@ const CandidateCard = ({ card, tags }: ProjectCardProps) => {
                 </Box>
 
                 <Stack spacing={1.25} sx={{ minWidth: 0, flex: 1 }}>
-                    <Stack
-                        direction={{ xs: "column", lg: "row" }}
-                        spacing={1}
-                        alignItems={{ xs: "flex-start", lg: "center" }}
-                    >
+                    <Stack spacing={0.5}>
                         <Typography
                             sx={{
                                 fontSize: 26,
@@ -62,28 +59,39 @@ const CandidateCard = ({ card, tags }: ProjectCardProps) => {
                                 lineHeight: 1.2,
                             }}
                         >
-                            {card.name}, {card.age} лет
+                            {card.name}
+                            {card.age ? `, ${card.age} лет` : ""}
                         </Typography>
+                        {card.role || card.status ? (
+                            <Typography variant="body2" color="text.secondary">
+                                {[card.role, card.status]
+                                    .filter(Boolean)
+                                    .join(" | ")}
+                            </Typography>
+                        ) : null}
                     </Stack>
-                    <Stack
-                        direction="row"
-                        spacing={1}
-                        flexWrap="wrap"
-                        useFlexGap
-                    >
-                        {tags.map((tag) => (
-                            <Chip
-                                key={`${card.id}-${tag}`}
-                                label={tag}
-                                size="small"
-                                sx={{
-                                    bgcolor: "background.default",
-                                    color: "text.secondary",
-                                    borderRadius: 1.5,
-                                }}
-                            />
-                        ))}
-                    </Stack>
+
+                    {tags.length > 0 ? (
+                        <Stack
+                            direction="row"
+                            spacing={1}
+                            flexWrap="wrap"
+                            useFlexGap
+                        >
+                            {tags.map((tag) => (
+                                <Chip
+                                    key={`${card.id}-${tag}`}
+                                    label={tag}
+                                    size="small"
+                                    sx={{
+                                        bgcolor: "background.default",
+                                        color: "text.secondary",
+                                        borderRadius: 1.5,
+                                    }}
+                                />
+                            ))}
+                        </Stack>
+                    ) : null}
 
                     <Typography
                         sx={{
@@ -113,16 +121,20 @@ const CandidateCard = ({ card, tags }: ProjectCardProps) => {
                     >
                         <Button
                             variant="outlined"
+                            disabled={isPending}
+                            onClick={onReject}
                             sx={{
                                 minWidth: { sm: 240 },
                                 height: 44,
                                 borderRadius: 2,
                             }}
                         >
-                            Подробнее
+                            Отклонить
                         </Button>
                         <Button
                             variant="contained"
+                            disabled={isPending}
+                            onClick={onAccept}
                             sx={{
                                 minWidth: { sm: 240 },
                                 height: 44,
@@ -130,11 +142,11 @@ const CandidateCard = ({ card, tags }: ProjectCardProps) => {
                                 boxShadow: "none",
                             }}
                         >
-                            Перейти в чат
+                            Принять
                         </Button>
-                        </Stack>
                     </Stack>
                 </Stack>
+            </Stack>
         </Paper>
     );
 };

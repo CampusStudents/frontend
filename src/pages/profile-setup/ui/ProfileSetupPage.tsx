@@ -23,11 +23,12 @@ import {
 
 import {
     HttpStatuses,
+    getAuthGetUserQueryKey,
+    normalizeListResponse,
+    queryClient,
     useCitiesGetCities,
     usersCreateMyProfile,
     useUniversitiesGetUniversities,
-    getAuthGetUserQueryKey,
-    queryClient,
 } from "@shared/api";
 import { routePaths } from "@shared/config";
 import { fieldHelper } from "@shared/lib/form";
@@ -65,7 +66,7 @@ const ProfileSetupPage = () => {
         name: "cityId",
     });
 
-    const { data: cities = [], isPending: isCitiesPending } =
+    const { data: citiesResponse, isPending: isCitiesPending } =
         useCitiesGetCities(
             { limit: 100 },
             {
@@ -75,7 +76,7 @@ const ProfileSetupPage = () => {
             },
         );
 
-    const { data: universities = [], isPending: isUniversitiesPending } =
+    const { data: universitiesResponse, isPending: isUniversitiesPending } =
         useUniversitiesGetUniversities(
             selectedCityId
                 ? { limit: 100, city_id: [selectedCityId] }
@@ -86,6 +87,8 @@ const ProfileSetupPage = () => {
                 },
             },
         );
+    const cities = normalizeListResponse(citiesResponse);
+    const universities = normalizeListResponse(universitiesResponse);
 
     const createProfileMutation = useMutation({
         mutationFn: (data: ProfileSetupFormValues) =>

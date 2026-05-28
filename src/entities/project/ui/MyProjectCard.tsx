@@ -8,9 +8,19 @@ type ProjectCardProps = {
     card: MyProjectCardData;
     candidatesTo?: string;
     projectTo?: string;
+    secondaryActionLabel?: string;
+    isSecondaryActionDisabled?: boolean;
+    onSecondaryActionClick?: () => void;
 };
 
-const MyProjectCard = ({ card, candidatesTo, projectTo }: ProjectCardProps) => {
+const MyProjectCard = ({
+    card,
+    candidatesTo,
+    projectTo,
+    secondaryActionLabel = "Кандидаты",
+    isSecondaryActionDisabled = false,
+    onSecondaryActionClick,
+}: ProjectCardProps) => {
     return (
         <Stack spacing={1}>
             <Typography
@@ -109,15 +119,21 @@ const MyProjectCard = ({ card, candidatesTo, projectTo }: ProjectCardProps) => {
                         >
                             <Button
                                 variant="outlined"
-                                component={candidatesTo ? RouterLink : "button"}
+                                component={
+                                    candidatesTo && !onSecondaryActionClick
+                                        ? RouterLink
+                                        : "button"
+                                }
                                 to={candidatesTo}
+                                disabled={isSecondaryActionDisabled}
+                                onClick={onSecondaryActionClick}
                                 sx={{
                                     minWidth: { sm: 240 },
                                     height: 44,
                                     borderRadius: 2,
                                 }}
                             >
-                                Кандидаты
+                                {secondaryActionLabel}
                             </Button>
                             <Button
                                 variant="contained"

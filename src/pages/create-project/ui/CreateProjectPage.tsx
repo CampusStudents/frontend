@@ -18,6 +18,7 @@ import CreateProjectTeamSection from "./CreateProjectTeamSection";
 import {
     HttpStatuses,
     getProjectsGetProjectsQueryKey,
+    normalizeListResponse,
     queryClient,
     useCitiesGetCities,
     useProjectsCreateProject,
@@ -49,7 +50,7 @@ const CreateProjectPage = () => {
     >({});
 
     const {
-        data: cities = [],
+        data: citiesResponse,
         isLoading: isCitiesLoading,
         error: citiesError,
         refetch: refetchCities,
@@ -62,7 +63,7 @@ const CreateProjectPage = () => {
         },
     );
     const {
-        data: skills = [],
+        data: skillsResponse,
         isLoading: isSkillsLoading,
         error: skillsError,
         refetch: refetchSkills,
@@ -75,7 +76,7 @@ const CreateProjectPage = () => {
         },
     );
     const {
-        data: teamRoleOptions = [],
+        data: teamRoleOptionsResponse,
         isLoading: isTeamRolesLoading,
         error: teamRolesError,
         refetch: refetchTeamRoles,
@@ -94,6 +95,9 @@ const CreateProjectPage = () => {
         useProjectsCreateProjectVacancy();
 
     const isSubmitting = isCreatingProject || isCreatingVacancy;
+    const cities = normalizeListResponse(citiesResponse);
+    const skills = normalizeListResponse(skillsResponse);
+    const teamRoleOptions = normalizeListResponse(teamRoleOptionsResponse);
 
     const handleAddRole = () => {
         setTeamRoles((currentRoles) => [

@@ -22,9 +22,11 @@ export type MyProjectCardData = {
 };
 
 export type CandidatesCardData = {
-    id: number;
+    id: string | number;
     name: string;
-    age: number;
+    age?: number;
     about: string;
     city: string;
+    role?: string;
+    status?: string;
 };

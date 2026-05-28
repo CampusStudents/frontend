@@ -19,6 +19,7 @@ export type ProjectDetails = {
 };
 
 export type ProjectRequirement = {
+    vacancyId: string;
     title: string;
     description: string;
     stack: string;

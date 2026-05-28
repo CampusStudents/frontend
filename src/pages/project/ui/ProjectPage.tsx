@@ -12,6 +12,7 @@ import ProjectHeroSection from "./ProjectHeroSection";
 import ProjectRequirementsSection from "./ProjectRequirementsSection";
 
 import {
+    normalizeListResponse,
     useCitiesGetCities,
     useProjectsGetProject,
     useProjectsGetProjectTeam,
@@ -36,7 +37,7 @@ const ProjectPage = () => {
         },
     });
     const {
-        data: vacancies = [],
+        data: vacanciesResponse,
         isLoading: isVacanciesLoading,
         error: vacanciesError,
         refetch: refetchVacancies,
@@ -46,7 +47,7 @@ const ProjectPage = () => {
         },
     });
     const {
-        data: teamMembers = [],
+        data: teamMembersResponse,
         isLoading: isTeamLoading,
         error: teamError,
         refetch: refetchTeam,
@@ -56,7 +57,7 @@ const ProjectPage = () => {
         },
     });
     const {
-        data: cities = [],
+        data: citiesResponse,
         isLoading: isCitiesLoading,
         error: citiesError,
         refetch: refetchCities,
@@ -69,7 +70,7 @@ const ProjectPage = () => {
         },
     );
     const {
-        data: teamRoles = [],
+        data: teamRolesResponse,
         isLoading: isTeamRolesLoading,
         error: teamRolesError,
         refetch: refetchTeamRoles,
@@ -81,6 +82,11 @@ const ProjectPage = () => {
             },
         },
     );
+
+    const vacancies = normalizeListResponse(vacanciesResponse);
+    const teamMembers = normalizeListResponse(teamMembersResponse);
+    const cities = normalizeListResponse(citiesResponse);
+    const teamRoles = normalizeListResponse(teamRolesResponse);
 
     if (!projectId) {
         return (
@@ -147,7 +153,11 @@ const ProjectPage = () => {
 
     return (
         <Stack spacing={3}>
-            <ProjectHeroSection details={projectDetails} />
+            <ProjectHeroSection
+                details={projectDetails}
+                projectId={project.id}
+                requirements={projectRequirements}
+            />
             {projectRequirements.length > 0 ? (
                 <ProjectRequirementsSection
                     title={projectDetails.requirementsTitle}
