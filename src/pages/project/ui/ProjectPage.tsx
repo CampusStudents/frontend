@@ -14,7 +14,6 @@ import ProjectRequirementsSection from "./ProjectRequirementsSection";
 import ProjectVacanciesManager from "./ProjectVacanciesManager";
 
 import {
-    normalizeListResponse,
     useAuthGetUser,
     useCitiesGetCities,
     useProjectsGetProject,
@@ -33,11 +32,10 @@ import { Loader } from "@shared/ui/Loader";
 const ProjectPage = () => {
     const { id: projectId } = useParams<{ id: string }>();
     const isAuthenticated = Boolean(tokenStorage.get());
-    const {
-        data: currentUser,
-        isLoading: isUserLoading,
-        refetch: refetchUser,
-    } = useAuthGetUser<UserDTO, AxiosError>({
+    const { data: currentUser, isLoading: isUserLoading } = useAuthGetUser<
+        UserDTO,
+        AxiosError
+    >({
         query: {
             enabled: isAuthenticated,
             staleTime: time.m(5),
@@ -53,32 +51,24 @@ const ProjectPage = () => {
             staleTime: time.m(5),
         },
     });
-    const {
-        data: vacanciesResponse,
-        isLoading: isVacanciesLoading,
-        error: vacanciesError,
-        refetch: refetchVacancies,
-    } = useProjectsGetProjectVacancies(projectId ?? "", undefined, {
-        query: {
-            staleTime: time.m(5),
+    const { data: vacanciesResponse } = useProjectsGetProjectVacancies(
+        projectId ?? "",
+        undefined,
+        {
+            query: {
+                staleTime: time.m(5),
+            },
         },
-    });
-    const {
-        data: teamMembersResponse,
-        isLoading: isTeamLoading,
-        error: teamError,
-        refetch: refetchTeam,
-    } = useProjectsGetProjectTeam(projectId ?? "", {
-        query: {
-            staleTime: time.m(5),
+    );
+    const { data: teamMembersResponse } = useProjectsGetProjectTeam(
+        projectId ?? "",
+        {
+            query: {
+                staleTime: time.m(5),
+            },
         },
-    });
-    const {
-        data: citiesResponse,
-        isLoading: isCitiesLoading,
-        error: citiesError,
-        refetch: refetchCities,
-    } = useCitiesGetCities(
+    );
+    const { data: citiesResponse } = useCitiesGetCities(
         { limit: 100 },
         {
             query: {
@@ -86,12 +76,7 @@ const ProjectPage = () => {
             },
         },
     );
-    const {
-        data: teamRolesResponse,
-        isLoading: isTeamRolesLoading,
-        error: teamRolesError,
-        refetch: refetchTeamRoles,
-    } = useTeamRolesGetTeamRoles(
+    const { data: teamRolesResponse } = useTeamRolesGetTeamRoles(
         { limit: 100 },
         {
             query: {
@@ -99,12 +84,7 @@ const ProjectPage = () => {
             },
         },
     );
-    const {
-        data: skillsResponse,
-        isLoading: isSkillsLoading,
-        error: skillsError,
-        refetch: refetchSkills,
-    } = useSkillsGetSkills(
+    const { data: skillsResponse } = useSkillsGetSkills(
         { limit: 200 },
         {
             query: {
@@ -113,12 +93,11 @@ const ProjectPage = () => {
             },
         },
     );
-
-    const vacancies = normalizeListResponse(vacanciesResponse);
-    const teamMembers = normalizeListResponse(teamMembersResponse);
-    const cities = normalizeListResponse(citiesResponse);
-    const teamRoles = normalizeListResponse(teamRolesResponse);
-    const skills = normalizeListResponse(skillsResponse);
+    const vacancies = vacanciesResponse ?? [];
+    const teamMembers = teamMembersResponse ?? [];
+    const cities = citiesResponse ?? [];
+    const teamRoles = teamRolesResponse ?? [];
+    const skills = skillsResponse ?? [];
 
     if (!projectId) {
         return (
@@ -129,50 +108,18 @@ const ProjectPage = () => {
         );
     }
 
-    if (
-        isProjectLoading ||
-        (isAuthenticated && isUserLoading) ||
-        isVacanciesLoading ||
-        isTeamLoading ||
-        isCitiesLoading ||
-        isTeamRolesLoading ||
-        (isAuthenticated && isSkillsLoading)
-    ) {
+    if (isProjectLoading || (isAuthenticated && isUserLoading)) {
         return <Loader />;
     }
 
-    if (
-        projectError ||
-        vacanciesError ||
-        teamError ||
-        citiesError ||
-        teamRolesError ||
-        (isAuthenticated && skillsError)
-    ) {
+    if (projectError) {
         return (
             <ErrorFallback
                 title="Не удалось загрузить проект"
                 description="Детальная страница проекта сейчас недоступна. Попробуйте обновить данные."
-                error={
-                    (projectError ??
-                        vacanciesError ??
-                        teamError ??
-                        citiesError ??
-                        teamRolesError ??
-                        skillsError) as AxiosError
-                }
+                error={projectError as AxiosError}
                 onRetry={() => {
                     void refetchProject();
-                    if (isAuthenticated) {
-                        void refetchUser();
-                    }
-                    void refetchVacancies();
-                    void refetchTeam();
-                    void refetchCities();
-                    void refetchTeamRoles();
-                    if (isAuthenticated) {
-                        void refetchSkills();
-                    }
                 }}
             />
         );

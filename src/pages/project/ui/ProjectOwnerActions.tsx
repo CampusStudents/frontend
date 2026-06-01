@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import {
     Button,
     Dialog,
@@ -10,6 +10,7 @@ import {
     TextField,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { StatusToast } from "@shared/ui/StatusToast";
 
 import {
     getProjectsGetProjectQueryKey,
@@ -87,6 +88,32 @@ const ProjectOwnerActions = ({ project, cities }: ProjectOwnerActionsProps) => {
     const deleteProjectMutation = useProjectsDeleteProject();
     const isSubmitting =
         updateProjectMutation.isPending || deleteProjectMutation.isPending;
+    const [isToastOpen, setIsToastOpen] = useState(false);
+    const [toastData, setToastData] = useState({
+        title: "",
+        message: "",
+    });
+
+    useEffect(() => {
+        if (!isToastOpen) {
+            return;
+        }
+
+        const timeoutId = window.setTimeout(() => {
+            setIsToastOpen(false);
+        }, 3000);
+
+        return () => window.clearTimeout(timeoutId);
+    }, [isToastOpen]);
+
+    const openToast = (title: string, message: string) => {
+        setToastData({ title, message });
+        setIsToastOpen(false);
+
+        window.setTimeout(() => {
+            setIsToastOpen(true);
+        }, 0);
+    };
 
     const openEditDialog = () => {
         setFormState(createInitialFormState(project));
@@ -105,21 +132,36 @@ const ProjectOwnerActions = ({ project, cities }: ProjectOwnerActionsProps) => {
     };
 
     const handleSave = async () => {
-        await updateProjectMutation.mutateAsync({
-            projectId: project.id,
-            data: buildUpdatePayload(formState),
-        });
-        await invalidateProjectQueries();
-        setIsEditOpen(false);
+        try {
+            await updateProjectMutation.mutateAsync({
+                projectId: project.id,
+                data: buildUpdatePayload(formState),
+            });
+
+            await invalidateProjectQueries();
+            setIsEditOpen(false);
+
+            openToast(project.title, "Проект успешно обновлён");
+        } catch {
+            openToast(project.title, "Не удалось сохранить изменения");
+        }
     };
 
     const handleDelete = async () => {
-        await deleteProjectMutation.mutateAsync({ projectId: project.id });
-        await queryClient.invalidateQueries({
-            queryKey: getProjectsGetProjectsQueryKey(),
-        });
-        setIsDeleteOpen(false);
-        navigate(routePaths.projects, { replace: true });
+        try {
+            await deleteProjectMutation.mutateAsync({
+                projectId: project.id,
+            });
+
+            await queryClient.invalidateQueries({
+                queryKey: getProjectsGetProjectsQueryKey(),
+            });
+
+            setIsDeleteOpen(false);
+            navigate(routePaths.projects, { replace: true });
+        } catch {
+            openToast(project.title, "Не удалось удалить проект");
+        }
     };
 
     return (
@@ -291,6 +333,12 @@ const ProjectOwnerActions = ({ project, cities }: ProjectOwnerActionsProps) => {
                     </Button>
                 </DialogActions>
             </Dialog>
+            <StatusToast
+                open={isToastOpen}
+                title={toastData.title}
+                message={toastData.message}
+                onClose={() => setIsToastOpen(false)}
+            />
         </>
     );
 };
