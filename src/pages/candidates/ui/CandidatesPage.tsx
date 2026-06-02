@@ -7,16 +7,12 @@ import { CandidateCard } from "@entities/project";
 import type { CandidatesCardData } from "@entities/project";
 import {
     getProjectsGetProjectVacancyApplicationsQueryKey,
-    normalizeListResponse,
     projectsGetProjectVacancyApplications,
     queryClient,
     useProjectsDecideApplication,
     useProjectsGetProjectVacancies,
 } from "@shared/api";
-import type {
-    ApplicationDTO,
-    ProjectVacancyDTO,
-} from "@shared/api/generated/model";
+import type { ApplicationDTO } from "@shared/api/generated/model";
 import { ApplicationDecisionSchemaStatus } from "@shared/api/generated/model";
 import { EmptyState } from "@shared/ui/EmptyState";
 import { ErrorFallback } from "@shared/ui/ErrorFallback";
@@ -73,8 +69,7 @@ const CandidatesPage = () => {
             enabled: Boolean(projectId),
         },
     });
-    const vacancies =
-        normalizeListResponse<ProjectVacancyDTO>(vacanciesResponse);
+    const vacancies = vacanciesResponse ?? [];
     const applicationsQueries = useQueries({
         queries: vacancies.map((vacancy) => ({
             queryKey: getProjectsGetProjectVacancyApplicationsQueryKey(
@@ -92,8 +87,8 @@ const CandidatesPage = () => {
     });
     const decideApplicationMutation = useProjectsDecideApplication();
 
-    const applications = applicationsQueries.flatMap((query) =>
-        normalizeListResponse<ApplicationDTO>(query.data),
+    const applications = applicationsQueries.flatMap(
+        (query) => query.data ?? [],
     );
     const candidateItems = applications.map(mapApplicationToCandidate);
     const isApplicationsLoading = applicationsQueries.some(

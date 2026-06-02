@@ -24,7 +24,6 @@ import {
 import {
     HttpStatuses,
     getAuthGetUserQueryKey,
-    normalizeListResponse,
     queryClient,
     useCitiesGetCities,
     usersCreateMyProfile,
@@ -87,8 +86,8 @@ const ProfileSetupPage = () => {
                 },
             },
         );
-    const cities = normalizeListResponse(citiesResponse);
-    const universities = normalizeListResponse(universitiesResponse);
+    const cities = citiesResponse ?? [];
+    const universities = universitiesResponse ?? [];
 
     const createProfileMutation = useMutation({
         mutationFn: (data: ProfileSetupFormValues) =>
