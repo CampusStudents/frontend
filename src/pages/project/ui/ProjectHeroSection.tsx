@@ -1,6 +1,6 @@
 import { Box, Paper, Stack, Typography } from "@mui/material";
 
-import type { ProjectDetails } from "../model/types";
+import type { ProjectDetails, ProjectRequirement } from "../model/types";
 
 import ProjectInfoPanel from "./ProjectInfoPanel";
 
@@ -8,9 +8,15 @@ import { DetailsTextBlock } from "@widgets/DetailSections";
 
 type ProjectHeroSectionProps = {
     details: ProjectDetails;
+    projectId: string;
+    requirements: ProjectRequirement[];
 };
 
-const ProjectHeroSection = ({ details }: ProjectHeroSectionProps) => {
+const ProjectHeroSection = ({
+    details,
+    projectId,
+    requirements,
+}: ProjectHeroSectionProps) => {
     return (
         <Paper
             elevation={0}
@@ -48,7 +54,11 @@ const ProjectHeroSection = ({ details }: ProjectHeroSectionProps) => {
                         {details.title}
                     </Typography>
 
-                    <ProjectInfoPanel details={details} />
+                    <ProjectInfoPanel
+                        details={details}
+                        projectId={projectId}
+                        requirements={requirements}
+                    />
                     <DetailsTextBlock
                         label={details.aboutLabel}
                         paragraphs={details.description}

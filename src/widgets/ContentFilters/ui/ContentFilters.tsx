@@ -20,14 +20,20 @@ type ContentFiltersProps = {
     selectedView?: string;
     projectCount?: number;
     eventCount?: number;
+    searchValue?: string;
     onViewChange?: (value: string) => void;
+    onSearchChange?: (value: string) => void;
+    onSearchSubmit?: () => void;
 };
 
 const ContentFilters = ({
     selectedView = "projects",
     projectCount = 124,
     eventCount = 38,
+    searchValue = "",
     onViewChange,
+    onSearchChange,
+    onSearchSubmit,
 }: ContentFiltersProps) => {
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
     const [currentView, setCurrentView] = useState(selectedView);
@@ -66,6 +72,14 @@ const ContentFilters = ({
                     fullWidth
                     placeholder="Поиск"
                     variant="standard"
+                    value={searchValue}
+                    onChange={(event) => onSearchChange?.(event.target.value)}
+                    onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                            event.preventDefault();
+                            onSearchSubmit?.();
+                        }
+                    }}
                     slotProps={{
                         input: {
                             disableUnderline: true,
@@ -110,6 +124,7 @@ const ContentFilters = ({
                     </IconButton>
                     <Button
                         variant="contained"
+                        onClick={onSearchSubmit}
                         sx={{
                             minWidth: 170,
                             height: 48,

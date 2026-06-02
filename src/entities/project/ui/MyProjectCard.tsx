@@ -8,9 +8,19 @@ type ProjectCardProps = {
     card: MyProjectCardData;
     candidatesTo?: string;
     projectTo?: string;
+    secondaryActionLabel?: string;
+    isSecondaryActionDisabled?: boolean;
+    onSecondaryActionClick?: () => void;
 };
 
-const MyProjectCard = ({ card, candidatesTo, projectTo }: ProjectCardProps) => {
+const MyProjectCard = ({
+    card,
+    candidatesTo,
+    projectTo,
+    secondaryActionLabel = "Кандидаты",
+    isSecondaryActionDisabled = false,
+    onSecondaryActionClick,
+}: ProjectCardProps) => {
     return (
         <Stack spacing={1}>
             <Typography
@@ -46,7 +56,7 @@ const MyProjectCard = ({ card, candidatesTo, projectTo }: ProjectCardProps) => {
                             height: 96,
                             flexShrink: 0,
                             borderRadius: 2,
-                            bgcolor: "photo",
+                            bgcolor: "#EEF2F7",
                             border: (theme) =>
                                 `1px solid ${theme.palette.border}`,
                             color: "text.secondary",
@@ -55,9 +65,7 @@ const MyProjectCard = ({ card, candidatesTo, projectTo }: ProjectCardProps) => {
                             textTransform: "uppercase",
                             letterSpacing: 1,
                         }}
-                    >
-                        Photo
-                    </Box>
+                    />
 
                     <Stack spacing={1.25} sx={{ minWidth: 0, flex: 1 }}>
                         <Stack
@@ -109,15 +117,21 @@ const MyProjectCard = ({ card, candidatesTo, projectTo }: ProjectCardProps) => {
                         >
                             <Button
                                 variant="outlined"
-                                component={candidatesTo ? RouterLink : "button"}
+                                component={
+                                    candidatesTo && !onSecondaryActionClick
+                                        ? RouterLink
+                                        : "button"
+                                }
                                 to={candidatesTo}
+                                disabled={isSecondaryActionDisabled}
+                                onClick={onSecondaryActionClick}
                                 sx={{
                                     minWidth: { sm: 240 },
                                     height: 44,
                                     borderRadius: 2,
                                 }}
                             >
-                                Кандидаты
+                                {secondaryActionLabel}
                             </Button>
                             <Button
                                 variant="contained"

@@ -4,6 +4,7 @@ import {
     Button,
     Fade,
     IconButton,
+    MenuItem,
     Paper,
     Stack,
     TextField,
@@ -13,16 +14,27 @@ import {
 type ProjectApplicationModalProps = {
     open: boolean;
     message: string;
+    selectedVacancyId: string;
+    vacancies: Array<{
+        id: string;
+        title: string;
+    }>;
+    isSubmitting?: boolean;
     onClose: () => void;
     onMessageChange: (value: string) => void;
+    onVacancyChange: (value: string) => void;
     onSubmit: () => void;
 };
 
 const ProjectApplicationModal = ({
     open,
     message,
+    selectedVacancyId,
+    vacancies,
+    isSubmitting = false,
     onClose,
     onMessageChange,
+    onVacancyChange,
     onSubmit,
 }: ProjectApplicationModalProps) => {
     return (
@@ -97,7 +109,24 @@ const ProjectApplicationModal = ({
                             Напишите сообщение:
                         </Typography>
                         <TextField
+                            select
+                            fullWidth
+                            label="Р РѕР»СЊ"
+                            value={selectedVacancyId}
+                            disabled={isSubmitting || vacancies.length === 0}
+                            onChange={(event) =>
+                                onVacancyChange(event.target.value)
+                            }
+                        >
+                            {vacancies.map((vacancy) => (
+                                <MenuItem key={vacancy.id} value={vacancy.id}>
+                                    {vacancy.title}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                        <TextField
                             value={message}
+                            disabled={isSubmitting}
                             onChange={(event) =>
                                 onMessageChange(event.target.value)
                             }
@@ -113,6 +142,7 @@ const ProjectApplicationModal = ({
                         />
                         <Button
                             variant="contained"
+                            disabled={isSubmitting || !selectedVacancyId}
                             onClick={onSubmit}
                             sx={{
                                 minHeight: 56,

@@ -5,15 +5,13 @@ type ContentFiltersProps = {
     selectedView?: string;
     participantCount?: number;
     creatorCount?: number;
-    draftsCount?: number;
     onViewChange?: (value: string) => void;
 };
 
 const ProjectsToggleGroup = ({
     selectedView = "participants",
-    participantCount = 124,
-    creatorCount = 38,
-    draftsCount = 45,
+    participantCount = 0,
+    creatorCount = 0,
     onViewChange,
 }: ContentFiltersProps) => {
     const [currentView, setCurrentView] = useState(selectedView);
@@ -36,12 +34,6 @@ const ProjectsToggleGroup = ({
 
     return (
         <Stack spacing={3}>
-            <Stack
-                direction={{ xs: "column", md: "row" }}
-                spacing={2}
-                alignItems={{ xs: "stretch", md: "center" }}
-            />
-
             <ToggleButtonGroup
                 value={currentView}
                 exclusive
@@ -60,9 +52,6 @@ const ProjectsToggleGroup = ({
                 </ToggleButton>
                 <ToggleButton value="creators">
                     {`Создатель (${creatorCount})`}
-                </ToggleButton>
-                <ToggleButton value="drafts">
-                    {`Черновики (${draftsCount})`}
                 </ToggleButton>
             </ToggleButtonGroup>
         </Stack>

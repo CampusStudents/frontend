@@ -1,28 +1,38 @@
 import { AddRounded } from "@mui/icons-material";
 import { Button, Stack, Typography } from "@mui/material";
 
-import type { TeamRole } from "../model/types";
+import type { TeamRole, TeamRoleErrors } from "../model/types";
 
 import CreateProjectTeamRoleCard from "./CreateProjectTeamRoleCard";
 
+import type { SkillDTO, TeamRoleDTO } from "@shared/api/generated/model";
+
 type CreateProjectTeamSectionProps = {
     teamRoles: TeamRole[];
+    availableRoles: TeamRoleDTO[];
+    availableSkills: SkillDTO[];
+    roleErrors?: Record<number, TeamRoleErrors>;
+    disabled?: boolean;
     onAddRole: () => void;
     onRemoveRole: (roleId: number) => void;
     onRoleChange: (
         roleId: number,
-        field: "role" | "description",
-        value: string,
+        field: "role" | "description" | "requiredCount",
+        value: string | number,
     ) => void;
-    onDeleteTag: (roleId: number, tagToDelete: string) => void;
+    onSkillsChange: (roleId: number, skillIds: string[]) => void;
 };
 
 const CreateProjectTeamSection = ({
     teamRoles,
+    availableRoles,
+    availableSkills,
+    roleErrors = {},
+    disabled = false,
     onAddRole,
     onRemoveRole,
     onRoleChange,
-    onDeleteTag,
+    onSkillsChange,
 }: CreateProjectTeamSectionProps) => {
     return (
         <Stack spacing={2.5}>
@@ -42,10 +52,14 @@ const CreateProjectTeamSection = ({
                         key={teamRole.id}
                         index={index}
                         teamRole={teamRole}
+                        availableRoles={availableRoles}
+                        availableSkills={availableSkills}
+                        errors={roleErrors[teamRole.id]}
                         isRemoveDisabled={teamRoles.length === 1}
+                        disabled={disabled}
                         onRemove={onRemoveRole}
                         onRoleChange={onRoleChange}
-                        onDeleteTag={onDeleteTag}
+                        onSkillsChange={onSkillsChange}
                     />
                 ))}
             </Stack>
@@ -54,6 +68,7 @@ const CreateProjectTeamSection = ({
                 variant="contained"
                 startIcon={<AddRounded />}
                 onClick={onAddRole}
+                disabled={disabled}
                 sx={{
                     alignSelf: "flex-start",
                     borderRadius: 2,

@@ -1,5 +1,7 @@
 export type ProjectDetails = {
-    eventId: number;
+    eventId: string | number | null;
+    dateDay: string;
+    dateMonth: string;
     title: string;
     organizer: string;
     venue: string;
@@ -17,6 +19,7 @@ export type ProjectDetails = {
 };
 
 export type ProjectRequirement = {
+    vacancyId: string;
     title: string;
     description: string;
     stack: string;

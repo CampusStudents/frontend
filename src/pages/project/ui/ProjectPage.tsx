@@ -1,21 +1,179 @@
 import { Stack } from "@mui/material";
+import type { AxiosError } from "axios";
+import { useParams } from "react-router-dom";
 
-import { projectDetails, projectRequirements } from "../model/mockData";
+import {
+    mapProjectDtoToDetails,
+    mapProjectVacanciesToRequirements,
+} from "../lib/mapProjectDtoToDetails";
 
 import ProjectEventSection from "./ProjectEventSection";
 import ProjectHeroSection from "./ProjectHeroSection";
+import ProjectOwnerActions from "./ProjectOwnerActions";
 import ProjectRequirementsSection from "./ProjectRequirementsSection";
+import ProjectVacanciesManager from "./ProjectVacanciesManager";
+
+import {
+    useAuthGetUser,
+    useCitiesGetCities,
+    useProjectsGetProject,
+    useProjectsGetProjectTeam,
+    useProjectsGetProjectVacancies,
+    useSkillsGetSkills,
+    useTeamRolesGetTeamRoles,
+} from "@shared/api";
+import type { UserDTO } from "@shared/api/generated/model";
+import { time } from "@shared/lib/time";
+import { tokenStorage } from "@shared/lib/auth";
+import { EmptyState } from "@shared/ui/EmptyState";
+import { ErrorFallback } from "@shared/ui/ErrorFallback";
+import { Loader } from "@shared/ui/Loader";
 
 const ProjectPage = () => {
+    const { id: projectId } = useParams<{ id: string }>();
+    const isAuthenticated = Boolean(tokenStorage.get());
+    const { data: currentUser, isLoading: isUserLoading } = useAuthGetUser<
+        UserDTO,
+        AxiosError
+    >({
+        query: {
+            enabled: isAuthenticated,
+            staleTime: time.m(5),
+        },
+    });
+    const {
+        data: project,
+        isLoading: isProjectLoading,
+        error: projectError,
+        refetch: refetchProject,
+    } = useProjectsGetProject(projectId ?? "", {
+        query: {
+            staleTime: time.m(5),
+        },
+    });
+    const { data: vacanciesResponse } = useProjectsGetProjectVacancies(
+        projectId ?? "",
+        undefined,
+        {
+            query: {
+                staleTime: time.m(5),
+            },
+        },
+    );
+    const { data: teamMembersResponse } = useProjectsGetProjectTeam(
+        projectId ?? "",
+        {
+            query: {
+                staleTime: time.m(5),
+            },
+        },
+    );
+    const { data: citiesResponse } = useCitiesGetCities(
+        { limit: 100 },
+        {
+            query: {
+                staleTime: time.h(1),
+            },
+        },
+    );
+    const { data: teamRolesResponse } = useTeamRolesGetTeamRoles(
+        { limit: 100 },
+        {
+            query: {
+                staleTime: time.h(1),
+            },
+        },
+    );
+    const { data: skillsResponse } = useSkillsGetSkills(
+        { limit: 200 },
+        {
+            query: {
+                enabled: isAuthenticated,
+                staleTime: time.h(1),
+            },
+        },
+    );
+    const vacancies = vacanciesResponse ?? [];
+    const teamMembers = teamMembersResponse ?? [];
+    const cities = citiesResponse ?? [];
+    const teamRoles = teamRolesResponse ?? [];
+    const skills = skillsResponse ?? [];
+
+    if (!projectId) {
+        return (
+            <EmptyState
+                title="Проект не найден"
+                description="В адресе отсутствует идентификатор проекта."
+            />
+        );
+    }
+
+    if (isProjectLoading || (isAuthenticated && isUserLoading)) {
+        return <Loader />;
+    }
+
+    if (projectError) {
+        return (
+            <ErrorFallback
+                title="Не удалось загрузить проект"
+                description="Детальная страница проекта сейчас недоступна. Попробуйте обновить данные."
+                error={projectError as AxiosError}
+                onRetry={() => {
+                    void refetchProject();
+                }}
+            />
+        );
+    }
+
+    if (!project) {
+        return (
+            <EmptyState
+                title="Проект не найден"
+                description="Возможно, проект был удален или ссылка устарела."
+            />
+        );
+    }
+
+    const projectDetails = mapProjectDtoToDetails(project, cities, teamMembers);
+    const projectRequirements = mapProjectVacanciesToRequirements(
+        vacancies,
+        teamRoles,
+    );
+    const isProjectOwner = currentUser?.id === project.owner_id;
+
     return (
         <Stack spacing={3}>
-            <ProjectHeroSection details={projectDetails} />
-            <ProjectRequirementsSection
-                title={projectDetails.requirementsTitle}
-                footer={projectDetails.requirementsFooter}
+            {isProjectOwner ? (
+                <ProjectOwnerActions project={project} cities={cities} />
+            ) : null}
+            <ProjectHeroSection
+                details={projectDetails}
+                projectId={project.id}
                 requirements={projectRequirements}
             />
-            <ProjectEventSection details={projectDetails} />
+            {projectRequirements.length > 0 ? (
+                <ProjectRequirementsSection
+                    title={projectDetails.requirementsTitle}
+                    footer={projectDetails.requirementsFooter}
+                    requirements={projectRequirements}
+                />
+            ) : (
+                <EmptyState
+                    title="Открытых ролей пока нет"
+                    description="Для этого проекта еще не опубликованы вакансии."
+                />
+            )}
+            {isProjectOwner ? (
+                <ProjectVacanciesManager
+                    projectId={project.id}
+                    vacancies={vacancies}
+                    teamRoles={teamRoles}
+                    skills={skills}
+                />
+            ) : null}
+            {projectDetails.eventId ? (
+                <ProjectEventSection details={projectDetails} />
+            ) : null}
         </Stack>
     );
 };
