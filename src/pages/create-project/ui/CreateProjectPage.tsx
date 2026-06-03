@@ -18,7 +18,6 @@ import CreateProjectTeamSection from "./CreateProjectTeamSection";
 import {
     HttpStatuses,
     getProjectsGetProjectsQueryKey,
-    normalizeListResponse,
     queryClient,
     useCitiesGetCities,
     useProjectsCreateProject,
@@ -95,9 +94,9 @@ const CreateProjectPage = () => {
         useProjectsCreateProjectVacancy();
 
     const isSubmitting = isCreatingProject || isCreatingVacancy;
-    const cities = normalizeListResponse(citiesResponse);
-    const skills = normalizeListResponse(skillsResponse);
-    const teamRoleOptions = normalizeListResponse(teamRoleOptionsResponse);
+    const cities = citiesResponse ?? [];
+    const skills = skillsResponse ?? [];
+    const teamRoleOptions = teamRoleOptionsResponse ?? [];
 
     const handleAddRole = () => {
         setTeamRoles((currentRoles) => [
@@ -215,30 +214,30 @@ const CreateProjectPage = () => {
             const project = await createProject({
                 data: buildProjectPayload(values),
             });
-            let failedVacanciesCount = 0;
 
-            for (const teamRole of teamRoles) {
-                const vacancyPayload: CreateProjectVacancySchema = {
-                    team_role_id: teamRole.role,
-                    required_count: teamRole.requiredCount,
-                    ...(teamRole.description.trim()
-                        ? { description: teamRole.description.trim() }
-                        : {}),
-                };
+            const vacancyResults = await Promise.allSettled(
+                teamRoles.map((teamRole) => {
+                    const vacancyPayload: CreateProjectVacancySchema = {
+                        team_role_id: teamRole.role,
+                        required_count: teamRole.requiredCount,
+                        ...(teamRole.description.trim()
+                            ? { description: teamRole.description.trim() }
+                            : {}),
+                    };
 
-                if (teamRole.skillIds.length > 0) {
-                    vacancyPayload.skill_ids = teamRole.skillIds;
-                }
+                    if (teamRole.skillIds.length > 0) {
+                        vacancyPayload.skill_ids = teamRole.skillIds;
+                    }
 
-                try {
-                    await createProjectVacancy({
+                    return createProjectVacancy({
                         projectId: project.id,
                         data: vacancyPayload,
                     });
-                } catch {
-                    failedVacanciesCount += 1;
-                }
-            }
+                }),
+            );
+            const failedVacanciesCount = vacancyResults.filter(
+                (result) => result.status === "rejected",
+            ).length;
 
             await queryClient.invalidateQueries({
                 queryKey: getProjectsGetProjectsQueryKey(),

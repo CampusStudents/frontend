@@ -1,32 +1,24 @@
-import type { ProjectCardData } from "@entities/project";
+export type StoredFavorite = string | number;
 
-export type StoredFavorite = {
-    id: string | number;
-    card: ProjectCardData;
-    tags: string[];
-};
+const STORAGE_KEY_PREFIX = "campus.favorites";
 
-const STORAGE_KEY = "campus.favorites";
+export const getFavoritesStorageKey = (userId: string) =>
+    `${STORAGE_KEY_PREFIX}.${userId}`;
 
-const isStoredFavorite = (value: unknown): value is StoredFavorite => {
-    if (!value || typeof value !== "object") {
-        return false;
-    }
+export const isFavoritesStorageKey = (key: string) =>
+    key === STORAGE_KEY_PREFIX || key.startsWith(`${STORAGE_KEY_PREFIX}.`);
 
-    const record = value as StoredFavorite;
-
-    return (
-        (typeof record.id === "string" || typeof record.id === "number") &&
-        typeof record.card === "object" &&
-        record.card !== null &&
-        Array.isArray(record.tags)
-    );
-};
+const isStoredFavoriteId = (value: unknown): value is StoredFavorite =>
+    typeof value === "string" || typeof value === "number";
 
 export const favoritesStorage = {
-    getAll(): StoredFavorite[] {
+    getAll(userId: string | null): StoredFavorite[] {
+        if (!userId) {
+            return [];
+        }
+
         try {
-            const raw = localStorage.getItem(STORAGE_KEY);
+            const raw = localStorage.getItem(getFavoritesStorageKey(userId));
 
             if (!raw) {
                 return [];
@@ -38,42 +30,47 @@ export const favoritesStorage = {
                 return [];
             }
 
-            return parsed.filter(isStoredFavorite);
+            return parsed.filter(isStoredFavoriteId);
         } catch {
             return [];
         }
     },
 
-    saveAll(favorites: StoredFavorite[]): void {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites));
+    saveAll(userId: string | null, favorites: StoredFavorite[]): void {
+        if (!userId) {
+            return;
+        }
+
+        localStorage.setItem(
+            getFavoritesStorageKey(userId),
+            JSON.stringify(favorites),
+        );
     },
 
-    add(favorite: StoredFavorite): StoredFavorite[] {
-        const favorites = this.getAll();
-        const exists = favorites.some(
-            (item) => String(item.id) === String(favorite.id),
-        );
+    add(userId: string | null, id: StoredFavorite): StoredFavorite[] {
+        const favorites = this.getAll(userId);
+        const exists = favorites.some((item) => String(item) === String(id));
 
         if (exists) {
             return favorites;
         }
 
-        const next = [...favorites, favorite];
-        this.saveAll(next);
+        const next = [...favorites, id];
+        this.saveAll(userId, next);
 
         return next;
     },
 
-    remove(id: string | number): StoredFavorite[] {
-        const next = this.getAll().filter(
-            (item) => String(item.id) !== String(id),
+    remove(userId: string | null, id: string | number): StoredFavorite[] {
+        const next = this.getAll(userId).filter(
+            (item) => String(item) !== String(id),
         );
-        this.saveAll(next);
+        this.saveAll(userId, next);
 
         return next;
     },
 
-    has(id: string | number): boolean {
-        return this.getAll().some((item) => String(item.id) === String(id));
+    has(userId: string | null, id: string | number): boolean {
+        return this.getAll(userId).some((item) => String(item) === String(id));
     },
 };

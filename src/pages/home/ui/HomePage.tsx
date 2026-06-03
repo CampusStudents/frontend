@@ -6,11 +6,7 @@ import type { AxiosError } from "axios";
 import ProjectSwipeDeck from "./project-swipe-deck/ProjectSwipeDeck";
 
 import { ProjectCard, mapProjectDtoToProjectCard } from "@entities/project";
-import {
-    normalizeListResponse,
-    useCitiesGetCities,
-    useProjectsGetProjects,
-} from "@shared/api";
+import { useCitiesGetCities, useProjectsGetProjects } from "@shared/api";
 import { routePaths } from "@shared/config";
 import { time } from "@shared/lib/time";
 import { ContentFilters } from "@widgets/ContentFilters";
@@ -64,8 +60,8 @@ const HomePage = () => {
         },
     );
 
-    const projects = normalizeListResponse(projectsResponse);
-    const cities = normalizeListResponse(citiesResponse);
+    const projects = projectsResponse ?? [];
+    const cities = citiesResponse ?? [];
     const projectCards = projects.map((project) =>
         mapProjectDtoToProjectCard(project, cities),
     );

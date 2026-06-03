@@ -7,7 +7,6 @@ import { MyProjectCard, mapProjectDtoToMyProjectCard } from "@entities/project";
 import type { MyProjectCardData } from "@entities/project";
 import {
     getApplicationsGetMyApplicationsQueryKey,
-    normalizeListResponse,
     queryClient,
     useApplicationsGetMyApplications,
     useApplicationsWithdrawApplication,
@@ -115,10 +114,9 @@ const ProjectsPage = () => {
     });
     const withdrawApplicationMutation = useApplicationsWithdrawApplication();
 
-    const projects = normalizeListResponse<ProjectDTO>(projectsResponse);
-    const cities = normalizeListResponse<CityDTO>(citiesResponse);
-    const applications =
-        normalizeListResponse<ApplicationDTO>(applicationsResponse);
+    const projects = projectsResponse ?? [];
+    const cities = citiesResponse ?? [];
+    const applications = applicationsResponse ?? [];
     const creatorProjectItems: DisplayedProjectItem[] = currentUser
         ? projects
               .filter((project) => project.owner_id === currentUser.id)

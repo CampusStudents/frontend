@@ -78,7 +78,7 @@ const ProjectSwipeZone = ({ open, items, onClose }: ProjectSwipeZoneProps) => {
                 }
 
                 if (direction === "right") {
-                    addFavorite(currentCard.card, currentCard.tags);
+                    addFavorite(currentCard.card.id);
                     setToast({
                         open: true,
                         title: currentCard.card.title,

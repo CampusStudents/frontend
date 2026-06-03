@@ -85,7 +85,7 @@ const ProjectInfoPanel = ({
         } catch {
             openToast(
                 details.title,
-                "РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РїСЂР°РІРёС‚СЊ Р·Р°СЏРІРєСѓ.",
+                "Не удалось отправить заявку.",
             );
             return;
         }
