@@ -45,6 +45,8 @@ const mapApplicationToProjectCard = (
         return mapProjectDtoToMyProjectCard(project, cities);
     }
 
+    const eventTitle = "Мероприятие не привязано";
+
     return {
         id: application.vacancy.project.id,
         date: new Intl.DateTimeFormat("ru-RU", {
@@ -53,7 +55,9 @@ const mapApplicationToProjectCard = (
         }).format(new Date(application.created_at)),
         weekday: "",
         title: application.vacancy.project.title,
-        destination: application.vacancy.team_role.name,
+        destination: eventTitle,
+        eventId: null,
+        eventTitle,
         subtitle: `Статус заявки: ${application.status}`,
         description:
             application.cover_letter?.trim() ||

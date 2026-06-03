@@ -107,7 +107,7 @@ const FavoritesPage = () => {
                 onViewChange={setSelectedView}
             />
 
-            {favoriteCards.length > 0 ? (
+            {favorites.length > 0 ? (
                 <Stack spacing={3}>
                     {favoriteCards.map(({ card, tags }) => (
                         <ProjectCard
