@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Button,
     Chip,
@@ -12,6 +12,8 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
+import { StatusToast } from "@shared/ui/StatusToast";
+import type { StatusToastData } from "@shared/ui/StatusToast";
 
 import {
     getProjectsGetProjectVacanciesQueryKey,
@@ -79,11 +81,11 @@ const buildUpdatePayload = (
 });
 
 const ProjectVacanciesManager = ({
-                                     projectId,
-                                     vacancies,
-                                     teamRoles,
-                                     skills,
-                                 }: ProjectVacanciesManagerProps) => {
+    projectId,
+    vacancies,
+    teamRoles,
+    skills,
+}: ProjectVacanciesManagerProps) => {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [deleteVacancyId, setDeleteVacancyId] = useState<string | null>(null);
     const [formState, setFormState] = useState<VacancyFormState>(() =>
@@ -96,6 +98,32 @@ const ProjectVacanciesManager = ({
         createVacancyMutation.isPending ||
         updateVacancyMutation.isPending ||
         deleteVacancyMutation.isPending;
+    const [isToastOpen, setIsToastOpen] = useState(false);
+    const [toastData, setToastData] = useState<StatusToastData>({
+        title: "",
+        message: "",
+    });
+
+    useEffect(() => {
+        if (!isToastOpen) {
+            return;
+        }
+
+        const timeoutId = window.setTimeout(() => {
+            setIsToastOpen(false);
+        }, 3000);
+
+        return () => window.clearTimeout(timeoutId);
+    }, [isToastOpen]);
+
+    const openToast = (title: string, message: string) => {
+        setToastData({ title, message });
+        setIsToastOpen(false);
+
+        window.setTimeout(() => {
+            setIsToastOpen(true);
+        }, 0);
+    };
 
     const invalidateVacancies = async () => {
         await queryClient.invalidateQueries({
@@ -121,21 +149,30 @@ const ProjectVacanciesManager = ({
             return;
         }
 
-        if (formState.id) {
-            await updateVacancyMutation.mutateAsync({
-                projectId,
-                vacancyId: formState.id,
-                data: buildUpdatePayload(formState),
-            });
-        } else {
-            await createVacancyMutation.mutateAsync({
-                projectId,
-                data: buildCreatePayload(formState),
-            });
-        }
+        try {
+            if (formState.id) {
+                await updateVacancyMutation.mutateAsync({
+                    projectId,
+                    vacancyId: formState.id,
+                    data: buildUpdatePayload(formState),
+                });
+            } else {
+                await createVacancyMutation.mutateAsync({
+                    projectId,
+                    data: buildCreatePayload(formState),
+                });
+            }
 
-        await invalidateVacancies();
-        setIsFormOpen(false);
+            await invalidateVacancies();
+            setIsFormOpen(false);
+        } catch {
+            openToast(
+                formState.id
+                    ? "Редактирование роли"
+                    : "Добавление роли",
+                "Не удалось сохранить роль",
+            );
+        }
     };
 
     const handleDelete = async () => {
@@ -414,6 +451,12 @@ const ProjectVacanciesManager = ({
                     </Button>
                 </DialogActions>
             </Dialog>
+            <StatusToast
+                open={isToastOpen}
+                title={toastData.title}
+                message={toastData.message}
+                onClose={() => setIsToastOpen(false)}
+            />
         </>
     );
 };
