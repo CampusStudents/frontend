@@ -65,8 +65,8 @@ const FavoritesPage = () => {
     if (hasFavorites && (projectsError || citiesError)) {
         return (
             <ErrorFallback
-                title="РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ РёР·Р±СЂР°РЅРЅРѕРµ"
-                description="РЎРїРёСЃРѕРє РёР·Р±СЂР°РЅРЅС‹С… РїСЂРѕРµРєС‚РѕРІ СЃРµР№С‡Р°СЃ РЅРµРґРѕСЃС‚СѓРїРµРЅ. РџРѕРїСЂРѕР±СѓР№С‚Рµ РѕР±РЅРѕРІРёС‚СЊ РґР°РЅРЅС‹Рµ."
+                title="Не удалось загрузить избранное"
+                description="Список избранных проектов сейчас недоступен. Попробуйте обновить данные."
                 error={(projectsError ?? citiesError) as AxiosError}
                 onRetry={() => {
                     projectsQueries.forEach((query) => {
