@@ -1,5 +1,7 @@
-import { Stack } from "@mui/material";
-import { useState } from "react";
+import { Alert, Stack } from "@mui/material";
+import { useEffect, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
+import type { AxiosError } from "axios";
 
 import {
     profileDetails,
@@ -10,6 +12,20 @@ import {
     profileTimeline,
 } from "../model/mockData";
 import type { ProfileDetails, ProfileTimelineItem } from "../model/types";
+
+import {
+    getAuthGetUserQueryKey,
+    getUsersGetMyProfileQueryKey,
+    queryClient,
+    useAuthGetUser,
+    useCitiesGetCities,
+    useUniversitiesGetUniversities,
+    useUsersGetMyProfile,
+    useUsersUpdateMyProfile,
+} from "@shared/api";
+import type { UserDTO } from "@shared/api/generated/model";
+import { ErrorFallback } from "@shared/ui/ErrorFallback";
+import { Loader } from "@shared/ui/Loader";
 
 import ProfileEditAdditionalSection from "./ProfileEditAdditionalSection";
 import ProfileEditBasicsSection from "./ProfileEditBasicsSection";
@@ -34,6 +50,24 @@ const createEmptyTimelineItem = (): ProfileTimelineItem => ({
     description: "",
 });
 
+const getRoleLabel = (roles?: string[]) => {
+    if (!roles?.length) {
+        return "Студент";
+    }
+
+    return roles[0];
+};
+
+const getFullNameParts = (fullName: string, fallback: ProfileDetails) => {
+    const parts = fullName.trim().split(/\s+/).filter(Boolean);
+    const fallbackParts = fallback.fullName.trim().split(/\s+/).filter(Boolean);
+
+    return {
+        firstName: parts[0] || fallbackParts[0] || "Имя",
+        lastName: parts.slice(1).join(" ") || fallbackParts[1] || "Фамилия",
+    };
+};
+
 const ProfilePage = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [details, setDetails] = useState<ProfileDetails>(profileDetails);
@@ -49,11 +83,95 @@ const ProfilePage = () => {
     const [draftTimeline, setDraftTimeline] = useState(profileTimeline);
     const [skillInput, setSkillInput] = useState("");
     const [interestInput, setInterestInput] = useState("");
+    const [saveError, setSaveError] = useState("");
+
+    const {
+        data: user,
+        isLoading: isUserLoading,
+        error: userError,
+        refetch: refetchUser,
+    } = useAuthGetUser<UserDTO, AxiosError>();
+
+    const {
+        data: profile,
+        isLoading: isProfileLoading,
+        error: profileError,
+        refetch: refetchProfile,
+    } = useUsersGetMyProfile();
+
+    const {
+        data: cities = [],
+        isLoading: isCitiesLoading,
+        error: citiesError,
+        refetch: refetchCities,
+    } = useCitiesGetCities(
+        { limit: 100 },
+        {
+            query: {
+                staleTime: 5 * 60 * 1000,
+            },
+        },
+    );
+
+    const {
+        data: universities = [],
+        isLoading: isUniversitiesLoading,
+        error: universitiesError,
+        refetch: refetchUniversities,
+    } = useUniversitiesGetUniversities(
+        { limit: 100 },
+        {
+            query: {
+                staleTime: 5 * 60 * 1000,
+            },
+        },
+    );
+
+    const updateProfileMutation = useUsersUpdateMyProfile();
+
+    useEffect(() => {
+        if (!profile) {
+            return;
+        }
+
+        const city = cities.find((item) => item.id === profile.city_id);
+        const university = universities.find(
+            (item) => item.id === profile.university_id,
+        );
+        const fullName = `${profile.first_name} ${profile.last_name}`.trim();
+
+        const nextDetails: ProfileDetails = {
+            initials: deriveInitials(fullName),
+            fullName,
+            role: getRoleLabel(user?.roles),
+            city: city?.name ?? "",
+            format: profileDetails.format,
+            university: university?.short_name || university?.name || "",
+            bio: profile.bio ?? "",
+            email: user?.email ?? "",
+            telegram: details.telegram,
+            portfolio: details.portfolio,
+        };
+
+        setDetails(nextDetails);
+
+        if (!isEditing) {
+            setDraftDetails(nextDetails);
+        }
+    }, [
+        cities,
+        details.portfolio,
+        details.telegram,
+        isEditing,
+        profile,
+        universities,
+        user,
+    ]);
 
     const addChip = (
         value: string,
         currentItems: string[],
-        setItems: React.Dispatch<React.SetStateAction<string[]>>,
+        setItems: Dispatch<SetStateAction<string[]>>,
         clearInput: () => void,
     ) => {
         const trimmedValue = value.trim();
@@ -69,7 +187,7 @@ const ProfilePage = () => {
 
     const removeChip = (
         value: string,
-        setItems: React.Dispatch<React.SetStateAction<string[]>>,
+        setItems: Dispatch<SetStateAction<string[]>>,
     ) => {
         setItems((current) => current.filter((item) => item !== value));
     };
@@ -96,11 +214,64 @@ const ProfilePage = () => {
         setIsEditing(false);
     };
 
-    const handleSaveEdit = () => {
-        setDetails({
-            ...draftDetails,
-            initials: deriveInitials(draftDetails.fullName) || details.initials,
-        });
+    const handleSaveEdit = async () => {
+        if (!profile) {
+            return;
+        }
+
+        setSaveError("");
+
+        const { firstName, lastName } = getFullNameParts(
+            draftDetails.fullName,
+            details,
+        );
+        const city = cities.find((item) => item.name === draftDetails.city);
+        const university = universities.find(
+            (item) =>
+                item.name === draftDetails.university ||
+                item.short_name === draftDetails.university,
+        );
+
+        try {
+            const updatedProfile = await updateProfileMutation.mutateAsync({
+                data: {
+                    first_name: firstName,
+                    last_name: lastName,
+                    bio: draftDetails.bio.trim() || null,
+                    city_id: city?.id ?? profile.city_id,
+                    university_id: university?.id ?? profile.university_id,
+                },
+            });
+
+            const savedFullName =
+                `${updatedProfile.first_name} ${updatedProfile.last_name}`.trim();
+
+            setDetails({
+                ...draftDetails,
+                initials: deriveInitials(savedFullName) || details.initials,
+                fullName: savedFullName,
+                city: city?.name ?? draftDetails.city,
+                university:
+                    university?.short_name ||
+                    university?.name ||
+                    draftDetails.university,
+                bio: updatedProfile.bio ?? "",
+            });
+            await Promise.all([
+                queryClient.invalidateQueries({
+                    queryKey: getUsersGetMyProfileQueryKey(),
+                }),
+                queryClient.invalidateQueries({
+                    queryKey: getAuthGetUserQueryKey(),
+                }),
+            ]);
+        } catch {
+            setSaveError(
+                "Не удалось сохранить профиль. Проверьте данные и попробуйте еще раз.",
+            );
+            return;
+        }
+
         setSkills(draftSkills);
         setInterests(draftInterests);
         setStatus(draftStatus);
@@ -146,9 +317,38 @@ const ProfilePage = () => {
         );
     };
 
+    const isLoading =
+        isUserLoading ||
+        isProfileLoading ||
+        isCitiesLoading ||
+        isUniversitiesLoading;
+    const error = userError || profileError || citiesError || universitiesError;
+
+    if (isLoading) {
+        return <Loader />;
+    }
+
+    if (error) {
+        return (
+            <ErrorFallback
+                title="Не удалось загрузить профиль"
+                description="Профиль сейчас недоступен. Попробуйте обновить данные."
+                error={error as AxiosError}
+                onRetry={() => {
+                    void refetchUser();
+                    void refetchProfile();
+                    void refetchCities();
+                    void refetchUniversities();
+                }}
+            />
+        );
+    }
+
     if (isEditing) {
         return (
             <Stack spacing={3}>
+                {saveError ? <Alert severity="error">{saveError}</Alert> : null}
+
                 <ProfileEditHeader
                     initials={draftDetails.initials}
                     onCancel={handleCancelEdit}
