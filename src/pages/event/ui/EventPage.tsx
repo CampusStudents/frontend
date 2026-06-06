@@ -136,7 +136,7 @@ const EventPage = () => {
             return;
         }
 
-        navigate(routePaths.createProject);
+        navigate(`${routePaths.createProject}?eventId=${eventId}`);
     };
 
     const handleSubscribe = () => {
