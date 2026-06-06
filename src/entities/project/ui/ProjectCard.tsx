@@ -1,4 +1,8 @@
-import { FavoriteRounded, LocationOnOutlined } from "@mui/icons-material";
+import {
+    FavoriteBorderRounded,
+    FavoriteRounded,
+    LocationOnOutlined,
+} from "@mui/icons-material";
 import {
     Box,
     Button,
@@ -19,9 +23,21 @@ type ProjectCardProps = {
     card: ProjectCardData;
     tags: string[];
     onClick?: () => void;
+    isFavorite?: boolean;
+    isFavoritePending?: boolean;
+    onToggleFavorite?: () => void;
+    hideImage?: boolean;
 };
 
-const ProjectCard = ({ card, tags, onClick }: ProjectCardProps) => {
+const ProjectCard = ({
+    card,
+    tags,
+    onClick,
+    isFavorite = false,
+    isFavoritePending = false,
+    onToggleFavorite,
+    hideImage = false,
+}: ProjectCardProps) => {
     const isInteractive = Boolean(onClick);
     const { eventId, eventTitle } = resolveCardEvent(card);
 
@@ -69,24 +85,26 @@ const ProjectCard = ({ card, tags, onClick }: ProjectCardProps) => {
                 direction={{ xs: "column", sm: "row" }}
                 spacing={{ xs: 2, sm: 2.5 }}
             >
-                <Box
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        width: { xs: "100%", sm: 96 },
-                        height: { xs: 120, sm: 96 },
-                        flexShrink: 0,
-                        borderRadius: 2,
-                        bgcolor: "#EEF2F7",
-                        border: "1px solid #D7DEE8",
-                        color: "text.secondary",
-                        fontSize: 12,
-                        fontWeight: 600,
-                        textTransform: "uppercase",
-                        letterSpacing: 1,
-                    }}
-                />
+                {hideImage ? null : (
+                    <Box
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: { xs: "100%", sm: 96 },
+                            height: { xs: 120, sm: 96 },
+                            flexShrink: 0,
+                            borderRadius: 2,
+                            bgcolor: "#EEF2F7",
+                            border: "1px solid #D7DEE8",
+                            color: "text.secondary",
+                            fontSize: 12,
+                            fontWeight: 600,
+                            textTransform: "uppercase",
+                            letterSpacing: 1,
+                        }}
+                    />
+                )}
 
                 <Stack
                     spacing={{ xs: 1, sm: 1.25 }}
@@ -237,22 +255,35 @@ const ProjectCard = ({ card, tags, onClick }: ProjectCardProps) => {
                             justifyContent={{ xs: "center", sm: "flex-start" }}
                         >
                             <IconButton
+                                aria-label={
+                                    isFavorite
+                                        ? "Убрать из избранного"
+                                        : "Добавить в избранное"
+                                }
+                                disabled={isFavoritePending}
                                 onClick={(event) => {
                                     event.stopPropagation();
+                                    onToggleFavorite?.();
                                 }}
                                 sx={{
                                     width: 40,
                                     height: 40,
                                     borderRadius: 1.5,
-                                    bgcolor: "background.default",
+                                    bgcolor: isFavorite
+                                        ? "primary.main"
+                                        : "background.default",
+                                    color: isFavorite
+                                        ? "#FFFFFF"
+                                        : "primary.main",
                                 }}
                             >
-                                <FavoriteRounded
-                                    sx={{
-                                        color: "primary.main",
-                                        fontSize: 18,
-                                    }}
-                                />
+                                {isFavorite ? (
+                                    <FavoriteRounded sx={{ fontSize: 18 }} />
+                                ) : (
+                                    <FavoriteBorderRounded
+                                        sx={{ fontSize: 18 }}
+                                    />
+                                )}
                             </IconButton>
                             <Typography
                                 variant="body2"

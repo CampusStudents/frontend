@@ -25,50 +25,66 @@ const ProfileViewSidebar = ({
                     >
                         Навыки
                     </Typography>
-                    <Stack
-                        direction="row"
-                        spacing={1}
-                        flexWrap="wrap"
-                        useFlexGap
-                    >
-                        {skills.map((skill) => (
-                            <Chip
-                                key={skill}
-                                label={skill}
-                                sx={{
-                                    borderRadius: 1.5,
-                                    bgcolor: "#F4F6FA",
-                                }}
-                            />
-                        ))}
-                    </Stack>
+
+                    {skills.length > 0 ? (
+                        <Stack
+                            direction="row"
+                            spacing={1}
+                            flexWrap="wrap"
+                            useFlexGap
+                        >
+                            {skills.map((skill) => (
+                                <Chip
+                                    key={skill}
+                                    label={skill}
+                                    sx={{
+                                        borderRadius: 1.5,
+                                        bgcolor: "#F4F6FA",
+                                    }}
+                                />
+                            ))}
+                        </Stack>
+                    ) : (
+                        <Typography
+                            sx={{
+                                color: "text.secondary",
+                                lineHeight: 1.6,
+                            }}
+                        >
+                            Навыки пока не заполнены.
+                        </Typography>
+                    )}
                 </Stack>
 
-                <Divider />
+                {interests.length > 0 ? (
+                    <>
+                        <Divider />
 
-                <Stack spacing={2}>
-                    <Typography
-                        sx={{
-                            fontSize: 24,
-                            fontWeight: 600,
-                        }}
-                    >
-                        Интересы
-                    </Typography>
-                    <Stack spacing={1.25}>
-                        {interests.map((interest) => (
+                        <Stack spacing={2}>
                             <Typography
-                                key={interest}
                                 sx={{
-                                    color: "text.secondary",
-                                    lineHeight: 1.55,
+                                    fontSize: 24,
+                                    fontWeight: 600,
                                 }}
                             >
-                                {interest}
+                                Интересы
                             </Typography>
-                        ))}
-                    </Stack>
-                </Stack>
+                            <Stack spacing={1.25}>
+                                {interests.map((interest) => (
+                                    <Typography
+                                        key={interest}
+                                        sx={{
+                                            color: "text.secondary",
+                                            lineHeight: 1.55,
+                                        }}
+                                    >
+                                        {interest}
+                                    </Typography>
+                                ))}
+                            </Stack>
+                        </Stack>
+                    </>
+                ) : null}
 
                 <Divider />
 
@@ -87,7 +103,7 @@ const ProfileViewSidebar = ({
                             lineHeight: 1.6,
                         }}
                     >
-                        {status}
+                        {status || "Статус пока не заполнен."}
                     </Typography>
                 </Stack>
             </Stack>

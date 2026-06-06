@@ -12,7 +12,19 @@ import {
 
 import { organizerProfile } from "../model/mockData";
 
-export const OrganizerProfileCard = () => {
+type OrganizerProfileCardProps = {
+    name?: string;
+    description?: string | null;
+    contactEmail?: string | null;
+    imageUrl?: string | null;
+};
+
+export const OrganizerProfileCard = ({
+    name = organizerProfile.name,
+    description = organizerProfile.description,
+    contactEmail,
+    imageUrl,
+}: OrganizerProfileCardProps) => {
     return (
         <Paper
             elevation={0}
@@ -25,6 +37,9 @@ export const OrganizerProfileCard = () => {
                 sx={{
                     height: { xs: 140, md: 182 },
                     bgcolor: "#050505",
+                    backgroundImage: imageUrl ? `url(${imageUrl})` : undefined,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
                 }}
             />
 
@@ -77,7 +92,7 @@ export const OrganizerProfileCard = () => {
                                         lineHeight: 1.15,
                                     }}
                                 >
-                                    {organizerProfile.name}
+                                    {name}
                                 </Typography>
                                 <Typography
                                     sx={{
@@ -87,8 +102,20 @@ export const OrganizerProfileCard = () => {
                                         fontSize: 14,
                                     }}
                                 >
-                                    {organizerProfile.description}
+                                    {description ||
+                                        "Описание пока не заполнено."}
                                 </Typography>
+                                {contactEmail ? (
+                                    <Typography
+                                        sx={{
+                                            color: "text.secondary",
+                                            lineHeight: 1.45,
+                                            fontSize: 14,
+                                        }}
+                                    >
+                                        {contactEmail}
+                                    </Typography>
+                                ) : null}
                                 <Stack direction="row" spacing={1}>
                                     <IconButton
                                         sx={{
@@ -117,65 +144,9 @@ export const OrganizerProfileCard = () => {
                                 </Stack>
                             </Stack>
                         </Stack>
-
-                        <Button
-                            variant="contained"
-                            sx={{
-                                minWidth: 120,
-                                height: 32,
-                                borderRadius: 2,
-                                boxShadow: "none",
-                                px: 2.25,
-                                mt: { md: 1.5 },
-                            }}
-                        >
-                            Подписаться
-                        </Button>
                     </Stack>
 
-                    <Stack
-                        direction="row"
-                        spacing={1.5}
-                        alignItems="center"
-                        flexWrap="wrap"
-                        useFlexGap
-                        sx={{
-                            pt: 2,
-                            borderTop: "1px solid #EEF1F5",
-                        }}
-                    >
-                        <Stack
-                            direction="row"
-                            spacing={1.5}
-                            alignItems="center"
-                        >
-                            <AvatarGroup
-                                max={4}
-                                sx={{
-                                    "& .MuiAvatar-root": {
-                                        width: 28,
-                                        height: 28,
-                                        fontSize: 11,
-                                        borderColor: "#FFFFFF",
-                                    },
-                                }}
-                            >
-                                <Avatar sx={{ bgcolor: "#1F6FEB" }}>A</Avatar>
-                                <Avatar sx={{ bgcolor: "#F97316" }}>B</Avatar>
-                                <Avatar sx={{ bgcolor: "#14B8A6" }}>C</Avatar>
-                                <Avatar sx={{ bgcolor: "#6366F1" }}>D</Avatar>
-                            </AvatarGroup>
-                            <Typography
-                                sx={{
-                                    color: "text.secondary",
-                                    fontWeight: 500,
-                                    fontSize: 14,
-                                }}
-                            >
-                                {organizerProfile.followersText}
-                            </Typography>
-                        </Stack>
-                    </Stack>
+
                 </Stack>
             </Box>
         </Paper>

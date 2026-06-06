@@ -1,7 +1,8 @@
-import { Alert, Button, Paper, Stack } from "@mui/material";
-import { useState } from "react";
+﻿import { Alert, Button, Paper, Stack } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { generatePath, useNavigate } from "react-router-dom";
+import { generatePath, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 
 import { createDefaultTeamRole, createEmptyTeamRole } from "../model/defaults";
@@ -33,12 +34,18 @@ import { routePaths } from "@shared/config";
 import { time } from "@shared/lib/time";
 import { ErrorFallback } from "@shared/ui/ErrorFallback";
 import { Loader } from "@shared/ui/Loader";
+import { getEvents, getEventsQueryKey } from "@shared/api/liveApi";
 
 const CreateProjectPage = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const initialEventId = searchParams.get("eventId") ?? "";
     const projectForm = useForm<CreateProjectFormValues>({
         resolver: createProjectResolver,
-        defaultValues: createProjectDefaultValues,
+        defaultValues: {
+            ...createProjectDefaultValues,
+            eventId: initialEventId,
+        },
         mode: "onBlur",
     });
     const [teamRoles, setTeamRoles] = useState<TeamRole[]>([
@@ -47,6 +54,8 @@ const CreateProjectPage = () => {
     const [roleErrors, setRoleErrors] = useState<
         Record<number, TeamRoleErrors>
     >({});
+    const [isSaving, setIsSaving] = useState(false);
+    const submitLockRef = useRef(false);
 
     const {
         data: citiesResponse,
@@ -87,13 +96,23 @@ const CreateProjectPage = () => {
             },
         },
     );
+    const {
+        data: events = [],
+        isLoading: isEventsLoading,
+        error: eventsError,
+        refetch: refetchEvents,
+    } = useQuery({
+        queryKey: getEventsQueryKey(),
+        queryFn: ({ signal }) => getEvents(undefined, signal),
+        staleTime: time.m(5),
+    });
 
     const { mutateAsync: createProject, isPending: isCreatingProject } =
         useProjectsCreateProject();
     const { mutateAsync: createProjectVacancy, isPending: isCreatingVacancy } =
         useProjectsCreateProjectVacancy();
 
-    const isSubmitting = isCreatingProject || isCreatingVacancy;
+    const isSubmitting = isSaving || isCreatingProject || isCreatingVacancy;
     const cities = citiesResponse ?? [];
     const skills = skillsResponse ?? [];
     const teamRoleOptions = teamRoleOptionsResponse ?? [];
@@ -198,77 +217,39 @@ const CreateProjectPage = () => {
         type: values.type,
         format: values.format,
         city_id: values.cityId,
+        ...(values.eventId?.trim() ? { event_id: values.eventId.trim() } : {}),
         ...(values.deadline?.trim()
             ? { deadline: `${values.deadline}T00:00:00` }
             : {}),
     });
 
     const onSubmit = async (values: CreateProjectFormValues) => {
+        if (submitLockRef.current) {
+            return;
+        }
+
         projectForm.clearErrors("root");
 
         if (!validateTeamRoles()) {
             return;
         }
 
+        submitLockRef.current = true;
+        setIsSaving(true);
+
+        let project;
+
         try {
-            const project = await createProject({
+            project = await createProject({
                 data: buildProjectPayload(values),
             });
-
-            const vacancyResults = await Promise.allSettled(
-                teamRoles.map((teamRole) => {
-                    const vacancyPayload: CreateProjectVacancySchema = {
-                        team_role_id: teamRole.role,
-                        required_count: teamRole.requiredCount,
-                        ...(teamRole.description.trim()
-                            ? { description: teamRole.description.trim() }
-                            : {}),
-                    };
-
-                    if (teamRole.skillIds.length > 0) {
-                        vacancyPayload.skill_ids = teamRole.skillIds;
-                    }
-
-                    return createProjectVacancy({
-                        projectId: project.id,
-                        data: vacancyPayload,
-                    });
-                }),
-            );
-            const failedVacanciesCount = vacancyResults.filter(
-                (result) => result.status === "rejected",
-            ).length;
-
-            await queryClient.invalidateQueries({
-                queryKey: getProjectsGetProjectsQueryKey(),
-            });
-
-            navigate(
-                generatePath(routePaths.project, {
-                    id: project.id,
-                }),
-                {
-                    replace: true,
-                    state: {
-                        creationFeedback:
-                            failedVacanciesCount > 0
-                                ? {
-                                      kind: "partial",
-                                      failedVacanciesCount,
-                                      totalVacancies: teamRoles.length,
-                                  }
-                                : {
-                                      kind: "success",
-                                      totalVacancies: teamRoles.length,
-                                  },
-                    },
-                },
-            );
         } catch (error) {
             const status = axios.isAxiosError(error)
                 ? error.response?.status
                 : undefined;
 
+            submitLockRef.current = false;
+            setIsSaving(false);
             projectForm.setError("root", {
                 message:
                     status === HttpStatuses.BAD_REQUEST ||
@@ -276,23 +257,86 @@ const CreateProjectPage = () => {
                         ? "Не удалось создать проект. Проверьте заполнение формы."
                         : "Не удалось сохранить проект. Попробуйте позже.",
             });
+            return;
         }
-    };
 
-    if (isCitiesLoading || isSkillsLoading || isTeamRolesLoading) {
+        const vacancyResults = await Promise.allSettled(
+            teamRoles.map((teamRole) => {
+                const vacancyPayload: CreateProjectVacancySchema = {
+                    team_role_id: teamRole.role,
+                    required_count: teamRole.requiredCount,
+                    ...(teamRole.description.trim()
+                        ? { description: teamRole.description.trim() }
+                        : {}),
+                };
+
+                if (teamRole.skillIds.length > 0) {
+                    vacancyPayload.skill_ids = teamRole.skillIds;
+                }
+
+                return createProjectVacancy({
+                    projectId: project.id,
+                    data: vacancyPayload,
+                });
+            }),
+        );
+        const failedVacanciesCount = vacancyResults.filter(
+            (result) => result.status === "rejected",
+        ).length;
+
+        await queryClient
+            .invalidateQueries({
+                queryKey: getProjectsGetProjectsQueryKey(),
+            })
+            .catch(() => undefined);
+
+        navigate(
+            generatePath(routePaths.project, {
+                id: project.id,
+            }),
+            {
+                replace: true,
+                state: {
+                    creationFeedback:
+                        failedVacanciesCount > 0
+                            ? {
+                                  kind: "partial",
+                                  failedVacanciesCount,
+                                  totalVacancies: teamRoles.length,
+                              }
+                            : {
+                                  kind: "success",
+                                  totalVacancies: teamRoles.length,
+                              },
+                },
+            },
+        );
+    };
+    if (
+        isCitiesLoading ||
+        isSkillsLoading ||
+        isTeamRolesLoading ||
+        isEventsLoading
+    ) {
         return <Loader />;
     }
 
-    if (citiesError || skillsError || teamRolesError) {
+    if (citiesError || skillsError || teamRolesError || eventsError) {
         return (
             <ErrorFallback
                 title="Не удалось загрузить форму проекта"
                 description="Справочники для создания проекта сейчас недоступны. Попробуйте обновить данные."
-                error={(citiesError ?? skillsError ?? teamRolesError) as Error}
+                error={
+                    (citiesError ??
+                        skillsError ??
+                        teamRolesError ??
+                        eventsError) as Error
+                }
                 onRetry={() => {
                     void refetchCities();
                     void refetchSkills();
                     void refetchTeamRoles();
+                    void refetchEvents();
                 }}
             />
         );
@@ -322,6 +366,7 @@ const CreateProjectPage = () => {
                     <CreateProjectBasicsSection
                         form={projectForm}
                         cities={cities}
+                        events={events}
                         isCitiesPending={false}
                         disabled={isSubmitting}
                     />
