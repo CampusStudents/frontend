@@ -1,4 +1,4 @@
-import type { ProfileDetails, ProfileStat, ProfileTimelineItem } from "./types";
+import type { ProfileDetails, ProfileTimelineItem } from "./types";
 
 export const profileDetails: ProfileDetails = {
     initials: "ЕК",
@@ -12,12 +12,6 @@ export const profileDetails: ProfileDetails = {
     telegram: "@egork_front",
     portfolio: "egorkrylov.dev",
 };
-
-export const profileStats: ProfileStat[] = [
-    { label: "Проектов", value: "4" },
-    { label: "Откликов", value: "12" },
-    { label: "В команде", value: "2" },
-];
 
 export const profileSkills = [
     "React",

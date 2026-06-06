@@ -1,9 +1,16 @@
 import { Controller, type UseFormReturn } from "react-hook-form";
-import { MenuItem, Stack, TextField, Typography } from "@mui/material";
+import {
+    Autocomplete,
+    MenuItem,
+    Stack,
+    TextField,
+    Typography,
+} from "@mui/material";
 
 import type { CreateProjectFormValues } from "../model/createProjectForm";
 
 import type { CityDTO } from "@shared/api/generated/model";
+import type { EventDTO } from "@shared/api/liveApi";
 import { fieldHelper } from "@shared/lib/form";
 
 const selectMenuProps = {
@@ -31,6 +38,7 @@ const projectFormatOptions = [
 type CreateProjectBasicsSectionProps = {
     form: UseFormReturn<CreateProjectFormValues>;
     cities: CityDTO[];
+    events: EventDTO[];
     isCitiesPending: boolean;
     disabled?: boolean;
 };
@@ -38,6 +46,7 @@ type CreateProjectBasicsSectionProps = {
 const CreateProjectBasicsSection = ({
     form,
     cities,
+    events,
     isCitiesPending,
     disabled = false,
 }: CreateProjectBasicsSectionProps) => {
@@ -74,6 +83,41 @@ const CreateProjectBasicsSection = ({
                     error={Boolean(errors.title)}
                     helperText={fieldHelper(errors.title?.message)}
                 />
+                <Controller
+                    control={control}
+                    name="eventId"
+                    render={({ field }) => (
+                        <Autocomplete
+                            options={events}
+                            value={
+                                events.find(
+                                    (event) => event.id === field.value,
+                                ) ?? null
+                            }
+                            getOptionLabel={(event) => event.title}
+                            isOptionEqualToValue={(option, value) =>
+                                option.id === value.id
+                            }
+                            disabled={disabled}
+                            onChange={(_, value) =>
+                                field.onChange(value?.id ?? "")
+                            }
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Мероприятие"
+                                    placeholder="Найти мероприятие"
+                                    size="small"
+                                    error={Boolean(errors.eventId)}
+                                    helperText={
+                                        fieldHelper(errors.eventId?.message) ||
+                                        "Можно оставить пустым"
+                                    }
+                                />
+                            )}
+                        />
+                    )}
+                />
                 <TextField
                     {...deadline}
                     inputRef={deadlineRef}
@@ -94,7 +138,7 @@ const CreateProjectBasicsSection = ({
                     {...description}
                     inputRef={descriptionRef}
                     label="Описание"
-                    placeholder="Расскажите кратко о проекте, цели и формате участия."
+                    placeholder="Расскажите кратко о проекте, целях и формате участия."
                     fullWidth
                     multiline
                     minRows={4}

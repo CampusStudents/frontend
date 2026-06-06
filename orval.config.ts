@@ -1,12 +1,14 @@
 import { defineConfig } from "orval";
-import dotenv from "dotenv";
+import * as dotenv from "dotenv";
 
 dotenv.config();
+
+const apiUrl = process.env.VITE_API_URL || "http://localhost";
 
 export default defineConfig({
     api: {
         input: {
-            target: `${process.env.VITE_API_URL}/openapi.json`,
+            target: `${apiUrl}/api/openapi.json`,
         },
         output: {
             target: "./src/shared/api/generated",

@@ -12,9 +12,13 @@ export type ProjectDetails = {
     requirementsTitle: string;
     requirementsFooter: string;
     eventTitle: string;
+    eventDescription: string[];
+    eventOrganizer: string;
+    eventDate: string;
+    eventFormat: string;
+    eventRegistrationLink: string | null;
     linkLabel: string;
     galleryTitle: string;
-    heroImage: string;
     gallery: string[];
 };
 

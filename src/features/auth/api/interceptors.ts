@@ -37,10 +37,12 @@ export const beforeRequest = (config: InternalAxiosRequestConfig) => {
 
 export const onResponseError = async (error: AxiosError) => {
     const originalRequest = error.config as RetriableConfig | undefined;
+    const token = tokenStorage.get();
 
     if (
         !originalRequest ||
         originalRequest._retry ||
+        !token ||
         error.response?.status !== HttpStatuses.UNAUTHORIZED
     ) {
         return Promise.reject(error);
