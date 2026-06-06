@@ -9,14 +9,14 @@ import ProjectSwipeDeck from "./project-swipe-deck/ProjectSwipeDeck";
 import { ProjectCard, mapProjectDtoToProjectCard } from "@entities/project";
 import { useFavorites } from "@features/favorites";
 import { useCitiesGetCities, useProjectsGetProjects } from "@shared/api";
+import { getEvents, getEventsQueryKey } from "@shared/api/liveApi";
+import type { EventDTO } from "@shared/api/liveApi";
 import { routePaths } from "@shared/config";
 import { time } from "@shared/lib/time";
-import { ContentFilters } from "@widgets/ContentFilters";
 import { EmptyState } from "@shared/ui/EmptyState";
 import { ErrorFallback } from "@shared/ui/ErrorFallback";
 import { Loader } from "@shared/ui/Loader";
-import { getEvents, getEventsQueryKey } from "@shared/api/liveApi";
-import type { EventDTO } from "@shared/api/liveApi";
+import { ContentFilters } from "@widgets/ContentFilters";
 
 const emptyEvents: never[] = [];
 
@@ -34,13 +34,12 @@ const formatEventDate = (value: string) => {
     }).format(date);
 };
 
-const HomeEventCard = ({
-    event,
-    onClick,
-}: {
+type HomeEventCardProps = {
     event: EventDTO;
     onClick: () => void;
-}) => (
+};
+
+const HomeEventCard = ({ event, onClick }: HomeEventCardProps) => (
     <Paper
         elevation={0}
         onClick={onClick}
@@ -102,7 +101,9 @@ const HomeEventCard = ({
                     fontSize: { xs: 13, sm: 14 },
                 }}
             >
-                {[event.organizer?.name, event.format].filter(Boolean).join(" | ")}
+                {[event.organizer?.name, event.format]
+                    .filter(Boolean)
+                    .join(" | ")}
             </Typography>
 
             <Button
@@ -200,8 +201,8 @@ const HomePage = () => {
     if (error || citiesError || eventsError) {
         return (
             <ErrorFallback
-                title="Не удалось загрузить проекты"
-                description="Список проектов сейчас недоступен. Попробуйте обновить данные."
+                title="Не удалось загрузить данные"
+                description="Список сейчас недоступен. Попробуйте обновить данные."
                 error={(error ?? citiesError ?? eventsError) as AxiosError}
                 onRetry={() => {
                     void refetch();
@@ -218,6 +219,7 @@ const HomePage = () => {
                 <ContentFilters
                     selectedView={selectedView}
                     projectCount={projects.length}
+                    eventCount={events.length}
                     searchValue={searchValue}
                     onViewChange={setSelectedView}
                     onSearchChange={setSearchValue}
@@ -226,7 +228,23 @@ const HomePage = () => {
                     }}
                 />
 
-                {projectCards.length > 0 ? (
+                {selectedView === "events" && events.length > 0 ? (
+                    <Stack spacing={3}>
+                        {events.map((event) => (
+                            <HomeEventCard
+                                key={event.id}
+                                event={event}
+                                onClick={() =>
+                                    navigate(
+                                        generatePath(routePaths.event, {
+                                            id: event.id,
+                                        }),
+                                    )
+                                }
+                            />
+                        ))}
+                    </Stack>
+                ) : selectedView === "projects" && projectCards.length > 0 ? (
                     <Stack spacing={3}>
                         {projectCards.map(({ card, tags }) => (
                             <ProjectCard
@@ -256,13 +274,19 @@ const HomePage = () => {
                     </Stack>
                 ) : (
                     <EmptyState
-                        title="Здесь пока пусто, но это отличный шанс стать первым!"
-                        description="Сейчас здесь тихо, но это временно. Видимо, команды пока собираются с мыслями и дедлайнами."
+                        title="Здесь пока пусто"
+                        description={
+                            selectedView === "events"
+                                ? "Мероприятий пока нет."
+                                : "Проекты пока не опубликованы."
+                        }
                     />
                 )}
             </Stack>
 
-            <ProjectSwipeDeck items={projectCards} />
+            {selectedView === "projects" ? (
+                <ProjectSwipeDeck items={projectCards} />
+            ) : null}
         </>
     );
 };
