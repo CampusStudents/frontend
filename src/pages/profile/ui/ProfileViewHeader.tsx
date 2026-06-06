@@ -1,21 +1,21 @@
 import { EmailOutlined, LanguageRounded, Telegram } from "@mui/icons-material";
 import { Avatar, Button, Link, Paper, Stack, Typography } from "@mui/material";
 
-import type { ProfileDetails } from "../model/types";
+import type { ProfileDetails, ProfileStat } from "../model/types";
 
 import { profileCardSx } from "./profileCardSx";
 
 type ProfileViewHeaderProps = {
     details: ProfileDetails;
+    stats: ProfileStat[];
     onEdit: () => void;
 };
 
-const ProfileViewHeader = ({ details, onEdit }: ProfileViewHeaderProps) => {
-    const portfolioHref = /^https?:\/\//.test(details.portfolio)
-        ? details.portfolio
-        : `https://${details.portfolio}`;
-    const telegramLogin = details.telegram.replace("@", "");
-
+const ProfileViewHeader = ({
+    details,
+    stats,
+    onEdit,
+}: ProfileViewHeaderProps) => {
     return (
         <Paper elevation={0} sx={{ ...profileCardSx, bgcolor: "#FFFFFF" }}>
             <Stack spacing={3}>
@@ -54,13 +54,19 @@ const ProfileViewHeader = ({ details, onEdit }: ProfileViewHeaderProps) => {
                             </Typography>
                             <Typography
                                 sx={{
+                                    fontSize: 16,
+                                    color: "text.secondary",
+                                }}
+                            >
+                                {details.role}
+                            </Typography>
+                            <Typography
+                                sx={{
                                     fontSize: 14,
                                     color: "text.secondary",
                                 }}
                             >
-                                {[details.city, details.university]
-                                    .filter(Boolean)
-                                    .join(" | ")}
+                                {`${details.city} | ${details.format} | ${details.university}`}
                             </Typography>
                         </Stack>
                     </Stack>
@@ -84,26 +90,77 @@ const ProfileViewHeader = ({ details, onEdit }: ProfileViewHeaderProps) => {
                         lineHeight: 1.6,
                     }}
                 >
-                    {details.bio || "Описание пока не заполнено."}
+                    {details.bio}
                 </Typography>
 
-                <Stack spacing={1} alignItems="flex-start">
-                    <Link
-                        href={`mailto:${details.email}`}
-                        underline="hover"
-                        color="text.secondary"
-                        sx={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 1,
-                        }}
+                <Stack
+                    direction={{ xs: "column", md: "row" }}
+                    spacing={2}
+                    justifyContent="space-between"
+                >
+                    <Stack
+                        direction="row"
+                        alignItems="center"
+                        flexWrap="nowrap"
+                        useFlexGap={false}
+                        sx={{ overflowX: "auto" }}
                     >
-                        <EmailOutlined sx={{ fontSize: 18 }} />
-                        {details.email}
-                    </Link>
-                    {details.telegram ? (
+                        {stats.map((item, index) => (
+                            <Typography
+                                key={item.label}
+                                component="span"
+                                sx={{
+                                    flexShrink: 0,
+                                    fontSize: 16,
+                                    lineHeight: 1.4,
+                                    whiteSpace: "nowrap",
+                                    color: "text.secondary",
+                                }}
+                            >
+                                <Typography
+                                    component="span"
+                                    sx={{
+                                        fontSize: 24,
+                                        fontWeight: 600,
+                                        lineHeight: 1.1,
+                                        color: "text.primary",
+                                        mr: 0.75,
+                                    }}
+                                >
+                                    {item.value}
+                                </Typography>
+                                {item.label}
+                                {index < stats.length - 1 ? (
+                                    <Typography
+                                        component="span"
+                                        sx={{
+                                            color: "divider",
+                                            mx: 1.5,
+                                        }}
+                                    >
+                                        |
+                                    </Typography>
+                                ) : null}
+                            </Typography>
+                        ))}
+                    </Stack>
+
+                    <Stack spacing={1}>
                         <Link
-                            href={`https://t.me/${telegramLogin}`}
+                            href={`mailto:${details.email}`}
+                            underline="hover"
+                            color="text.secondary"
+                            sx={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 1,
+                            }}
+                        >
+                            <EmailOutlined sx={{ fontSize: 18 }} />
+                            {details.email}
+                        </Link>
+                        <Link
+                            href={`https://t.me/${details.telegram.replace("@", "")}`}
                             underline="hover"
                             color="text.secondary"
                             sx={{
@@ -115,10 +172,8 @@ const ProfileViewHeader = ({ details, onEdit }: ProfileViewHeaderProps) => {
                             <Telegram sx={{ fontSize: 18 }} />
                             {details.telegram}
                         </Link>
-                    ) : null}
-                    {details.portfolio ? (
                         <Link
-                            href={portfolioHref}
+                            href={`https://${details.portfolio}`}
                             underline="hover"
                             color="text.secondary"
                             sx={{
@@ -130,7 +185,7 @@ const ProfileViewHeader = ({ details, onEdit }: ProfileViewHeaderProps) => {
                             <LanguageRounded sx={{ fontSize: 18 }} />
                             {details.portfolio}
                         </Link>
-                    ) : null}
+                    </Stack>
                 </Stack>
             </Stack>
         </Paper>

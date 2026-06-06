@@ -24,19 +24,8 @@ const ProfileViewExperienceSection = ({
                 </Typography>
 
                 <Stack spacing={2}>
-                    {timeline.length === 0 ? (
-                        <Typography
-                            sx={{
-                                color: "text.secondary",
-                                lineHeight: 1.6,
-                            }}
-                        >
-                            Опыт пока не заполнен.
-                        </Typography>
-                    ) : null}
-
                     {timeline.map((item, index) => (
-                        <Stack key={`${item.title}-${index}`} spacing={1.25}>
+                        <Stack key={item.title} spacing={1.25}>
                             <Stack
                                 direction={{ xs: "column", sm: "row" }}
                                 justifyContent="space-between"

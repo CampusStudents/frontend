@@ -78,13 +78,7 @@ const ProjectSwipeZone = ({ open, items, onClose }: ProjectSwipeZoneProps) => {
                 }
 
                 if (direction === "right") {
-                    addFavorite(currentCard.card.id).catch(() => {
-                        setToast({
-                            open: true,
-                            title: currentCard.card.title,
-                            message: "Не удалось добавить проект в избранное.",
-                        });
-                    });
+                    addFavorite(currentCard.card.id);
                     setToast({
                         open: true,
                         title: currentCard.card.title,

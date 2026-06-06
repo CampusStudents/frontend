@@ -7,7 +7,6 @@ import type {
     TeamMemberDTO,
     TeamRoleDTO,
 } from "@shared/api/generated/model";
-import type { EventDTO } from "@shared/api/liveApi";
 
 const projectTypeLabels = {
     commercial: "Коммерческий проект",
@@ -22,10 +21,7 @@ const projectFormatLabels = {
     online: "Онлайн",
 } as const;
 
-const eventFormatLabels: Record<string, string> = {
-    offline: "Оффлайн",
-    online: "Онлайн",
-};
+const fallbackHeroImage = "/logo.svg";
 
 const formatProjectDate = (value: string) => {
     const date = new Date(value);
@@ -63,49 +59,15 @@ const formatProjectDateBadge = (value: string) => {
     };
 };
 
-const formatEventPeriod = (event?: EventDTO | null) => {
-    if (!event) {
-        return "";
-    }
-
-    const start = new Date(event.date_start);
-    const end = new Date(event.date_end);
-
-    if (Number.isNaN(start.getTime())) {
-        return "";
-    }
-
-    const date = new Intl.DateTimeFormat("ru-RU", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-    }).format(start);
-
-    if (Number.isNaN(end.getTime())) {
-        return date;
-    }
-
-    const timeFormatter = new Intl.DateTimeFormat("ru-RU", {
-        hour: "2-digit",
-        minute: "2-digit",
-    });
-
-    return `${date}, ${timeFormatter.format(start)} - ${timeFormatter.format(end)}`;
-};
-
 export const mapProjectDtoToDetails = (
     project: ProjectDTO,
     cities: CityDTO[],
     teamMembers: TeamMemberDTO[],
-    event?: EventDTO | null,
 ): ProjectDetails => {
     const cityName =
         cities.find((city) => city.id === project.city_id)?.name ??
         "Город не указан";
     const { day, month } = formatProjectDateBadge(project.created_at);
-    const eventTitle = event?.title ?? "Связанное мероприятие";
-    const eventDescription =
-        event?.description?.trim() || "Описание мероприятия пока не заполнено.";
 
     return {
         eventId: project.event_id ?? null,
@@ -126,17 +88,11 @@ export const mapProjectDtoToDetails = (
             teamMembers.length > 0
                 ? `Сейчас в команде ${teamMembers.length} участник(ов)`
                 : "Команда пока формируется",
-        eventTitle,
-        eventDescription: [eventDescription],
-        eventOrganizer: event?.organizer?.name ?? "Организатор не указан",
-        eventDate: formatEventPeriod(event),
-        eventFormat: event?.format
-            ? (eventFormatLabels[event.format] ?? event.format)
-            : "",
-        eventRegistrationLink: event?.registration_link ?? null,
+        eventTitle: "Связанное мероприятие",
         linkLabel: "Открыть страницу мероприятия",
-        galleryTitle: "Материалы мероприятия",
-        gallery: event?.images?.map((image) => image.url) ?? [],
+        galleryTitle: "Материалы и медиа",
+        heroImage: fallbackHeroImage,
+        gallery: [],
     };
 };
 
