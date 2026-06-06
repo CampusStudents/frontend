@@ -1,4 +1,5 @@
-import { Stack } from "@mui/material";
+import { Button, Paper, Stack, Typography } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
@@ -6,6 +7,7 @@ import type { AxiosError } from "axios";
 import ProjectSwipeDeck from "./project-swipe-deck/ProjectSwipeDeck";
 
 import { ProjectCard, mapProjectDtoToProjectCard } from "@entities/project";
+import { useFavorites } from "@features/favorites";
 import { useCitiesGetCities, useProjectsGetProjects } from "@shared/api";
 import { routePaths } from "@shared/config";
 import { time } from "@shared/lib/time";
@@ -13,12 +15,121 @@ import { ContentFilters } from "@widgets/ContentFilters";
 import { EmptyState } from "@shared/ui/EmptyState";
 import { ErrorFallback } from "@shared/ui/ErrorFallback";
 import { Loader } from "@shared/ui/Loader";
+import { getEvents, getEventsQueryKey } from "@shared/api/liveApi";
+import type { EventDTO } from "@shared/api/liveApi";
+
+const emptyEvents: never[] = [];
+
+const formatEventDate = (value: string) => {
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "Дата не указана";
+    }
+
+    return new Intl.DateTimeFormat("ru-RU", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+    }).format(date);
+};
+
+const HomeEventCard = ({
+    event,
+    onClick,
+}: {
+    event: EventDTO;
+    onClick: () => void;
+}) => (
+    <Paper
+        elevation={0}
+        onClick={onClick}
+        sx={{
+            borderRadius: 1.5,
+            px: { xs: 1.5, sm: 2, md: 2.5 },
+            py: { xs: 1.75, sm: 2, md: 2.75 },
+            cursor: "pointer",
+            transition:
+                "transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease",
+            "@media (hover: hover)": {
+                "&:hover": {
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 12px 32px rgba(19, 21, 23, 0.08)",
+                },
+            },
+        }}
+    >
+        <Stack spacing={1.5}>
+            <Typography
+                sx={{
+                    color: "text.secondary",
+                    fontSize: { xs: 13, sm: 14 },
+                }}
+            >
+                {formatEventDate(event.date_start)}
+            </Typography>
+
+            <Typography
+                sx={{
+                    fontSize: { xs: 20, sm: 22, md: 26 },
+                    fontWeight: 500,
+                    lineHeight: 1.2,
+                    wordBreak: "break-word",
+                }}
+            >
+                {event.title}
+            </Typography>
+
+            <Typography
+                sx={{
+                    maxWidth: 820,
+                    color: "text.secondary",
+                    lineHeight: 1.5,
+                    fontSize: { xs: 14, sm: 15, md: 16 },
+                    display: "-webkit-box",
+                    WebkitLineClamp: { xs: 3, md: 4 },
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                }}
+            >
+                {event.description || "Описание мероприятия пока не заполнено."}
+            </Typography>
+
+            <Typography
+                variant="body2"
+                sx={{
+                    color: "text.secondary",
+                    fontSize: { xs: 13, sm: 14 },
+                }}
+            >
+                {[event.organizer?.name, event.format].filter(Boolean).join(" | ")}
+            </Typography>
+
+            <Button
+                variant="outlined"
+                onClick={(clickEvent) => {
+                    clickEvent.stopPropagation();
+                    onClick();
+                }}
+                sx={{
+                    alignSelf: "flex-start",
+                    height: 40,
+                    borderRadius: 2,
+                }}
+            >
+                Подробнее
+            </Button>
+        </Stack>
+    </Paper>
+);
 
 const HomePage = () => {
     const navigate = useNavigate();
     const [selectedView, setSelectedView] = useState("projects");
     const [searchValue, setSearchValue] = useState("");
     const [submittedSearchValue, setSubmittedSearchValue] = useState("");
+    const { addFavorite, removeFavorite, isFavorite, isPending } =
+        useFavorites();
 
     useEffect(() => {
         const timeoutId = window.setTimeout(() => {
@@ -59,26 +170,43 @@ const HomePage = () => {
             },
         },
     );
+    const {
+        data: eventsResponse,
+        isLoading: isEventsLoading,
+        error: eventsError,
+        refetch: refetchEvents,
+    } = useQuery({
+        queryKey: getEventsQueryKey(),
+        queryFn: ({ signal }) => getEvents(undefined, signal),
+        staleTime: time.m(5),
+    });
 
     const projects = projectsResponse ?? [];
     const cities = citiesResponse ?? [];
+    const events = eventsResponse ?? emptyEvents;
+    const eventsById = useMemo(
+        () =>
+            Object.fromEntries(events.map((event) => [event.id, event.title])),
+        [events],
+    );
     const projectCards = projects.map((project) =>
-        mapProjectDtoToProjectCard(project, cities),
+        mapProjectDtoToProjectCard(project, cities, eventsById),
     );
 
-    if (isLoading || isCitiesLoading) {
+    if (isLoading || isCitiesLoading || isEventsLoading) {
         return <Loader />;
     }
 
-    if (error || citiesError) {
+    if (error || citiesError || eventsError) {
         return (
             <ErrorFallback
                 title="Не удалось загрузить проекты"
                 description="Список проектов сейчас недоступен. Попробуйте обновить данные."
-                error={(error ?? citiesError) as AxiosError}
+                error={(error ?? citiesError ?? eventsError) as AxiosError}
                 onRetry={() => {
                     void refetch();
                     void refetchCities();
+                    void refetchEvents();
                 }}
             />
         );
@@ -105,6 +233,17 @@ const HomePage = () => {
                                 key={card.id}
                                 card={card}
                                 tags={tags}
+                                hideImage
+                                isFavorite={isFavorite(card.id)}
+                                isFavoritePending={isPending}
+                                onToggleFavorite={() => {
+                                    if (isFavorite(card.id)) {
+                                        void removeFavorite(card.id);
+                                        return;
+                                    }
+
+                                    void addFavorite(card.id);
+                                }}
                                 onClick={() =>
                                     navigate(
                                         generatePath(routePaths.project, {

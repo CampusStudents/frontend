@@ -74,9 +74,9 @@ Campus - веб-приложение для поиска команд для с�
 cp .env.example .env
 ```
 
-| Переменная     | Описание                        | Пример                      |
-| -------------- | ------------------------------- | --------------------------- |
-| `VITE_API_URL` | Базовый URL backend API сервера | `http://localhost:8000/api` |
+| Переменная     | Описание                        | Пример             |
+| -------------- | ------------------------------- | ------------------ |
+| `VITE_API_URL` | Базовый URL backend API сервера | `http://localhost` |
 
 Переменные с префиксом `VITE_` доступны в клиентском коде через `import.meta.env`.
 
@@ -128,7 +128,7 @@ npm run test:e2e
 
 ## Как это работает
 
-1. Orval читает OpenAPI-схему с backend'а по адресу `$VITE_API_URL/openapi.json`
+1. Orval читает OpenAPI-схему с backend'а по адресу `$VITE_API_URL/api/openapi.json`
 2. Генерирует готовые к использованию хуки (`useQuery` / `useMutation`), типы моделей и MSW-моки
 3. Сгенерированный код попадает в `src/shared/api/generated/`
 
@@ -146,7 +146,7 @@ npm run generate:api
 npm run generate:api:watch
 ```
 
-> Для работы команд backend-сервер должен быть запущен и отдавать `/openapi.json`.
+> Для работы команд backend-сервер должен быть запущен и отдавать `/api/openapi.json`.
 
 ## Структура сгенерированных файлов
 

@@ -1,29 +1,30 @@
 import { Alert, Stack } from "@mui/material";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import type { AxiosError } from "axios";
 
-import {
-    profileDetails,
-    profileInterests,
-    profileSkills,
-    profileStats,
-    profileStatus,
-    profileTimeline,
-} from "../model/mockData";
 import type { ProfileDetails, ProfileTimelineItem } from "../model/types";
 
 import {
     getAuthGetUserQueryKey,
-    getUsersGetMyProfileQueryKey,
     queryClient,
     useAuthGetUser,
     useCitiesGetCities,
+    useSkillsGetSkills,
     useUniversitiesGetUniversities,
-    useUsersGetMyProfile,
-    useUsersUpdateMyProfile,
 } from "@shared/api";
 import type { UserDTO } from "@shared/api/generated/model";
+import {
+    getMyPortfolioItems,
+    getMyPortfolioItemsQueryKey,
+    getMyProfile,
+    getMyProfileQueryKey,
+    getMySkills,
+    getMySkillsQueryKey,
+    replaceMySkills,
+    updateMyProfile,
+} from "@shared/api/liveApi";
 import { ErrorFallback } from "@shared/ui/ErrorFallback";
 import { Loader } from "@shared/ui/Loader";
 
@@ -34,6 +35,19 @@ import ProfileEditHeader from "./ProfileEditHeader";
 import ProfileViewExperienceSection from "./ProfileViewExperienceSection";
 import ProfileViewHeader from "./ProfileViewHeader";
 import ProfileViewSidebar from "./ProfileViewSidebar";
+
+const emptyDetails: ProfileDetails = {
+    initials: "",
+    fullName: "",
+    city: "",
+    university: "",
+    bio: "",
+    email: "",
+    telegram: "",
+    portfolio: "",
+};
+
+const emptyList: never[] = [];
 
 const deriveInitials = (fullName: string) =>
     fullName
@@ -50,37 +64,70 @@ const createEmptyTimelineItem = (): ProfileTimelineItem => ({
     description: "",
 });
 
-const getRoleLabel = (roles?: string[]) => {
-    if (!roles?.length) {
-        return "Студент";
-    }
-
-    return roles[0];
-};
-
-const getFullNameParts = (fullName: string, fallback: ProfileDetails) => {
+const getFullNameParts = (fullName: string) => {
     const parts = fullName.trim().split(/\s+/).filter(Boolean);
-    const fallbackParts = fallback.fullName.trim().split(/\s+/).filter(Boolean);
 
     return {
-        firstName: parts[0] || fallbackParts[0] || "Имя",
-        lastName: parts.slice(1).join(" ") || fallbackParts[1] || "Фамилия",
+        firstName: parts[0] || "Имя",
+        lastName: parts.slice(1).join(" ") || "Фамилия",
     };
+};
+
+const formatDate = (value?: string | null) => {
+    if (!value) {
+        return "";
+    }
+
+    return new Intl.DateTimeFormat("ru-RU", {
+        month: "long",
+        year: "numeric",
+    }).format(new Date(value));
+};
+
+const formatPeriod = (startedAt?: string | null, endedAt?: string | null) => {
+    const start = formatDate(startedAt);
+    const end = endedAt ? formatDate(endedAt) : "сейчас";
+
+    if (!start && !endedAt) {
+        return "";
+    }
+
+    if (!start) {
+        return end;
+    }
+
+    return `${start} - ${end}`;
+};
+
+const normalizeSite = (value: string) => {
+    const trimmedValue = value.trim();
+
+    if (!trimmedValue) {
+        return null;
+    }
+
+    if (/^https?:\/\//.test(trimmedValue)) {
+        return trimmedValue;
+    }
+
+    return `https://${trimmedValue}`;
 };
 
 const ProfilePage = () => {
     const [isEditing, setIsEditing] = useState(false);
-    const [details, setDetails] = useState<ProfileDetails>(profileDetails);
-    const [skills, setSkills] = useState(profileSkills);
-    const [interests, setInterests] = useState(profileInterests);
-    const [status, setStatus] = useState(profileStatus);
-    const [timeline, setTimeline] = useState(profileTimeline);
+    const [details, setDetails] = useState<ProfileDetails>(emptyDetails);
+    const [skills, setSkills] = useState<string[]>([]);
+    const [interests, setInterests] = useState<string[]>([]);
+    const [status, setStatus] = useState("");
+    const [timeline, setTimeline] = useState<ProfileTimelineItem[]>([]);
     const [draftDetails, setDraftDetails] =
-        useState<ProfileDetails>(profileDetails);
-    const [draftSkills, setDraftSkills] = useState(profileSkills);
-    const [draftInterests, setDraftInterests] = useState(profileInterests);
-    const [draftStatus, setDraftStatus] = useState(profileStatus);
-    const [draftTimeline, setDraftTimeline] = useState(profileTimeline);
+        useState<ProfileDetails>(emptyDetails);
+    const [draftSkills, setDraftSkills] = useState<string[]>([]);
+    const [draftInterests, setDraftInterests] = useState<string[]>([]);
+    const [draftStatus, setDraftStatus] = useState("");
+    const [draftTimeline, setDraftTimeline] = useState<ProfileTimelineItem[]>(
+        [],
+    );
     const [skillInput, setSkillInput] = useState("");
     const [interestInput, setInterestInput] = useState("");
     const [saveError, setSaveError] = useState("");
@@ -97,10 +144,33 @@ const ProfilePage = () => {
         isLoading: isProfileLoading,
         error: profileError,
         refetch: refetchProfile,
-    } = useUsersGetMyProfile();
+    } = useQuery({
+        queryKey: getMyProfileQueryKey(),
+        queryFn: ({ signal }) => getMyProfile(signal),
+    });
 
     const {
-        data: cities = [],
+        data: profileSkillsData,
+        isLoading: isProfileSkillsLoading,
+        error: profileSkillsError,
+        refetch: refetchProfileSkills,
+    } = useQuery({
+        queryKey: getMySkillsQueryKey(),
+        queryFn: ({ signal }) => getMySkills(signal),
+    });
+
+    const {
+        data: portfolioItemsData,
+        isLoading: isPortfolioLoading,
+        error: portfolioError,
+        refetch: refetchPortfolio,
+    } = useQuery({
+        queryKey: getMyPortfolioItemsQueryKey(),
+        queryFn: ({ signal }) => getMyPortfolioItems(signal),
+    });
+
+    const {
+        data: citiesData,
         isLoading: isCitiesLoading,
         error: citiesError,
         refetch: refetchCities,
@@ -114,7 +184,7 @@ const ProfilePage = () => {
     );
 
     const {
-        data: universities = [],
+        data: universitiesData,
         isLoading: isUniversitiesLoading,
         error: universitiesError,
         refetch: refetchUniversities,
@@ -127,7 +197,33 @@ const ProfilePage = () => {
         },
     );
 
-    const updateProfileMutation = useUsersUpdateMyProfile();
+    const {
+        data: allSkillsData,
+        isLoading: isAllSkillsLoading,
+        error: allSkillsError,
+        refetch: refetchAllSkills,
+    } = useSkillsGetSkills(
+        { limit: 100 },
+        {
+            query: {
+                staleTime: 5 * 60 * 1000,
+            },
+        },
+    );
+
+    const updateProfileMutation = useMutation({
+        mutationFn: updateMyProfile,
+    });
+
+    const replaceSkillsMutation = useMutation({
+        mutationFn: replaceMySkills,
+    });
+
+    const profileSkills = profileSkillsData ?? emptyList;
+    const portfolioItems = portfolioItemsData ?? emptyList;
+    const cities = citiesData ?? emptyList;
+    const universities = universitiesData ?? emptyList;
+    const allSkills = allSkillsData ?? emptyList;
 
     useEffect(() => {
         if (!profile) {
@@ -143,27 +239,40 @@ const ProfilePage = () => {
         const nextDetails: ProfileDetails = {
             initials: deriveInitials(fullName),
             fullName,
-            role: getRoleLabel(user?.roles),
             city: city?.name ?? "",
-            format: profileDetails.format,
             university: university?.short_name || university?.name || "",
             bio: profile.bio ?? "",
             email: user?.email ?? "",
-            telegram: details.telegram,
-            portfolio: details.portfolio,
+            telegram: profile.telegram ?? "",
+            portfolio: profile.site ?? "",
         };
+        const nextSkills = profileSkills.map((skill) => skill.name);
+        const nextTimeline = portfolioItems.map((item) => ({
+            title: item.title,
+            period: formatPeriod(item.work_started_at, item.work_ended_at),
+            description: item.description ?? item.team_role.name,
+        }));
+        const nextStatus = profile.status ?? "";
 
         setDetails(nextDetails);
+        setSkills(nextSkills);
+        setInterests([]);
+        setStatus(nextStatus);
+        setTimeline(nextTimeline);
 
         if (!isEditing) {
             setDraftDetails(nextDetails);
+            setDraftSkills(nextSkills);
+            setDraftInterests([]);
+            setDraftStatus(nextStatus);
+            setDraftTimeline(nextTimeline);
         }
     }, [
         cities,
-        details.portfolio,
-        details.telegram,
         isEditing,
+        portfolioItems,
         profile,
+        profileSkills,
         universities,
         user,
     ]);
@@ -183,6 +292,24 @@ const ProfilePage = () => {
 
         setItems((current) => [...current, trimmedValue]);
         clearInput();
+    };
+
+    const addSkill = () => {
+        const skill = allSkills.find(
+            (item) =>
+                item.name.toLowerCase() === skillInput.trim().toLowerCase(),
+        );
+
+        if (!skill) {
+            setSaveError("Такого навыка нет в справочнике.");
+            setSkillInput("");
+            return;
+        }
+
+        setSaveError("");
+        addChip(skill.name, draftSkills, setDraftSkills, () =>
+            setSkillInput(""),
+        );
     };
 
     const removeChip = (
@@ -221,50 +348,70 @@ const ProfilePage = () => {
 
         setSaveError("");
 
-        const { firstName, lastName } = getFullNameParts(
-            draftDetails.fullName,
-            details,
-        );
+        const { firstName, lastName } = getFullNameParts(draftDetails.fullName);
         const city = cities.find((item) => item.name === draftDetails.city);
         const university = universities.find(
             (item) =>
                 item.name === draftDetails.university ||
                 item.short_name === draftDetails.university,
         );
+        const skillIds = draftSkills
+            .map(
+                (skillName) =>
+                    allSkills.find((skill) => skill.name === skillName)?.id,
+            )
+            .filter((skillId): skillId is string => Boolean(skillId));
+
+        if (skillIds.length !== draftSkills.length) {
+            setSaveError("Можно сохранять только навыки из справочника.");
+            return;
+        }
 
         try {
-            const updatedProfile = await updateProfileMutation.mutateAsync({
-                data: {
-                    first_name: firstName,
-                    last_name: lastName,
-                    bio: draftDetails.bio.trim() || null,
-                    city_id: city?.id ?? profile.city_id,
-                    university_id: university?.id ?? profile.university_id,
-                },
+            await updateProfileMutation.mutateAsync({
+                first_name: firstName,
+                last_name: lastName,
+                bio: draftDetails.bio.trim() || null,
+                status: draftStatus.trim() || null,
+                telegram: draftDetails.telegram.trim() || null,
+                site: normalizeSite(draftDetails.portfolio),
+                city_id: city?.id ?? profile.city_id,
+                university_id: university?.id ?? profile.university_id,
             });
 
-            const savedFullName =
-                `${updatedProfile.first_name} ${updatedProfile.last_name}`.trim();
+            const savedSkills = await replaceSkillsMutation.mutateAsync({
+                skill_ids: skillIds,
+            });
 
+            await Promise.all([
+                queryClient.invalidateQueries({
+                    queryKey: getMyProfileQueryKey(),
+                }),
+                queryClient.invalidateQueries({
+                    queryKey: getMySkillsQueryKey(),
+                }),
+                queryClient.invalidateQueries({
+                    queryKey: getMyPortfolioItemsQueryKey(),
+                }),
+                queryClient.invalidateQueries({
+                    queryKey: getAuthGetUserQueryKey(),
+                }),
+            ]);
+
+            const savedFullName = `${firstName} ${lastName}`.trim();
             setDetails({
                 ...draftDetails,
-                initials: deriveInitials(savedFullName) || details.initials,
+                initials: deriveInitials(savedFullName),
                 fullName: savedFullName,
                 city: city?.name ?? draftDetails.city,
                 university:
                     university?.short_name ||
                     university?.name ||
                     draftDetails.university,
-                bio: updatedProfile.bio ?? "",
+                portfolio: normalizeSite(draftDetails.portfolio) ?? "",
             });
-            await Promise.all([
-                queryClient.invalidateQueries({
-                    queryKey: getUsersGetMyProfileQueryKey(),
-                }),
-                queryClient.invalidateQueries({
-                    queryKey: getAuthGetUserQueryKey(),
-                }),
-            ]);
+            setSkills(savedSkills.map((skill) => skill.name));
+            setStatus(draftStatus);
         } catch {
             setSaveError(
                 "Не удалось сохранить профиль. Проверьте данные и попробуйте еще раз.",
@@ -272,12 +419,6 @@ const ProfilePage = () => {
             return;
         }
 
-        setSkills(draftSkills);
-        setInterests(draftInterests);
-        setStatus(draftStatus);
-        setTimeline(
-            draftTimeline.filter((item) => item.title || item.description),
-        );
         setSkillInput("");
         setInterestInput("");
         setIsEditing(false);
@@ -320,9 +461,19 @@ const ProfilePage = () => {
     const isLoading =
         isUserLoading ||
         isProfileLoading ||
+        isProfileSkillsLoading ||
+        isPortfolioLoading ||
         isCitiesLoading ||
-        isUniversitiesLoading;
-    const error = userError || profileError || citiesError || universitiesError;
+        isUniversitiesLoading ||
+        isAllSkillsLoading;
+    const error =
+        userError ||
+        profileError ||
+        profileSkillsError ||
+        portfolioError ||
+        citiesError ||
+        universitiesError ||
+        allSkillsError;
 
     if (isLoading) {
         return <Loader />;
@@ -337,8 +488,11 @@ const ProfilePage = () => {
                 onRetry={() => {
                     void refetchUser();
                     void refetchProfile();
+                    void refetchProfileSkills();
+                    void refetchPortfolio();
                     void refetchCities();
                     void refetchUniversities();
+                    void refetchAllSkills();
                 }}
             />
         );
@@ -380,11 +534,7 @@ const ProfilePage = () => {
                     timeline={draftTimeline}
                     onSkillInputChange={setSkillInput}
                     onInterestInputChange={setInterestInput}
-                    onAddSkill={() =>
-                        addChip(skillInput, draftSkills, setDraftSkills, () =>
-                            setSkillInput(""),
-                        )
-                    }
+                    onAddSkill={addSkill}
                     onAddInterest={() =>
                         addChip(
                             interestInput,
@@ -400,6 +550,8 @@ const ProfilePage = () => {
                     onAddTimelineItem={handleAddTimelineItem}
                     onRemoveTimelineItem={handleRemoveTimelineItem}
                     onTimelineItemChange={handleTimelineItemChange}
+                    showInterests={false}
+                    showTimeline={false}
                 />
             </Stack>
         );
@@ -407,11 +559,7 @@ const ProfilePage = () => {
 
     return (
         <Stack spacing={3}>
-            <ProfileViewHeader
-                details={details}
-                stats={profileStats}
-                onEdit={handleEditStart}
-            />
+            <ProfileViewHeader details={details} onEdit={handleEditStart} />
 
             <Stack
                 direction={{ xs: "column", lg: "row" }}

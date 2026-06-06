@@ -10,6 +10,7 @@ import type {
 import ProjectApplicationModal from "./ProjectApplicationModal";
 import ProjectInfoPanelCard from "./ProjectInfoPanelCard";
 
+import { useFavorites } from "@features/favorites";
 import {
     getApplicationsGetMyApplicationsQueryKey,
     queryClient,
@@ -36,7 +37,6 @@ const ProjectInfoPanel = ({
     const [applicationMessage, setApplicationMessage] = useState("");
     const [selectedVacancyId, setSelectedVacancyId] = useState("");
     const [isToastOpen, setIsToastOpen] = useState(false);
-    const [isFavorite, setIsFavorite] = useState(false);
     const [loginPromptVariant, setLoginPromptVariant] =
         useState<ProjectLoginPromptVariant>(null);
     const [toastData, setToastData] = useState<StatusToastData>({
@@ -44,6 +44,9 @@ const ProjectInfoPanel = ({
         message: "Заявка отправлена успешно!",
     });
     const createApplicationMutation = useProjectsCreateApplication();
+    const { addFavorite, removeFavorite, isFavorite, isPending } =
+        useFavorites();
+    const projectIsFavorite = isFavorite(projectId);
 
     useEffect(() => {
         if (!isToastOpen) {
@@ -83,10 +86,7 @@ const ProjectInfoPanel = ({
                 queryKey: getApplicationsGetMyApplicationsQueryKey(),
             });
         } catch {
-            openToast(
-                details.title,
-                "Не удалось отправить заявку.",
-            );
+            openToast(details.title, "Не удалось отправить заявку.");
             return;
         }
 
@@ -107,17 +107,25 @@ const ProjectInfoPanel = ({
         setIsApplicationOpen(true);
     };
 
-    const handleAddToFavorites = () => {
+    const handleToggleFavorite = async () => {
         if (!isAuthenticated) {
             setLoginPromptVariant("favorites");
             return;
         }
 
-        if (isFavorite) {
+        try {
+            if (projectIsFavorite) {
+                await removeFavorite(projectId);
+                openToast(details.title, "Проект убран из избранного.");
+                return;
+            }
+
+            await addFavorite(projectId);
+        } catch {
+            openToast(details.title, "Не удалось обновить избранное.");
             return;
         }
 
-        setIsFavorite(true);
         openToast(details.title, "Проект добавлен в избранное!");
     };
 
@@ -140,9 +148,10 @@ const ProjectInfoPanel = ({
         <>
             <ProjectInfoPanelCard
                 details={details}
-                isFavorite={isFavorite}
+                isFavorite={projectIsFavorite}
+                isFavoritePending={isPending}
                 onApply={handleApplicationClick}
-                onToggleFavorite={handleAddToFavorites}
+                onToggleFavorite={handleToggleFavorite}
             />
 
             {typeof document !== "undefined"

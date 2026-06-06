@@ -25,6 +25,8 @@ type ProfileEditAdditionalSectionProps = {
         field: keyof ProfileTimelineItem,
         value: string,
     ) => void;
+    showInterests?: boolean;
+    showTimeline?: boolean;
 };
 
 const ProfileEditAdditionalSection = ({
@@ -42,6 +44,8 @@ const ProfileEditAdditionalSection = ({
     onAddTimelineItem,
     onRemoveTimelineItem,
     onTimelineItemChange,
+    showInterests = true,
+    showTimeline = true,
 }: ProfileEditAdditionalSectionProps) => {
     return (
         <Paper elevation={0} sx={profileCardSx}>
@@ -56,36 +60,44 @@ const ProfileEditAdditionalSection = ({
                     onRemove={onRemoveSkill}
                 />
 
-                <Divider />
+                {showInterests ? (
+                    <>
+                        <Divider />
 
-                <ProfileChipEditorSection
-                    title="Интересы"
-                    items={interests}
-                    inputLabel="Добавить интерес"
-                    inputValue={interestInput}
-                    onInputChange={onInterestInputChange}
-                    onAdd={onAddInterest}
-                    onRemove={onRemoveInterest}
-                />
+                        <ProfileChipEditorSection
+                            title="Интересы"
+                            items={interests}
+                            inputLabel="Добавить интерес"
+                            inputValue={interestInput}
+                            onInputChange={onInterestInputChange}
+                            onAdd={onAddInterest}
+                            onRemove={onRemoveInterest}
+                        />
+                    </>
+                ) : null}
 
-                <Divider />
+                {showTimeline ? (
+                    <>
+                        <Divider />
 
-                <Stack spacing={2}>
-                    <Typography
-                        sx={{
-                            fontSize: 24,
-                            fontWeight: 600,
-                        }}
-                    >
-                        Опыт
-                    </Typography>
-                    <ProfileTimelineEditor
-                        items={timeline}
-                        onAdd={onAddTimelineItem}
-                        onRemove={onRemoveTimelineItem}
-                        onChange={onTimelineItemChange}
-                    />
-                </Stack>
+                        <Stack spacing={2}>
+                            <Typography
+                                sx={{
+                                    fontSize: 24,
+                                    fontWeight: 600,
+                                }}
+                            >
+                                Опыт
+                            </Typography>
+                            <ProfileTimelineEditor
+                                items={timeline}
+                                onAdd={onAddTimelineItem}
+                                onRemove={onRemoveTimelineItem}
+                                onChange={onTimelineItemChange}
+                            />
+                        </Stack>
+                    </>
+                ) : null}
             </Stack>
         </Paper>
     );
