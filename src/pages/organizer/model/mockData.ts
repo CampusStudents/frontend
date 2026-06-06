@@ -3,6 +3,7 @@ export const organizerProfile = {
     name: "Страдиариум от Страдающего Средневековья",
     description:
         "Курсы по гуманитарным наукам от одного из крупнейших медиа-проектов. Аудитория больше 1 000 000 чел.",
+    followersText: "Подписано 1200 пользователей",
 };
 
 export const organizerEvents = [

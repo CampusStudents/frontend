@@ -1,3 +1,4 @@
+import { useQueries } from "@tanstack/react-query";
 import { Paper, Stack, Typography } from "@mui/material";
 import { useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
@@ -5,7 +6,12 @@ import type { AxiosError } from "axios";
 
 import { ProjectCard, mapProjectDtoToProjectCard } from "@entities/project";
 import { useFavorites } from "@features/favorites";
-import { useCitiesGetCities } from "@shared/api";
+import {
+    getProjectsGetProjectQueryKey,
+    normalizeListResponse,
+    projectsGetProject,
+    useCitiesGetCities,
+} from "@shared/api";
 import { routePaths } from "@shared/config";
 import { time } from "@shared/lib/time";
 import { EmptyState } from "@shared/ui/EmptyState";
@@ -16,18 +22,20 @@ import { ContentFilters } from "@widgets/ContentFilters";
 const FavoritesPage = () => {
     const navigate = useNavigate();
     const [selectedView, setSelectedView] = useState("projects");
-    const {
-        favorites,
-        isLoading: isFavoritesLoading,
-        error: favoritesError,
-        refetch: refetchFavorites,
-        removeFavorite,
-        isPending: isFavoritePending,
-    } = useFavorites();
-    const hasFavorites = favorites.length > 0;
+    const { favorites: favoriteIds } = useFavorites();
+    const hasFavorites = favoriteIds.length > 0;
 
+    const projectsQueries = useQueries({
+        queries: favoriteIds.map((id) => ({
+            queryKey: getProjectsGetProjectQueryKey(String(id)),
+            queryFn: ({ signal }: { signal: AbortSignal }) =>
+                projectsGetProject(String(id), signal),
+            enabled: hasFavorites,
+            staleTime: time.m(5),
+        })),
+    });
     const {
-        data: cities = [],
+        data: citiesResponse,
         isLoading: isCitiesLoading,
         error: citiesError,
         refetch: refetchCities,
@@ -40,23 +48,30 @@ const FavoritesPage = () => {
             },
         },
     );
-
-    const favoriteCards = favorites.map((project) =>
+    const cities = normalizeListResponse(citiesResponse);
+    const projects = projectsQueries.flatMap((query) =>
+        query.data ? [query.data] : [],
+    );
+    const favoriteCards = projects.map((project) =>
         mapProjectDtoToProjectCard(project, cities),
     );
+    const isProjectsLoading = projectsQueries.some((query) => query.isLoading);
+    const projectsError = projectsQueries.find((query) => query.error)?.error;
 
-    if (isFavoritesLoading || (hasFavorites && isCitiesLoading)) {
+    if (hasFavorites && (isProjectsLoading || isCitiesLoading)) {
         return <Loader />;
     }
 
-    if (favoritesError || (hasFavorites && citiesError)) {
+    if (hasFavorites && (projectsError || citiesError)) {
         return (
             <ErrorFallback
                 title="Не удалось загрузить избранное"
                 description="Список избранных проектов сейчас недоступен. Попробуйте обновить данные."
-                error={(favoritesError ?? citiesError) as AxiosError}
+                error={(projectsError ?? citiesError) as AxiosError}
                 onRetry={() => {
-                    void refetchFavorites();
+                    projectsQueries.forEach((query) => {
+                        void query.refetch();
+                    });
                     void refetchCities();
                 }}
             />
@@ -99,11 +114,6 @@ const FavoritesPage = () => {
                             key={card.id}
                             card={card}
                             tags={tags}
-                            isFavorite
-                            isFavoritePending={isFavoritePending}
-                            onToggleFavorite={() => {
-                                void removeFavorite(card.id);
-                            }}
                             onClick={() =>
                                 navigate(
                                     generatePath(routePaths.project, {
@@ -117,7 +127,7 @@ const FavoritesPage = () => {
             ) : (
                 <EmptyState
                     title="В избранном пока ничего нет"
-                    description="Сохраняйте интересные проекты через быстрый просмотр на главной или кнопку сердечка в карточке."
+                    description="Сохраняйте интересные проекты через быстрый просмотр на главной — свайп вправо добавит проект в избранное."
                 />
             )}
         </Stack>

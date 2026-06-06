@@ -1,5 +1,4 @@
 import { Stack } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import { useParams } from "react-router-dom";
 
@@ -29,7 +28,6 @@ import { tokenStorage } from "@shared/lib/auth";
 import { EmptyState } from "@shared/ui/EmptyState";
 import { ErrorFallback } from "@shared/ui/ErrorFallback";
 import { Loader } from "@shared/ui/Loader";
-import { getEvent, getEventQueryKey } from "@shared/api/liveApi";
 
 const ProjectPage = () => {
     const { id: projectId } = useParams<{ id: string }>();
@@ -52,17 +50,6 @@ const ProjectPage = () => {
         query: {
             staleTime: time.m(5),
         },
-    });
-    const {
-        data: event,
-        isLoading: isEventLoading,
-        error: eventError,
-        refetch: refetchEvent,
-    } = useQuery({
-        queryKey: getEventQueryKey(project?.event_id ?? undefined),
-        queryFn: ({ signal }) => getEvent(project?.event_id ?? "", signal),
-        enabled: Boolean(project?.event_id),
-        staleTime: time.m(5),
     });
     const { data: vacanciesResponse } = useProjectsGetProjectVacancies(
         projectId ?? "",
@@ -121,23 +108,18 @@ const ProjectPage = () => {
         );
     }
 
-    if (
-        isProjectLoading ||
-        isEventLoading ||
-        (isAuthenticated && isUserLoading)
-    ) {
+    if (isProjectLoading || (isAuthenticated && isUserLoading)) {
         return <Loader />;
     }
 
-    if (projectError || eventError) {
+    if (projectError) {
         return (
             <ErrorFallback
                 title="Не удалось загрузить проект"
                 description="Детальная страница проекта сейчас недоступна. Попробуйте обновить данные."
-                error={(projectError ?? eventError) as AxiosError}
+                error={projectError as AxiosError}
                 onRetry={() => {
                     void refetchProject();
-                    void refetchEvent();
                 }}
             />
         );
@@ -152,12 +134,7 @@ const ProjectPage = () => {
         );
     }
 
-    const projectDetails = mapProjectDtoToDetails(
-        project,
-        cities,
-        teamMembers,
-        event,
-    );
+    const projectDetails = mapProjectDtoToDetails(project, cities, teamMembers);
     const projectRequirements = mapProjectVacanciesToRequirements(
         vacancies,
         teamRoles,

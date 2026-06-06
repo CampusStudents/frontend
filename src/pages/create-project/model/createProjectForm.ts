@@ -9,7 +9,6 @@ export const createProjectSchema = z.object({
     deadline: z.string().trim().optional(),
     description: z.string().trim().min(1, "Добавьте описание проекта"),
     cityId: z.string().trim().min(1, "Выберите город"),
-    eventId: z.string().trim().optional(),
     format: z.enum(ProjectFormat, {
         error: "Выберите формат проекта",
     }),
@@ -25,7 +24,6 @@ export const createProjectDefaultValues: CreateProjectFormValues = {
     deadline: "",
     description: "",
     cityId: "",
-    eventId: "",
     format: ProjectFormat.online,
     type: ProjectType.study,
 };

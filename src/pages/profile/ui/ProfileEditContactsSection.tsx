@@ -34,7 +34,9 @@ const ProfileEditContactsSection = ({
                     <TextField
                         label="Email"
                         value={details.email}
-                        disabled
+                        onChange={(event) =>
+                            onDetailsChange("email", event.target.value)
+                        }
                         size="small"
                         slotProps={{
                             input: {

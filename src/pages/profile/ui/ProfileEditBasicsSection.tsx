@@ -36,14 +36,34 @@ const ProfileEditBasicsSection = ({
                         size="small"
                     />
                     <TextField
-                        label="Город"
-                        value={details.city}
+                        label="Роль"
+                        value={details.role}
                         onChange={(event) =>
-                            onDetailsChange("city", event.target.value)
+                            onDetailsChange("role", event.target.value)
                         }
                         fullWidth
                         size="small"
                     />
+                    <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
+                        <TextField
+                            label="Город"
+                            value={details.city}
+                            onChange={(event) =>
+                                onDetailsChange("city", event.target.value)
+                            }
+                            fullWidth
+                            size="small"
+                        />
+                        <TextField
+                            label="Формат работы"
+                            value={details.format}
+                            onChange={(event) =>
+                                onDetailsChange("format", event.target.value)
+                            }
+                            fullWidth
+                            size="small"
+                        />
+                    </Stack>
                     <TextField
                         label="Учеба"
                         value={details.university}

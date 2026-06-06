@@ -1,7 +1,7 @@
 export type EventDetails = {
-    id: string | number;
-    organizerId: string | number;
-    projectId: string | number;
+    id: number;
+    organizerId: number;
+    projectId: number;
     title: string;
     month: string;
     day: string;

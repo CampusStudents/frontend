@@ -48,23 +48,18 @@ const ProjectApplicationModal = ({
                     bgcolor: "rgba(15, 18, 23, 0.56)",
                     backdropFilter: "blur(2px)",
                     display: "flex",
-                    alignItems: { xs: "flex-start", sm: "center" },
+                    alignItems: "center",
                     justifyContent: "center",
-                    overflowY: "auto",
-                    p: { xs: 1.5, sm: 2 },
-                    py: { xs: 2, sm: 4 },
+                    p: 2,
                 }}
             >
                 <Paper
                     elevation={0}
                     onClick={(event) => event.stopPropagation()}
                     sx={{
-                        width: "min(640px, calc(100vw - 32px))",
-                        maxHeight: "calc(100vh - 32px)",
+                        width: "min(940px, calc(100vw - 32px))",
                         borderRadius: 2.5,
                         overflow: "hidden",
-                        display: "flex",
-                        flexDirection: "column",
                     }}
                 >
                     <Stack
@@ -103,7 +98,6 @@ const ProjectApplicationModal = ({
                         sx={{
                             p: { xs: 2, md: 3 },
                             gap: 3,
-                            overflowY: "auto",
                         }}
                     >
                         <Typography
@@ -137,7 +131,7 @@ const ProjectApplicationModal = ({
                                 onMessageChange(event.target.value)
                             }
                             multiline
-                            minRows={5}
+                            minRows={7}
                             fullWidth
                             sx={{
                                 "& .MuiOutlinedInput-root": {

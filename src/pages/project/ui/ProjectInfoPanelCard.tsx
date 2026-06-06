@@ -15,7 +15,6 @@ import {
 type ProjectInfoPanelCardProps = {
     details: ProjectDetails;
     isFavorite: boolean;
-    isFavoritePending?: boolean;
     onApply: () => void;
     onToggleFavorite: () => void;
 };
@@ -23,7 +22,6 @@ type ProjectInfoPanelCardProps = {
 const ProjectInfoPanelCard = ({
     details,
     isFavorite,
-    isFavoritePending = false,
     onApply,
     onToggleFavorite,
 }: ProjectInfoPanelCardProps) => {
@@ -128,7 +126,7 @@ const ProjectInfoPanelCard = ({
                     <IconButton
                         aria-label="Добавить в избранное"
                         onClick={onToggleFavorite}
-                        disabled={isFavoritePending}
+                        disabled={isFavorite}
                         sx={{
                             width: 42,
                             height: 42,
@@ -139,11 +137,9 @@ const ProjectInfoPanelCard = ({
                             color: isFavorite ? "#FFFFFF" : "primary.main",
                             flexShrink: 0,
                             "&.Mui-disabled": {
-                                bgcolor: isFavorite
-                                    ? "primary.main"
-                                    : "rgba(60, 102, 224, 0.08)",
-                                color: isFavorite ? "#FFFFFF" : "primary.main",
-                                opacity: 0.7,
+                                bgcolor: "primary.main",
+                                color: "#FFFFFF",
+                                opacity: 1,
                             },
                         }}
                     >

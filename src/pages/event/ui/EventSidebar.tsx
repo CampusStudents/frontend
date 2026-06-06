@@ -102,7 +102,26 @@ const EventSidebar = ({
                         >
                             {details.organizerName}
                         </Typography>
-
+                        <Button
+                            variant="outlined"
+                            onClick={onSubscribe}
+                            disabled={isSubscribed}
+                            sx={{
+                                minWidth: 132,
+                                height: 30,
+                                borderRadius: 2,
+                                textTransform: "none",
+                                boxShadow: "none",
+                                "&.Mui-disabled": {
+                                    color: "primary.main",
+                                    borderColor: "primary.main",
+                                },
+                            }}
+                        >
+                            {isSubscribed
+                                ? "Подписка оформлена"
+                                : details.secondaryActionLabel}
+                        </Button>
                     </Stack>
                     <Typography
                         variant="body2"

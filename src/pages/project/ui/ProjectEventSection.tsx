@@ -34,18 +34,12 @@ const ProjectEventSection = ({ details }: ProjectEventSectionProps) => {
                         {details.eventTitle}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                        {[
-                            details.eventOrganizer,
-                            details.eventDate,
-                            details.eventFormat,
-                        ]
-                            .filter(Boolean)
-                            .join(" | ")}
+                        {details.aboutLabel}
                     </Typography>
                     <DetailsSectionDivider />
                 </Stack>
 
-                {details.eventDescription.map((paragraph, index) => (
+                {details.description.map((paragraph, index) => (
                     <Typography
                         key={index}
                         variant="body2"
@@ -55,82 +49,55 @@ const ProjectEventSection = ({ details }: ProjectEventSectionProps) => {
                     </Typography>
                 ))}
 
-                <Stack
-                    direction={{ xs: "column", sm: "row" }}
-                    spacing={1.5}
-                    alignItems={{ xs: "flex-start", sm: "center" }}
+                <Link
+                    component={RouterLink}
+                    to={generatePath(routePaths.event, {
+                        id: String(details.eventId),
+                    })}
+                    underline="hover"
+                    sx={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 0.75,
+                        width: "fit-content",
+                        fontWeight: 500,
+                    }}
                 >
-                    <Link
-                        component={RouterLink}
-                        to={generatePath(routePaths.event, {
-                            id: String(details.eventId),
-                        })}
-                        underline="hover"
-                        sx={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 0.75,
-                            width: "fit-content",
-                            fontWeight: 500,
+                    {details.linkLabel}
+                    <OpenInNewRounded sx={{ fontSize: 16 }} />
+                </Link>
+
+                <Stack spacing={1.5}>
+                    <Typography sx={{ fontWeight: 600 }}>
+                        {details.galleryTitle}
+                    </Typography>
+                    <DetailsCarousel
+                        items={details.gallery}
+                        getKey={(image) => image}
+                        renderSlide={(image, index) => {
+                            return (
+                                <Box
+                                    component="img"
+                                    src={image}
+                                    alt={`Фото с мероприятия ${index + 1}`}
+                                    sx={{
+                                        width: "100%",
+                                        aspectRatio: "1 / 1.15",
+                                        objectFit: "cover",
+                                        borderRadius: 1.5,
+                                        display: "block",
+                                    }}
+                                />
+                            );
                         }}
-                    >
-                        {details.linkLabel}
-                        <OpenInNewRounded sx={{ fontSize: 16 }} />
-                    </Link>
-
-                    {details.eventRegistrationLink ? (
-                        <Link
-                            href={details.eventRegistrationLink}
-                            target="_blank"
-                            rel="noreferrer"
-                            underline="hover"
-                            sx={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: 0.75,
-                                width: "fit-content",
-                                fontWeight: 500,
-                            }}
-                        >
-                            Регистрация
-                            <OpenInNewRounded sx={{ fontSize: 16 }} />
-                        </Link>
-                    ) : null}
+                        spaceBetween={16}
+                        breakpoints={{
+                            0: { slidesPerView: 1, spaceBetween: 12 },
+                            700: { slidesPerView: 2, spaceBetween: 16 },
+                            1100: { slidesPerView: 3, spaceBetween: 18 },
+                        }}
+                    />
                 </Stack>
-
-                {details.gallery.length > 0 ? (
-                    <Stack spacing={1.5}>
-                        <Typography sx={{ fontWeight: 600 }}>
-                            {details.galleryTitle}
-                        </Typography>
-                        <DetailsCarousel
-                            items={details.gallery}
-                            getKey={(image) => image}
-                            renderSlide={(image, index) => {
-                                return (
-                                    <Box
-                                        component="img"
-                                        src={image}
-                                        alt={`Фото с мероприятия ${index + 1}`}
-                                        sx={{
-                                            width: "100%",
-                                            aspectRatio: "1 / 1.15",
-                                            objectFit: "cover",
-                                            borderRadius: 1.5,
-                                            display: "block",
-                                        }}
-                                    />
-                                );
-                            }}
-                            spaceBetween={16}
-                            breakpoints={{
-                                0: { slidesPerView: 1, spaceBetween: 12 },
-                                700: { slidesPerView: 2, spaceBetween: 16 },
-                                1100: { slidesPerView: 3, spaceBetween: 18 },
-                            }}
-                        />
-                    </Stack>
-                ) : null}
             </Stack>
         </Paper>
     );
