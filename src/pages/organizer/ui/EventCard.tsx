@@ -4,8 +4,8 @@ import { generatePath, Link as RouterLink } from "react-router-dom";
 import { routePaths } from "@shared/config";
 
 type EventCardProps = {
-    id: number;
-    projectId: number;
+    id: string | number;
+    projectId?: string | number;
     title: string;
     description: string;
 };
@@ -96,22 +96,24 @@ export const EventCard = ({
                             >
                                 Подробнее
                             </Button>
-                            <Button
-                                variant="contained"
-                                component={RouterLink}
-                                to={generatePath(routePaths.project, {
-                                    id: String(projectId),
-                                })}
-                                sx={{
-                                    minWidth: { sm: 250 },
-                                    flex: 1,
-                                    height: 40,
-                                    borderRadius: 2,
-                                    boxShadow: "none",
-                                }}
-                            >
-                                Собрать команду
-                            </Button>
+                            {projectId ? (
+                                <Button
+                                    variant="contained"
+                                    component={RouterLink}
+                                    to={generatePath(routePaths.project, {
+                                        id: String(projectId),
+                                    })}
+                                    sx={{
+                                        minWidth: { sm: 250 },
+                                        flex: 1,
+                                        height: 40,
+                                        borderRadius: 2,
+                                        boxShadow: "none",
+                                    }}
+                                >
+                                    Собрать команду
+                                </Button>
+                            ) : null}
                         </Stack>
                     </Stack>
                 </Stack>

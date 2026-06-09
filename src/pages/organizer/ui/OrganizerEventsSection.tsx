@@ -1,13 +1,47 @@
 import { Box, Stack, Typography } from "@mui/material";
-
-import { organizerEvents } from "../model/mockData";
+import { useQuery } from "@tanstack/react-query";
 
 import { EventCard } from "./EventCard";
 
+import { getEvents, getEventsQueryKey } from "@shared/api/liveApi";
+import { time } from "@shared/lib/time";
 import { EmptyState } from "@shared/ui/EmptyState";
 
-export const OrganizerEventsSection = () => {
-    const firstEvent = organizerEvents[0];
+type OrganizerEventsSectionProps = {
+    organizerId: string;
+};
+
+const formatDate = (value: string) => {
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return {
+            date: "Дата не указана",
+            weekday: "",
+        };
+    }
+
+    return {
+        date: new Intl.DateTimeFormat("ru-RU", {
+            day: "numeric",
+            month: "long",
+        }).format(date),
+        weekday: new Intl.DateTimeFormat("ru-RU", {
+            weekday: "long",
+        }).format(date),
+    };
+};
+
+export const OrganizerEventsSection = ({
+    organizerId,
+}: OrganizerEventsSectionProps) => {
+    const { data: events = [] } = useQuery({
+        queryKey: [...getEventsQueryKey(), { organizerId }],
+        queryFn: ({ signal }) =>
+            getEvents({ organizer_id: [organizerId] }, signal),
+        staleTime: time.m(5),
+    });
+    const firstEventDate = events[0] ? formatDate(events[0].date_start) : null;
 
     return (
         <Stack spacing={1.5}>
@@ -20,37 +54,45 @@ export const OrganizerEventsSection = () => {
                 Мероприятия
             </Typography>
 
-            {organizerEvents.length > 0 ? (
+            {events.length > 0 ? (
                 <>
-                    <Typography
-                        sx={{
-                            fontWeight: 600,
-                            color: "text.secondary",
-                            fontSize: 24,
-                        }}
-                    >
-                        <Box component="span" sx={{ color: "text.primary" }}>
-                            {firstEvent?.date}
-                        </Box>{" "}
-                        {firstEvent?.weekday}
-                    </Typography>
+                    {firstEventDate ? (
+                        <Typography
+                            sx={{
+                                fontWeight: 600,
+                                color: "text.secondary",
+                                fontSize: 24,
+                                textTransform: "capitalize",
+                            }}
+                        >
+                            <Box
+                                component="span"
+                                sx={{ color: "text.primary" }}
+                            >
+                                {firstEventDate.date}
+                            </Box>{" "}
+                            {firstEventDate.weekday}
+                        </Typography>
+                    ) : null}
 
                     <Stack spacing={1.75}>
-                        {organizerEvents.map((event) => (
+                        {events.map((event) => (
                             <EventCard
                                 key={event.id}
                                 id={event.id}
-                                projectId={event.projectId}
                                 title={event.title}
-                                description={event.description}
+                                description={
+                                    event.description?.trim() ||
+                                    "Описание события пока пустое."
+                                }
                             />
                         ))}
                     </Stack>
                 </>
             ) : (
                 <EmptyState
-                    title="Пока афиша отдыхает"
-                    description="Новых мероприятий еще нет. Похоже, организатор взял паузу на кофе и составление чего-то интересного."
+                    title="Мероприятий пока нет"
+                    description="Когда организатор опубликует события, они появятся здесь."
                     sx={{
                         px: { xs: 2, md: 3 },
                         py: { xs: 3, md: 4 },

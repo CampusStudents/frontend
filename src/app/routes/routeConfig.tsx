@@ -37,6 +37,7 @@ export const routeConfig: RouteConfig = {
         element: <HomePage />,
         layout: "main",
         path: routePaths.home,
+        isPrivate: true,
     },
     [AppRoutes.NOTIFICATIONS]: {
         element: <NotificationsPage />,
@@ -53,6 +54,7 @@ export const routeConfig: RouteConfig = {
         element: <ProjectPage />,
         layout: "main",
         path: routePaths.project,
+        isPrivate: true,
     },
     [AppRoutes.PROJECTS]: {
         element: <ProjectsPage />,
@@ -69,6 +71,7 @@ export const routeConfig: RouteConfig = {
     [AppRoutes.PROFILE_SETUP]: {
         element: <ProfileSetupPage />,
         path: routePaths.profileSetup,
+        isPrivate: true,
     },
     [AppRoutes.REGISTER]: {
         element: <RegisterPage />,

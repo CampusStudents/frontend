@@ -1,114 +1,91 @@
-import { useCallback, useMemo, useSyncExternalStore } from "react";
+import { useCallback, useMemo } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import {
-    favoritesStorage,
-    isFavoritesStorageKey,
-    type StoredFavorite,
-} from "../lib/favoritesStorage";
+    addProjectToFavorites,
+    getFavoriteProjects,
+    getFavoriteProjectsQueryKey,
+    removeProjectFromFavorites,
+} from "../api/favoritesApi";
 
-import { useAuthGetUser } from "@shared/api";
-import type { UserDTO } from "@shared/api/generated/model";
+import {
+    getProjectsGetProjectQueryKey,
+    getProjectsGetProjectsQueryKey,
+    queryClient,
+} from "@shared/api";
 import { tokenStorage } from "@shared/lib/auth";
 import { time } from "@shared/lib/time";
 
-const FAVORITES_CHANGE_EVENT = "campus:favorites-change";
-
-const snapshotCache = new Map<string, StoredFavorite[]>();
-
-const getSnapshotCacheKey = (userId: string | null) => userId ?? "";
-
-const getFavoritesSnapshot = (userId: string | null): StoredFavorite[] => {
-    const cacheKey = getSnapshotCacheKey(userId);
-    const cachedSnapshot = snapshotCache.get(cacheKey);
-    const next = favoritesStorage.getAll(userId);
-    const nextKey = JSON.stringify(next);
-
-    if (JSON.stringify(cachedSnapshot) !== nextKey) {
-        snapshotCache.set(cacheKey, next);
-
-        return next;
-    }
-
-    return cachedSnapshot ?? next;
-};
-
-const getServerSnapshot = () => [];
-
-const subscribe = (onStoreChange: () => void) => {
-    const handleStorage = (event: StorageEvent) => {
-        if (event.key === null || isFavoritesStorageKey(event.key)) {
-            onStoreChange();
-        }
-    };
-
-    window.addEventListener("storage", handleStorage);
-    window.addEventListener(FAVORITES_CHANGE_EVENT, onStoreChange);
-
-    return () => {
-        window.removeEventListener("storage", handleStorage);
-        window.removeEventListener(FAVORITES_CHANGE_EVENT, onStoreChange);
-    };
-};
-
-const notifyChange = (userId: string | null) => {
-    getFavoritesSnapshot(userId);
-    window.dispatchEvent(new Event(FAVORITES_CHANGE_EVENT));
+const invalidateFavorites = async (projectId?: string | number) => {
+    await Promise.all([
+        queryClient.invalidateQueries({
+            queryKey: getFavoriteProjectsQueryKey(),
+        }),
+        queryClient.invalidateQueries({
+            queryKey: getProjectsGetProjectsQueryKey(),
+        }),
+        projectId
+            ? queryClient.invalidateQueries({
+                  queryKey: getProjectsGetProjectQueryKey(String(projectId)),
+              })
+            : Promise.resolve(),
+    ]);
 };
 
 export const useFavorites = () => {
-    const hasAccessToken = Boolean(tokenStorage.get());
-    const { data: user } = useAuthGetUser<UserDTO>({
-        query: {
-            enabled: hasAccessToken,
-            retry: false,
-            staleTime: time.s(1),
-        },
+    const isAuthenticated = Boolean(tokenStorage.get());
+
+    const favoritesQuery = useQuery({
+        queryKey: getFavoriteProjectsQueryKey(),
+        queryFn: ({ signal }) => getFavoriteProjects(signal),
+        enabled: isAuthenticated,
+        retry: false,
+        staleTime: time.m(5),
     });
-    const userId = user?.id ?? null;
 
-    const getSnapshot = useMemo(
-        () => () => getFavoritesSnapshot(userId),
-        [userId],
-    );
+    const addFavoriteMutation = useMutation({
+        mutationFn: addProjectToFavorites,
+        onSuccess: (_data, projectId) => invalidateFavorites(projectId),
+    });
 
-    const favorites = useSyncExternalStore(
-        subscribe,
-        getSnapshot,
-        getServerSnapshot,
+    const removeFavoriteMutation = useMutation({
+        mutationFn: removeProjectFromFavorites,
+        onSuccess: (_data, projectId) => invalidateFavorites(projectId),
+    });
+
+    const favorites = favoritesQuery.data ?? [];
+
+    const favoriteIds = useMemo(
+        () => favorites.map((project) => project.id),
+        [favorites],
     );
 
     const addFavorite = useCallback(
-        (id: string | number) => {
-            const next = favoritesStorage.add(userId, id);
-            notifyChange(userId);
-
-            return next;
-        },
-        [userId],
+        (id: string | number) => addFavoriteMutation.mutateAsync(id),
+        [addFavoriteMutation],
     );
 
     const removeFavorite = useCallback(
-        (id: string | number) => {
-            const next = favoritesStorage.remove(userId, id);
-            notifyChange(userId);
-
-            return next;
-        },
-        [userId],
+        (id: string | number) => removeFavoriteMutation.mutateAsync(id),
+        [removeFavoriteMutation],
     );
 
     const isFavorite = useCallback(
         (id: string | number) =>
-            favorites.some((item) => String(item) === String(id)),
-        [favorites],
+            favoriteIds.some((item) => String(item) === String(id)),
+        [favoriteIds],
     );
 
     return {
         favorites,
+        favoriteIds,
         addFavorite,
         removeFavorite,
         isFavorite,
+        isLoading: favoritesQuery.isLoading,
+        error: favoritesQuery.error,
+        refetch: favoritesQuery.refetch,
+        isPending:
+            addFavoriteMutation.isPending || removeFavoriteMutation.isPending,
     };
 };
-
-export type { StoredFavorite };
