@@ -1,14 +1,5 @@
 import { LanguageRounded, Telegram } from "@mui/icons-material";
-import {
-    Avatar,
-    AvatarGroup,
-    Box,
-    Button,
-    IconButton,
-    Paper,
-    Stack,
-    Typography,
-} from "@mui/material";
+import { Box, IconButton, Paper, Stack, Typography } from "@mui/material";
 
 import { organizerProfile } from "../model/mockData";
 
@@ -145,8 +136,6 @@ export const OrganizerProfileCard = ({
                             </Stack>
                         </Stack>
                     </Stack>
-
-
                 </Stack>
             </Box>
         </Paper>

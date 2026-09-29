@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { EventCard } from "./EventCard";
 
-import { getEvents, getEventsQueryKey } from "@shared/api/liveApi";
+import { getEvents, getEventsQueryKey } from "@shared/api";
 import { time } from "@shared/lib/time";
 import { EmptyState } from "@shared/ui/EmptyState";
 

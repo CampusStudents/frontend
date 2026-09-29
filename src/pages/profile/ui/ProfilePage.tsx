@@ -1,20 +1,21 @@
 import { Alert, Stack } from "@mui/material";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import type { AxiosError } from "axios";
 
 import type { ProfileDetails, ProfileTimelineItem } from "../model/types";
 
-import {
-    getAuthGetUserQueryKey,
-    queryClient,
-    useAuthGetUser,
-    useCitiesGetCities,
-    useSkillsGetSkills,
-    useUniversitiesGetUniversities,
-} from "@shared/api";
-import type { UserDTO } from "@shared/api/generated/model";
+import ProfileEditAdditionalSection from "./ProfileEditAdditionalSection";
+import ProfileEditBasicsSection from "./ProfileEditBasicsSection";
+import ProfileEditContactsSection from "./ProfileEditContactsSection";
+import ProfileEditHeader from "./ProfileEditHeader";
+import ProfileViewExperienceSection from "./ProfileViewExperienceSection";
+import ProfileViewHeader from "./ProfileViewHeader";
+import ProfileViewSidebar from "./ProfileViewSidebar";
+
+import { Loader } from "@shared/ui/Loader";
+import { ErrorFallback } from "@shared/ui/ErrorFallback";
 import {
     getMyPortfolioItems,
     getMyPortfolioItemsQueryKey,
@@ -24,17 +25,16 @@ import {
     getMySkillsQueryKey,
     replaceMySkills,
     updateMyProfile,
-} from "@shared/api/liveApi";
-import { ErrorFallback } from "@shared/ui/ErrorFallback";
-import { Loader } from "@shared/ui/Loader";
-
-import ProfileEditAdditionalSection from "./ProfileEditAdditionalSection";
-import ProfileEditBasicsSection from "./ProfileEditBasicsSection";
-import ProfileEditContactsSection from "./ProfileEditContactsSection";
-import ProfileEditHeader from "./ProfileEditHeader";
-import ProfileViewExperienceSection from "./ProfileViewExperienceSection";
-import ProfileViewHeader from "./ProfileViewHeader";
-import ProfileViewSidebar from "./ProfileViewSidebar";
+} from "@shared/api";
+import type { UserDTO } from "@shared/api/generated/model";
+import {
+    getAuthGetUserQueryKey,
+    queryClient,
+    useAuthGetUser,
+    useCitiesGetCities,
+    useSkillsGetSkills,
+    useUniversitiesGetUniversities,
+} from "@shared/api";
 
 const emptyDetails: ProfileDetails = {
     initials: "",
@@ -115,11 +115,6 @@ const normalizeSite = (value: string) => {
 
 const ProfilePage = () => {
     const [isEditing, setIsEditing] = useState(false);
-    const [details, setDetails] = useState<ProfileDetails>(emptyDetails);
-    const [skills, setSkills] = useState<string[]>([]);
-    const [interests, setInterests] = useState<string[]>([]);
-    const [status, setStatus] = useState("");
-    const [timeline, setTimeline] = useState<ProfileTimelineItem[]>([]);
     const [draftDetails, setDraftDetails] =
         useState<ProfileDetails>(emptyDetails);
     const [draftSkills, setDraftSkills] = useState<string[]>([]);
@@ -225,9 +220,15 @@ const ProfilePage = () => {
     const universities = universitiesData ?? emptyList;
     const allSkills = allSkillsData ?? emptyList;
 
-    useEffect(() => {
+    const profileView = useMemo(() => {
         if (!profile) {
-            return;
+            return {
+                details: emptyDetails,
+                skills: [] as string[],
+                interests: [] as string[],
+                status: "",
+                timeline: [] as ProfileTimelineItem[],
+            };
         }
 
         const city = cities.find((item) => item.id === profile.city_id);
@@ -236,7 +237,7 @@ const ProfilePage = () => {
         );
         const fullName = `${profile.first_name} ${profile.last_name}`.trim();
 
-        const nextDetails: ProfileDetails = {
+        const details: ProfileDetails = {
             initials: deriveInitials(fullName),
             fullName,
             city: city?.name ?? "",
@@ -246,36 +247,20 @@ const ProfilePage = () => {
             telegram: profile.telegram ?? "",
             portfolio: profile.site ?? "",
         };
-        const nextSkills = profileSkills.map((skill) => skill.name);
-        const nextTimeline = portfolioItems.map((item) => ({
-            title: item.title,
-            period: formatPeriod(item.work_started_at, item.work_ended_at),
-            description: item.description ?? item.team_role.name,
-        }));
-        const nextStatus = profile.status ?? "";
 
-        setDetails(nextDetails);
-        setSkills(nextSkills);
-        setInterests([]);
-        setStatus(nextStatus);
-        setTimeline(nextTimeline);
-
-        if (!isEditing) {
-            setDraftDetails(nextDetails);
-            setDraftSkills(nextSkills);
-            setDraftInterests([]);
-            setDraftStatus(nextStatus);
-            setDraftTimeline(nextTimeline);
-        }
-    }, [
-        cities,
-        isEditing,
-        portfolioItems,
-        profile,
-        profileSkills,
-        universities,
-        user,
-    ]);
+        return {
+            details,
+            skills: profileSkills.map((skill) => skill.name),
+            interests: [] as string[],
+            status: profile.status ?? "",
+            timeline: portfolioItems.map((item) => ({
+                title: item.title,
+                period: formatPeriod(item.work_started_at, item.work_ended_at),
+                description: item.description ?? item.team_role.name,
+            })),
+        };
+    }, [cities, portfolioItems, profile, profileSkills, universities, user]);
+    const { details, skills, interests, status, timeline } = profileView;
 
     const addChip = (
         value: string,
@@ -379,7 +364,7 @@ const ProfilePage = () => {
                 university_id: university?.id ?? profile.university_id,
             });
 
-            const savedSkills = await replaceSkillsMutation.mutateAsync({
+            await replaceSkillsMutation.mutateAsync({
                 skill_ids: skillIds,
             });
 
@@ -397,21 +382,6 @@ const ProfilePage = () => {
                     queryKey: getAuthGetUserQueryKey(),
                 }),
             ]);
-
-            const savedFullName = `${firstName} ${lastName}`.trim();
-            setDetails({
-                ...draftDetails,
-                initials: deriveInitials(savedFullName),
-                fullName: savedFullName,
-                city: city?.name ?? draftDetails.city,
-                university:
-                    university?.short_name ||
-                    university?.name ||
-                    draftDetails.university,
-                portfolio: normalizeSite(draftDetails.portfolio) ?? "",
-            });
-            setSkills(savedSkills.map((skill) => skill.name));
-            setStatus(draftStatus);
         } catch {
             setSaveError(
                 "Не удалось сохранить профиль. Проверьте данные и попробуйте еще раз.",

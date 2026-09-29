@@ -6,7 +6,7 @@ import {
     getNotifications,
     getNotificationsQueryKey,
     markNotificationAsRead,
-} from "@shared/api/liveApi";
+} from "@shared/api";
 import { queryClient } from "@shared/api";
 import { time } from "@shared/lib/time";
 import { EmptyState } from "@shared/ui/EmptyState";

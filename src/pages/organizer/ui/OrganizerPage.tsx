@@ -6,7 +6,7 @@ import { useParams } from "react-router-dom";
 import { OrganizerEventsSection } from "./OrganizerEventsSection";
 import { OrganizerProfileCard } from "./OrganizerProfileCard";
 
-import { getOrganization, getOrganizationQueryKey } from "@shared/api/liveApi";
+import { getOrganization, getOrganizationQueryKey } from "@shared/api";
 import { time } from "@shared/lib/time";
 import { EmptyState } from "@shared/ui/EmptyState";
 import { ErrorFallback } from "@shared/ui/ErrorFallback";

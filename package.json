@@ -12,7 +12,7 @@
         "build": "tsc -b && vite build",
         "lint": "eslint .",
         "test": "vitest",
-        "arch": "steiger ./src",
+        "arch": "CHOKIDAR_USEPOLLING=true steiger ./src",
         "preview": "vite preview",
         "prepare": "husky",
         "generate:api": "orval --config ./orval.config.ts",

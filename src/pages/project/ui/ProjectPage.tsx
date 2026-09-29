@@ -29,7 +29,7 @@ import { tokenStorage } from "@shared/lib/auth";
 import { EmptyState } from "@shared/ui/EmptyState";
 import { ErrorFallback } from "@shared/ui/ErrorFallback";
 import { Loader } from "@shared/ui/Loader";
-import { getEvent, getEventQueryKey } from "@shared/api/liveApi";
+import { getEvent, getEventQueryKey } from "@shared/api";
 
 const ProjectPage = () => {
     const { id: projectId } = useParams<{ id: string }>();

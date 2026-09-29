@@ -3,14 +3,7 @@ import {
     NorthEastRounded,
     Telegram,
 } from "@mui/icons-material";
-import {
-    Button,
-    IconButton,
-    Link,
-    Paper,
-    Stack,
-    Typography,
-} from "@mui/material";
+import { IconButton, Link, Paper, Stack, Typography } from "@mui/material";
 import { generatePath, Link as RouterLink } from "react-router-dom";
 
 import type { EventDetails } from "../model/types";
@@ -102,7 +95,6 @@ const EventSidebar = ({
                         >
                             {details.organizerName}
                         </Typography>
-
                     </Stack>
                     <Typography
                         variant="body2"
@@ -113,10 +105,13 @@ const EventSidebar = ({
                     </Typography>
                     <Stack direction="row" spacing={1}>
                         <IconButton
+                            onClick={onSubscribe}
                             size="small"
                             sx={{
                                 bgcolor: "#F3F5F8",
-                                color: "#8B94A7",
+                                color: isSubscribed
+                                    ? "primary.main"
+                                    : "#8B94A7",
                             }}
                         >
                             <LanguageRounded sx={{ fontSize: 16 }} />

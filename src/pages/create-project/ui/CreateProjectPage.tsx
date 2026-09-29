@@ -1,6 +1,6 @@
 ﻿import { Alert, Button, Paper, Stack } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { generatePath, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
@@ -34,7 +34,7 @@ import { routePaths } from "@shared/config";
 import { time } from "@shared/lib/time";
 import { ErrorFallback } from "@shared/ui/ErrorFallback";
 import { Loader } from "@shared/ui/Loader";
-import { getEvents, getEventsQueryKey } from "@shared/api/liveApi";
+import { getEvents, getEventsQueryKey } from "@shared/api";
 
 const CreateProjectPage = () => {
     const navigate = useNavigate();
@@ -55,7 +55,6 @@ const CreateProjectPage = () => {
         Record<number, TeamRoleErrors>
     >({});
     const [isSaving, setIsSaving] = useState(false);
-    const submitLockRef = useRef(false);
 
     const {
         data: citiesResponse,
@@ -224,7 +223,7 @@ const CreateProjectPage = () => {
     });
 
     const onSubmit = async (values: CreateProjectFormValues) => {
-        if (submitLockRef.current) {
+        if (isSubmitting) {
             return;
         }
 
@@ -234,7 +233,6 @@ const CreateProjectPage = () => {
             return;
         }
 
-        submitLockRef.current = true;
         setIsSaving(true);
 
         let project;
@@ -248,7 +246,6 @@ const CreateProjectPage = () => {
                 ? error.response?.status
                 : undefined;
 
-            submitLockRef.current = false;
             setIsSaving(false);
             projectForm.setError("root", {
                 message:

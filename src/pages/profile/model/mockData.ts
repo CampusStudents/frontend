@@ -3,9 +3,7 @@ import type { ProfileDetails, ProfileTimelineItem } from "./types";
 export const profileDetails: ProfileDetails = {
     initials: "ЕК",
     fullName: "Егор Крылов",
-    role: "Frontend Developer",
     city: "Москва",
-    format: "Гибридный формат",
     university: "МИФИ, 3 курс",
     bio: "Собираю интерфейсы для образовательных и командных продуктов. Интересуют проекты, где важны понятный UX, аккуратная архитектура и быстрый цикл проверки идей.",
     email: "egor.krylov@campus.dev",

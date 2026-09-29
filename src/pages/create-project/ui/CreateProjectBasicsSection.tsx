@@ -10,7 +10,7 @@ import {
 import type { CreateProjectFormValues } from "../model/createProjectForm";
 
 import type { CityDTO } from "@shared/api/generated/model";
-import type { EventDTO } from "@shared/api/liveApi";
+import type { EventDTO } from "@shared/api";
 import { fieldHelper } from "@shared/lib/form";
 
 const selectMenuProps = {

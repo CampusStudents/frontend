@@ -7,7 +7,7 @@ import type {
     TeamMemberDTO,
     TeamRoleDTO,
 } from "@shared/api/generated/model";
-import type { EventDTO } from "@shared/api/liveApi";
+import type { EventDTO } from "@shared/api";
 
 const projectTypeLabels = {
     commercial: "Коммерческий проект",

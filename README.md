@@ -106,6 +106,44 @@ npm run build
 
 ---
 
+## Запуск в Docker
+
+Сборка production-образа:
+
+```bash
+docker build --build-arg VITE_API_URL=http://localhost -t campus-front .
+```
+
+Запуск контейнера:
+
+```bash
+docker run --rm -p 8080:80 campus-front
+```
+
+Приложение будет доступно по адресу `http://localhost:8080`.
+
+### Docker Compose
+
+```bash
+docker compose up --build
+```
+
+По умолчанию compose использует:
+
+- `VITE_API_URL=http://localhost`
+- `FRONTEND_PORT=8080`
+
+Их можно переопределить через `.env`:
+
+```bash
+VITE_API_URL=http://localhost:8000
+FRONTEND_PORT=8080
+```
+
+> `VITE_API_URL` встраивается в статическую сборку Vite на этапе сборки Docker-образа. После изменения этой переменной пересоберите образ.
+
+---
+
 ## Запуск тестов
 
 Unit и integration тесты:

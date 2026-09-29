@@ -12,7 +12,7 @@ import EventContentSection from "./EventContentSection";
 import EventHeaderSection from "./EventHeaderSection";
 import EventSidebar from "./EventSidebar";
 
-import { getEvent, getEventQueryKey } from "@shared/api/liveApi";
+import { getEvent, getEventQueryKey } from "@shared/api";
 import { routePaths } from "@shared/config";
 import { tokenStorage } from "@shared/lib/auth";
 import { time } from "@shared/lib/time";

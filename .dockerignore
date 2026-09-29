@@ -1,0 +1,14 @@
+.git
+.idea
+.husky
+node_modules
+.npm-cache
+dist
+coverage
+.env
+.env.*
+!.env.example
+npm-debug.log*
+Dockerfile
+docker-compose.yml
+README.md
